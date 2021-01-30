@@ -21,23 +21,23 @@
                 @endif
                 <span class="help-block">{{ trans('cruds.matrizRiesgo.fields.proceso_helper') }}</span>
             </div>
-          </div>
+  
 
 
 
            <div class="form-group col-md-6 col-sm-6">
-                <label for="tipoactivo_id"><i class="fas fa-chart-line iconos-crear"></i>{{ trans('cruds.matrizRiesgo.fields.tipoactivo') }}</label>
-                <select class="form-control select2 {{ $errors->has('tipoactivo') ? 'is-invalid' : '' }}" name="tipoactivo_id" id="tipoactivo_id">
-                    @foreach($tipoactivos as $id => $tipoactivo)
-                        <option value="{{ $id }}" {{ old('tipoactivo_id') == $id ? 'selected' : '' }}>{{ $tipoactivo }}</option>
+                <label for="activo_id"><i class="fas fa-chart-line iconos-crear"></i>Tipo de Activo</label>
+                <select class="form-control select2 {{ $errors->has('activo') ? 'is-invalid' : '' }}"  name="activo_id" id="activo_id">
+                    @foreach($tipoactivos as $activo)
+                      <option value="{{ $activo->id}}" {{ old('activo_id') == $activo->id ? 'selected' : '' }}>{{ $activo->tipo }}</option>
                     @endforeach
                 </select>
-                @if($errors->has('tipoactivo'))
+                @if($errors->has('activo'))
                     <div class="invalid-feedback">
-                        {{ $errors->first('tipoactivo') }}
+                        {{ $errors->first('activo') }}
                     </div>
                 @endif
-                <span class="help-block">{{ trans('cruds.matrizRiesgo.fields.tipoactivo_helper') }}</span>
+                <span class="help-block">{{ trans('cruds.matrizRiesgo.fields.activo_helper') }}</span>
             </div>
           </div>
 

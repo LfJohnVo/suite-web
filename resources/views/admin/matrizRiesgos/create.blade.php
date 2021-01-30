@@ -9,16 +9,6 @@
     <div class="card-body">
         <form method="POST" action="{{ route("admin.matriz-riesgos.store") }}" enctype="multipart/form-data">
             @csrf
-
-          <div class="form-group" style="margin-top:15px; width:1000px; height:25px; background-color:#1BB0B0"  >
-            <p class"text-center text-light" style="font-size:11pt; margin-left:370px; color:#ffffff;">DATOS GENERALES</p>
-          </div>
-
-          <div class="form-group">
-            <p class="font-weight-bold" style="font-size:11pt;">Llene los siguientes campos según corresponda:</p>
-          </div>
-
-
           <div class="row">
             <div class="form-group col-md-6 col-sm-6">
                 <label for="proceso"><i class="fas fa-cog iconos-crear"></i>Nombre del Proceso</label>
@@ -30,22 +20,22 @@
                 @endif
                 <span class="help-block">{{ trans('cruds.matrizRiesgo.fields.proceso_helper') }}</span>
             </div>
-
             <div class="form-group col-md-6 col-sm-6">
-                 <label for="tipoactivo_id"><i class="fas fa-chart-line iconos-crear"></i>Tipo de Activo </label>
-                 <select class="form-control select2 {{ $errors->has('tipoactivo') ? 'is-invalid' : '' }}" name="tipoactivo_id" id="tipoactivo_id">
-                   @foreach($tipoactivos as $tipos)
-                       <option value="{{ $tipos->id }}" {{ old('tipoactivo_id') == $tipos->id ? 'selected' : '' }}>{{ $tipos->tipo }}</option>
-                   @endforeach
-                 </select>
-                 @if($errors->has('tipoactivo'))
-                     <div class="invalid-feedback">
-                         {{ $errors->first('tipoactivo') }}
-                     </div>
-                 @endif
-                 <span class="help-block"></span>
-             </div>
-           </div>
+                <label for="activo_id"><i class="fas fa-atom iconos-crear"></i>Tipo de Activo</label>
+                <select class="form-control select2 {{ $errors->has('activo') ? 'is-invalid' : '' }}" name="activo_id" id="activo_id">
+                      @foreach($tipoactivos as $activo)
+
+                        <option value="{{ $activo->id}}" {{ old('activo_id') == $activo->id ? 'selected' : '' }}>{{ $activo->tipo }}</option>
+                    @endforeach
+                </select>
+                @if($errors->has('activo'))
+                    <div class="invalid-feedback">
+                        {{ $errors->first('activo') }}
+                    </div>
+                @endif
+                <span class="help-block">{{ trans('cruds.matrizRiesgo.fields.activo_helper') }}</span>
+            </div>
+          </div>
 
             <div class="form-group">
                 <label for="responsableproceso"><i class="fas fa-user-alt iconos-crear"></i>{{ trans('cruds.matrizRiesgo.fields.responsableproceso') }}</label>
@@ -115,11 +105,7 @@
           </div>
 
           <div class="form-group" style="margin-top:15px; width:1000px; height:25px; background-color:#1BB0B0"  >
-            <p class"text-center text-light" style="font-size:11pt; margin-left:370px; color:#ffffff;">IMPACTO EN LA TRIADA CID</p>
-          </div>
-
-          <div class="form-group">
-            <p class="font-weight-bold" style="font-size:11pt;">Indique en que aspecto de la triada de seguridad impacta el riesgo:</p>
+            <p class"text-center text-light" style="font-size:11pt; margin-left:280px; color:#ffffff;">Indique en que aspecto de la triada de seguridad impacta el riesgo:</p>
           </div>
 
           <div class="row">
@@ -184,14 +170,6 @@
           </div>-->
 
 
-          <div class="form-group" style="margin-top:15px; width:1000px; height:25px; background-color:#1BB0B0"  >
-            <p class"text-center text-light" style="font-size:11pt; margin-left:370px; color:#ffffff;">EVALUACIÓN DE RIESGO INICIAL</p>
-          </div>
-
-          <div class="form-group">
-            <p class="font-weight-bold" style="font-size:11pt;">Llene los siguientes campos según corresponda:</p>
-          </div>
-
           <div class="row">
             <div class="form-group col-sm-6">
                 <label><i class="fas fa-dice iconos-crear"></i>{{ trans('cruds.matrizRiesgo.fields.probabilidad') }}</label>
@@ -227,19 +205,17 @@
             </div>
           </div>
 
-        <div class="row">
+          <!--<div class="row">
             <div class="form-group col-sm-6">
-                  <label for="nivelriesgo"><i class="fas fa-chart-bar iconos-crear"></i>{{ trans('cruds.matrizRiesgo.fields.nivelriesgo') }}</label>
-                  <input class="form-control {{ $errors->has('nivelriesgo') ? 'is-invalid' : '' }}" type="number" name="nivelriesgo" id="nivelriesgo" value="{{ old('nivelriesgo', '') }}" step="0.01">
-                  @if($errors->has('nivelriesgo'))
-                      <div class="invalid-feedback">
-                          {{ $errors->first('nivelriesgo') }}
-                      </div>
-                  @endif
-                  <span class="help-block">{{ trans('cruds.matrizRiesgo.fields.nivelriesgo_helper') }}</span>
+                <label for="nivelriesgo"><i class="fas fa-chart-bar iconos-crear"></i>{{ trans('cruds.matrizRiesgo.fields.nivelriesgo') }}</label>
+                <input class="form-control {{ $errors->has('nivelriesgo') ? 'is-invalid' : '' }}" type="number" name="nivelriesgo" id="nivelriesgo" value="{{ old('nivelriesgo', '') }}" step="0.01">
+                @if($errors->has('nivelriesgo'))
+                    <div class="invalid-feedback">
+                        {{ $errors->first('nivelriesgo') }}
+                    </div>
+                @endif
+                <span class="help-block">{{ trans('cruds.matrizRiesgo.fields.nivelriesgo_helper') }}</span>
             </div>
-
-
             <div class="form-group col-sm-6">
                 <label for="riesgototal"><i class="fas fa-times-circle iconos-crear"></i>{{ trans('cruds.matrizRiesgo.fields.riesgototal') }}</label>
                 <input class="form-control {{ $errors->has('riesgototal') ? 'is-invalid' : '' }}" type="number" name="riesgototal" id="riesgototal" value="{{ old('riesgototal', '') }}" step="0.01">
@@ -250,7 +226,9 @@
                 @endif
                 <span class="help-block">{{ trans('cruds.matrizRiesgo.fields.riesgototal_helper') }}</span>
             </div>
-          </div>
+          </div>-->
+
+
 
 
           <div class="row">

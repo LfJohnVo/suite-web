@@ -65,7 +65,7 @@ font-size:10pt;
                       <i class="fas fa-cog iconos-crear iconos-tabla"></i>Proceso
                     </th>
                     <th>
-                    <div >  <i class="fas fa-shield-alt iconos-tabla"></i>  Activo</div>
+                    <div><i class="fas fa-shield-alt iconos-tabla"></i>Activo</div>
                     </th>
                     <th>
                       <i class="fas fa-user-alt iconos-tabla" ></i> Responsable del proceso
@@ -131,8 +131,8 @@ font-size:10pt;
                     <td>
                         <select class="search">
                             <option value>{{ trans('global.all') }}</option>
-                            @foreach($tipoactivos as $key => $item)
-                                <option value="{{ $item->tipo }}">{{ $item->tipo }}</option>
+                            @foreach($activo as $key => $item)
+                                <option value="{{ $item->activo }}">{{ $item->tipo }}</option>
                             @endforeach
                         </select>
                     </td>
@@ -277,7 +277,7 @@ font-size:10pt;
       { data: 'placeholder', name: 'placeholder' },
 { data: 'id', name: 'id' },
 { data: 'proceso', name: 'proceso' },
-{ data: 'activo_id', name: 'activo_id' },
+{ data: 'Activo', name: 'Activo' },
 { data: 'responsableproceso', name: 'responsableproceso' },
 { data: 'amenaza', name: 'amenaza' },
 { data: 'vulnerabilidad', name: 'vulnerabilidad' },

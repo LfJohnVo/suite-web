@@ -41,6 +41,7 @@ class MatrizRiesgo extends Model
 
     protected $fillable = [
         'proceso',
+        'activo_id',
         'responsableproceso',
         'amenaza',
         'vulnerabilidad',
@@ -85,10 +86,10 @@ class MatrizRiesgo extends Model
     }
 
     //modificar este modelo
-    /*public function tipoactivo()
+    public function activo()
     {
         return $this->belongsTo(Tipoactivo::class, 'activo_id');
-    }*/
+    }
 
     public function controles()
     {
