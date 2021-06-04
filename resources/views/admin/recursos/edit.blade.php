@@ -220,14 +220,19 @@
                                         <div class="form-group col-sm-12 col-md-12 col-lg-6">
                                             <label for="text"><i class="fas fa-edit iconos-crear"></i>Calificación</label>
                                             <input class="form-control" type="number" id="calificacion" name="calificacion"
-                                                placeholder="Calificación" />
+                                                placeholder="Calificación" step='0.1' />
+                                            <span class="text-danger error_text calificacion_error"></span>
                                         </div>
                                         <div class="form-group col-sm-12 col-md-12 col-lg-6">
                                             <label for="text"><i class="fas fa-image iconos-crear"></i>Certificado</label>
                                             <input class="form-control" type="file" id="certificado" name="certificado"
                                                 placeholder="Certificado" accept=".jpg, .png, .gif" />
-                                            <span class="text-xs text-muted">Solo formatos <i class="fas fa-image"></i> JPG,
-                                                PNG, GIF</span>
+                                            <p class="p-0">
+                                                <span class="text-xs text-muted">Solo formatos <i class="fas fa-image"></i>
+                                                    JPG,
+                                                    PNG, GIF</span>
+                                            </p>
+                                            <span class="text-danger error_text certificado_error"></span>
                                             <div class="text-center col-12" id="c_img_certificado">
                                                 <img src="" alt="" width="80px" id="img_certificado">
                                             </div>
@@ -288,15 +293,16 @@
                             data: "name",
                             render: function(data, type, row, meta) {
                                 let foto = row.foto != null ? row.foto : "no-photo.png";
-                                let html = `<div class="row align-items-center">
-                                <div class="col-4">
-                                    <img src="{{ asset('storage/empleados/imagenes') }}/${foto}" width="35px" class="mr-2 rounded-circle" />
-                                </div>
-                                <div class="col-8">
-                                    <p class="p-0 m-0"><strong>${data}</strong></p>
-                                    <p class="p-0 m-0"><span class="badge badge-primary">${row.area}</span></p>
-                                </div>
-                            </div>`;
+                                let html =
+                                    `<div class="row align-items-center">
+                                                                                                                                                    <div class="col-4">
+                                                                                                                                                        <img src="{{ asset('storage/empleados/imagenes') }}/${foto}" width="35px" class="mr-2 rounded-circle" />
+                                                                                                                                                    </div>
+                                                                                                                                                    <div class="col-8">
+                                                                                                                                                        <p class="p-0 m-0"><strong>${data}</strong></p>
+                                                                                                                                                        <p class="p-0 m-0"><span class="badge badge-primary">${row.area}</span></p>
+                                                                                                                                                    </div>
+                                                                                                                                                </div>`;
                                 return html;
                             }
                         },
@@ -312,8 +318,8 @@
                                 let nombre_capacitacion = "{{ $recurso->cursoscapacitaciones }}";
                                 if (data != null) {
                                     return `<a target="_blank" href="{{ asset('storage/capacitaciones/certificados/') }}/${nombre_capacitacion}/${data}">
-                                                <img src="{{ asset('storage/capacitaciones/certificados/') }}/${nombre_capacitacion}/${data}" width="45px" />
-                                            </a>`;
+                                                                                                                                                                    <img src="{{ asset('storage/capacitaciones/certificados/') }}/${nombre_capacitacion}/${data}" width="45px" />
+                                                                                                                                                                </a>`;
                                 } else {
                                     return "";
                                 }
@@ -327,14 +333,14 @@
                                 let calificacion = row.pivot.calificacion;
                                 let boton_html =
                                     `<div class="btn-group" role="group" aria-label="Basic example">
-                                <button onclick='calificarParticipante(${data},"${certificado}","${calificacion}","${row.name}")' type="button" class="btn btn-sm btn-outline-success">
-                                    <i class="fas fa-check-circle"></i>
-                                </button>
-                                <button onclick='eliminarParticipante(${data})' type="button" class="btn btn-sm btn-outline-danger">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                            `;
+                                                                                                                                                    <button onclick='calificarParticipante(${data},"${certificado}","${calificacion}","${row.name}")' type="button" class="btn btn-sm btn-outline-success">
+                                                                                                                                                        <i class="fas fa-check-circle"></i>
+                                                                                                                                                    </button>
+                                                                                                                                                    <button onclick='eliminarParticipante(${data})' type="button" class="btn btn-sm btn-outline-danger">
+                                                                                                                                                        <i class="fas fa-trash-alt"></i>
+                                                                                                                                                    </button>
+                                                                                                                                                </div>
+                                                                                                                                                `;
                                 return boton_html;
                             }
                         }
@@ -472,12 +478,22 @@
                 data: new FormData(form),
                 processData: false,
                 contentType: false,
+                beforeSend: function() {
+                    $(document).find('div#errores_alert').removeClass(
+                        'p-3 text-white bg-danger');
+                    $(document).find('div#errores_alert').text('');
+                },
                 success: function(response) {
                     $("#id_empleado_calificacion").val(null);
                     $("#id_recurso_calificacion").val(null);
                     $("#calificacion").val(null);
                     $("#certificado").val(null);
                     if (response.success) {
+                        $("span.certificado_error").text("");
+                        let textos = document.querySelectorAll('span.text-danger');
+                        textos.forEach(texto => {
+                            texto.innerHTML = "";
+                        });
                         Swal.fire(
                             'Datos registrados con éxito',
                             '',
@@ -492,6 +508,22 @@
                             'error'
                         )
                     }
+                },
+                error: function(error) {
+                    $(document).find('div#errores_alert').addClass(
+                        'p-3 text-white bg-danger');
+                    $("#errores_alert").text(
+                        'Existen errores de validación, por favor revisa ambas pestañas.'
+                    );
+                    if (error.responseJSON.errors == undefined) {
+                        $("span.certificado_error").text(error.responseJSON.message);
+                    }
+
+                    $.each(error.responseJSON.errors, function(indexInArray,
+                        valueOfElement) {
+                        $(`span.${indexInArray}_error`).text(valueOfElement[0]);
+
+                    });
                 }
             });
         }
@@ -545,6 +577,10 @@
                             'p-3 text-white bg-danger');
                         $(document).find('div#errores_alert').text('');
                         $("#form-informacion-general")[0].reset();
+                        let textos = document.querySelectorAll('span.text-danger');
+                        textos.forEach(texto => {
+                            texto.innerHTML = "";
+                        });
                     },
                     success: function(response) {
                         if (response.success) {

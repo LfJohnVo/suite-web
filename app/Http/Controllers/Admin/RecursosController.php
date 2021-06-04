@@ -265,6 +265,15 @@ class RecursosController extends Controller
 
     public function calificarParticipante(Request $request)
     {
+        $this->validate($request, [
+            'calificacion' => 'numeric|min:0|max:100',
+            'image' => 'image|mimes:jpg,png,gif'
+        ], [
+            'calificacion.numeric' => 'La calificación debe ser un valor numérico',
+            'calificacion.min' => 'La calificación mínima es 0',
+            'calificacion.max' => 'La calificación máxima es 100'
+        ]);
+
         if ($request->id_empleado != null) {
             $int_empleado = intval($request->id_empleado);
             $int_recurso = intval($request->id_recurso);

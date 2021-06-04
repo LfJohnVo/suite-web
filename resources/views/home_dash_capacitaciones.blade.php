@@ -168,9 +168,79 @@
                         borderWidth: 1 // Specify bar border width
                     }]
                 },
+
                 options: {
                     responsive: true, // Instruct chart js to respond nicely.
                     maintainAspectRatio: true, // Add to prevent default behaviour of full-width/height 
+                    tooltips: {
+                        enabled: true,
+                        mode: 'single',
+                        callbacks: {
+                            title: function(tooltipItem, data) {
+                                return "Día: " + data.labels[tooltipItem[0].index];
+                            },
+                            label: function(tooltipItems, data) {
+                                return "Participantes Inscritos: " + tooltipItems.yLabel + '';
+                            },
+                            // footer: function(tooltipItem, data) {
+                            //     return "...";
+                            // }
+                        }
+                    },
+                    plugins: {
+                        zoom: {
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'xy',
+                            }
+                        },
+                        datalabels: {
+                            backgroundColor: function(context) {
+                                return context.dataset.backgroundColor;
+                            },
+                            borderRadius: 4,
+                            color: 'white',
+                            font: {
+                                weight: 'bold'
+                            },
+                            formatter: Math.round,
+                            padding: 6
+                        }
+                    },
+
+                    // Core options
+
+                    layout: {
+                        padding: {
+                            top: 32,
+                            right: 16,
+                            bottom: 16,
+                            left: 8
+                        }
+                    },
+                    elements: {
+                        line: {
+                            fill: false
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                callback: function(value) {
+                                    if (value % 1 === 0) {
+                                        return value;
+                                    }
+                                }
+                            },
+                            stacked: true
+                        }],
+                    }
                 }
             });
         }
@@ -271,37 +341,37 @@
                         let contenedor = document.querySelector('#contenedor_card_participantes');
                         let renderHTML =
                             `
-                                                                                                                                                <div class="card card_info" style="width: calc(33.33% - 20px); background: #307ab4;">
-                                                                                                                                                    <div><i class="fas fa-calendar-alt"></i></div>
-                                                                                                                                                    <h6> Fecha de curso</h6>
-                                                                                                                                                    <span>${fecha_inicio} - ${fecha_fin} (${duracion} días)</span>
-                                                                                                                                                </div>
-                                                                                                                                                <div class="card card_info" style="width: calc(33.33% - 20px); background: #a634b4;">
-                                                                                                                                                    <div><i class="fas fa-chalkboard-teacher"></i></div>
-                                                                                                                                                    <h6> Instructor:</h6>
-                                                                                                                                                    <span style="font-size:14pt">${instructor}</span>
-                                                                                                                                                </div>
-                                                                                                                                                <div class="card card_info" style="width: calc(33.33% - 20px); background: #DBA82D;">
-                                                                                                                                                    <div><i class="fas fa-user-graduate"></i></div>
-                                                                                                                                                    <h6 style="font-size:14pt"> Total de participantes:</h6>
-                                                                                                                                                    <span style="font-size:14pt">${total_participantes}</span>
-                                                                                                                                                </div>
-                                                                                                                                                <div class="card caja_graficas graf_3" style="width: calc(50% - 20px);">
-                                                                                                                                                    <h5 class="espec">Participantes</h5>
-                                                                                                                                                    <canvas id="chart_alumnos_capaci"></canvas>
-                                                                                                                                                    <a id="a_plan" class="btn_ver" href="admin/recursos">
-                                                                                                                                                        Ver Detalle
-                                                                                                                                                    </a>
-                                                                                                                                                </div>
+                                        <div class="card card_info" style="width: calc(33.33% - 20px); background: #307ab4;">
+                                            <div><i class="fas fa-calendar-alt"></i></div>
+                                            <h6> Fecha de curso</h6>
+                                            <span>${fecha_inicio} - ${fecha_fin} (${duracion} días)</span>
+                                        </div>
+                                        <div class="card card_info" style="width: calc(33.33% - 20px); background: #a634b4;">
+                                            <div><i class="fas fa-chalkboard-teacher"></i></div>
+                                            <h6> Instructor:</h6>
+                                            <span style="font-size:14pt">${instructor}</span>
+                                        </div>
+                                        <div class="card card_info" style="width: calc(33.33% - 20px); background: #DBA82D;">
+                                            <div><i class="fas fa-user-graduate"></i></div>
+                                            <h6 style="font-size:14pt"> Total de participantes:</h6>
+                                            <span style="font-size:14pt">${total_participantes}</span>
+                                        </div>
+                                        <div class="card caja_graficas graf_3" style="width: calc(50% - 20px);">
+                                            <h5 class="espec">Participantes</h5>
+                                            <canvas id="chart_alumnos_capaci"></canvas>
+                                            <a id="a_plan" class="btn_ver" href="admin/recursos">
+                                                Ver Detalle
+                                            </a>
+                                        </div>
 
-                                                                                                                                                <div class="card caja_graficas graf_3" style="width: calc(50% - 20px);">
-                                                                                                                                                    <h5 class="espec">Aprobados/Reprobados</h5>
-                                                                                                                                                    <canvas id="chart_alumnos_aprovados"></canvas>
-                                                                                                                                                    <a id="a_plan" class="btn_ver" href="admin/recursos">
-                                                                                                                                                        Ver Detalle
-                                                                                                                                                    </a>
-                                                                                                                                                </div>
-                                                                                                                                            `;
+                                        <div class="card caja_graficas graf_3" style="width: calc(50% - 20px);">
+                                            <h5 class="espec">Aprobados/Reprobados</h5>
+                                            <canvas id="chart_alumnos_aprovados"></canvas>
+                                            <a id="a_plan" class="btn_ver" href="admin/recursos">
+                                                Ver Detalle
+                                            </a>
+                                        </div>
+                                    `;
                         contenedor.innerHTML = renderHTML;
                         let calificaciones = response.empleados.map(empleado => {
                             return empleado.pivot.calificacion != null ? Number(empleado.pivot
@@ -369,7 +439,19 @@
                         }
                     },
                     tooltips: {
-                        mode: 'label'
+                        enabled: true,
+                        mode: 'single',
+                        callbacks: {
+                            title: function(tooltipItem, data) {
+                                return "Participante: " + data.labels[tooltipItem[0].index];
+                            },
+                            label: function(tooltipItems, data) {
+                                return "Calificación: " + tooltipItems.yLabel + '';
+                            },
+                            // footer: function(tooltipItem, data) {
+                            //     return "...";
+                            // }
+                        }
                     },
                     scales: {
                         y: {
@@ -377,7 +459,7 @@
                             suggestedMax: 100
                         }
                     }
-                }
+                },
             });
         }
 

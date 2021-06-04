@@ -94,6 +94,8 @@
 
       <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
       <script src="https://unpkg.com/gauge-chart@latest/dist/bundle.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
+      <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
 
       {{-- <script src="https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js"> --}}
       </script>{!! $chart1->renderJs() !!}{!! $chart2->renderJs() !!}{!! $chart3->renderJs() !!}{!! $chart4->renderJs() !!}
