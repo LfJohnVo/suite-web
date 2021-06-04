@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use Gate;
 use App\Models\Empleado;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
@@ -21,14 +23,35 @@ class EmpleadoController extends Controller
     public function index(Request $request)
     {
 
-        abort_if(Gate::denies('empleados_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+    abort_if(Gate::denies('empleados_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+    
+        
 
         if ($request->ajax()) {
-            $query = Empleado::get();
+            $query=DB::table('empleados')->select(DB::raw('id,
+            name,
+            foto,
+            area,
+            puesto,
+            jefe,
+            antiguedad as "fecha ingreso",
+            if(estatus = 1, "Activo", "Inactivo") as "estado",
+            concat(timestampdiff(year, antiguedad, NOW()), " año con ",
+            FLOOR(( datediff(now(), antiguedad) / 365.25 - FLOOR(datediff(now(), antiguedad) / 365.25)) * 12), " meses y ",
+            DAY(CURDATE()) - DAY(antiguedad) +30 * (DAY(CURDATE()) < DAY(antiguedad)) , " días."
+            ) as antiguedad,
+            email,
+            telefono,
+            n_empleado,
+            estatus,
+            n_registro
+            '))->whereNull('deleted_at')->get();
             $table = DataTables::of($query);
 
+      
             $table->addColumn('placeholder', '&nbsp;');
             $table->addColumn('actions', '&nbsp;');
+            $table->addIndexColumn();
 
             $table->editColumn('actions', function ($row) {
                 $viewGate      = 'empleados_show';
@@ -48,7 +71,7 @@ class EmpleadoController extends Controller
 
             //     return "<img src=".public_path() . '/storage/empleados/imagenes/' .$row->foto.">";
             // });
-
+            
             $table->editColumn('id', function ($row) {
                 return $row->id ? $row->id : "";
             });
@@ -57,8 +80,12 @@ class EmpleadoController extends Controller
             });
 
             $table->editColumn('foto', function ($row) {
-                return $row->foto ? $row->foto : '';
+                return $row->foto ? $row->foto:'';
+                
             });
+
+           // $dt = CarbonLocale::now();
+           // dd($dt->diffForHumans($dt->copy()->subMinutes(15)));
 
             $table->editColumn('area', function ($row) {
                 return $row->area ? $row->area : "";
@@ -70,7 +97,7 @@ class EmpleadoController extends Controller
                 return $row->jefe ? $row->jefe : "";
             });
             $table->editColumn('antiguedad', function ($row) {
-                return $row->antiguedad ? $row->antiguedad : "";
+            return $row->antiguedad ? $row->antiguedad :"";
             });
             $table->editColumn('estatus', function ($row) {
                 return $row->estatus ? $row->estatus : "";
@@ -87,12 +114,18 @@ class EmpleadoController extends Controller
                 return $row->n_empleado ? $row->n_empleado : "";
             });
 
+            $table->editColumn('n_registro', function ($row) {
+                return $row->n_empleado ? $row->n_registro : "";
+            });
+
             $table->rawColumns(['actions', 'placeholder']);
 
             return $table->make(true);
         }
 
+        
         return view('admin.empleados.index');
+
     }
 
     /**
@@ -104,6 +137,7 @@ class EmpleadoController extends Controller
     {
         abort_if(Gate::denies('empleados_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         return view('admin.empleados.create');
+
     }
 
     /**
@@ -114,11 +148,11 @@ class EmpleadoController extends Controller
      */
     public function store(Request $request)
     {
+
         $request->validate([
-            'n_empleado' => 'unique:empleados'
+            'n_empleado'=>'unique:empleados'], ['n_empleado.unique' => 'El número de empleado ya ha sido tomado'
         ]);
-
-
+       
         $empleado = Empleado::create([
             "name" => $request->name,
             "area" =>  $request->area,
@@ -129,6 +163,7 @@ class EmpleadoController extends Controller
             "email" =>  $request->email,
             "telefono" =>  $request->telefono,
             "n_empleado" =>  $request->n_empleado,
+            "n_registro" =>  $request->n_empleado,
         ]);
         $image = null;
         if ($request->file('foto') != null or !empty($request->file('foto'))) {
@@ -174,10 +209,10 @@ class EmpleadoController extends Controller
     {
 
         abort_if(Gate::denies('empleados_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $empleado = Empleado::findOrfail($id);
+        $empleado=Empleado::findOrfail($id);
+        
 
-
-        return view('admin.empleados.edit', compact('empleado'));
+        return view('admin.empleados.edit',compact('empleado'));
     }
 
     /**
@@ -190,16 +225,18 @@ class EmpleadoController extends Controller
     public function update(Request $request, $id)
     {
         //$empleado->update($request->all());
+       // dump($request->all());
+        //die();
         $request->validate([
-            'n_empleado' => 'unique:empleados,n_empleado,' . $id
+       'n_empleado'=>'unique:empleados,n_empleado,'.$id], ['n_empleado.unique' => 'El número de empleado ya ha sido tomado'
         ]);
-
+        
         $empleado = Empleado::find($id);
         $image = $empleado->foto;
         if ($request->file('foto') != null or !empty($request->file('foto'))) {
 
             //Si existe la imagen entonces se elimina al editarla
-
+        
             $isExists = Storage::disk('public')->exists('empleados/imagenes/' . $empleado->foto);
             if ($isExists) {
                 if ($empleado->foto != null) {
@@ -219,7 +256,7 @@ class EmpleadoController extends Controller
         }
 
         $empleado->update([
-            'name' => $request->name,
+            'name'=>$request->name,
             "area" =>  $request->area,
             "puesto" =>  $request->puesto,
             "jefe" =>  $request->jefe,
@@ -228,6 +265,7 @@ class EmpleadoController extends Controller
             "email" =>  $request->email,
             "telefono" =>  $request->telefono,
             "n_empleado" =>  $request->n_empleado,
+            "n_registro" =>  $request->n_empleado,
             'foto' => $image
         ]);
 
@@ -242,23 +280,15 @@ class EmpleadoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Empleado $empleado)
     {
+        abort_if(Gate::denies('empleados_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $empleado->delete();
+
+        return back();  
     }
 
-    public function getEmpleados(Request $request)
-    {
-        if ($request->ajax()) {
-            $nombre = $request->nombre;
-            if ($nombre != null) {
-                $usuarios = Empleado::select('id', 'name', 'email')->where('name', 'LIKE', '%' . $nombre . '%')->take(5)->get();
-                $lista = "<ul class='list-group' id='empleados-lista'>";
-                foreach ($usuarios as $usuario) {
-                    $lista .= "<button type='button' class='list-group-item list-group-item-action' onClick='seleccionarUsuario(" . $usuario . ");'>" . $usuario->name . "</button>";
-                }
-                $lista .= "</ul>";
-                return $lista;
-            }
-        }
-    }
+
 }
+

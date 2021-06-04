@@ -52,7 +52,7 @@
 
             <div class="form-group col-sm-6">
                 <label class="required" for="n_empleado"><i class="fas fa-street-view iconos-crear"></i>No de empleado</label>
-                <input class="form-control {{ $errors->has('n_empleado') ? 'is-invalid' : '' }}" type="text" name="n_empleado" id="n_empleado" value="{{ old('n_empleado', $empleado->n_empleado) }}" required>
+                <input class="form-control {{ $errors->has('n_empleado') ? 'is-invalid' : '' }}" type="text" name="n_empleado" id="n_empleado" value="{{ old('n_empleado', $empleado->n_empleado) }}" readonly >
                 @if($errors->has('n_empleado'))
                     <div class="invalid-feedback">
                         {{ $errors->first('n_empleado') }}
