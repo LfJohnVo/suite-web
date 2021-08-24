@@ -172,7 +172,7 @@
             <li class="c-sidebar-nav-item">
                 <a href="{{ route('admin.desk.index') }}"
                     class="c-sidebar-nav-link {{ request()->is('admin/desk') || request()->is('admin/desk/*') ? 'active' : '' }}">
-                    <i class="iconos_menu letra_blanca fas fa-headset"></i>
+                    <i class="fas fa-user-shield iconos_menu letra_blanca"></i>
                     <font class="letra_blanca"> Centro de atención
                     </font>
                 </a>

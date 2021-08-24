@@ -338,15 +338,15 @@
                                         <li><a href="{{ route('admin.declaracion-aplicabilidad.index') . '#declaracion' }}">
                                             <div>
                                                 <i class="far fa-file"></i>
-                                                Declaración de aplicabilidad
+                                                Declaración de aplicabilidad (SoA)
                                             </div>
                                         </a></li>
-                                    <li><a href="{{ route('admin.riesgosoportunidades.index') }}">
+                                    {{-- <li><a href="{{ route('admin.riesgosoportunidades.index') }}">
                                             <div>
                                                 <i class="fas fa-asterisk"></i>
                                                 Riesgos y oportunidades
                                             </div>
-                                        </a></li>
+                                        </a></li> --}}
                                     <li><a href="{{ route('admin.objetivosseguridads.index') }}">
                                             <div>
                                                 <i class="fas fa-lock"></i>
