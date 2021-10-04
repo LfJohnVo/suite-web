@@ -417,7 +417,8 @@
                             </tr>
                         </thead>
                         @foreach ($listados_residual as $listado)
-                            <tr class="con" href="{{ route('admin.matriz-riesgos.show', [$listado->id]) }}">
+                            <tr class="con"
+                                href="{{ route('admin.matriz-riesgos.show', [$listado->id]) }}">
                                 <td>{{ $listado->id }}</td>
                                 <td data-toggle="tooltip" data-placement="top" title="Pulse aquí para más información">
                                     <a target="_blank"
