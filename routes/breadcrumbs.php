@@ -79,7 +79,7 @@ Breadcrumbs::for('admin.comiteseguridads.create', function ($trail) {
     $trail->push('Formulario', 'comiteseguridads/create');
 });
 Breadcrumbs::for('admin.comiteseguridads.visualizacion', function ($trail) {
-    $trail->push('Portal de comunicación', 'portal-comunicacion'));
+    $trail->push('Portal de comunicación', 'portal-comunicacion');
     $trail->push('Comite de Seguridad');
 });
 
@@ -100,7 +100,7 @@ Breadcrumbs::for('admin.evidencias-sgsis.index', function ($trail) {
 });
 Breadcrumbs::for('admin.evidencias-sgsis.create', function ($trail) {
     $trail->parent('admin.evidencias-sgsis.index');
-    $trail->push('Formulario', 'evidencias-sgsis/create'));
+    $trail->push('Formulario', 'evidencias-sgsis/create');
 });
 
 Breadcrumbs::for('admin.politica-sgsis.index', function ($trail) {
@@ -143,7 +143,7 @@ Breadcrumbs::for('admin.vulnerabilidads.index', function ($trail) {
 Breadcrumbs::for('admin.analisis-riesgos.index', function ($trail) {
     $trail->parent('admin.iso27001.index');
     $trail->push('Planificación', 'iso27001#planificacion');
-    $trail->push('Matriz de Riesgos', 'analisis-riesgos'));
+    $trail->push('Matriz de Riesgos', 'analisis-riesgos');
 });
 
 Breadcrumbs::for('admin.riesgosoportunidades.index', function ($trail) {
@@ -159,7 +159,7 @@ Breadcrumbs::for('admin.riesgosoportunidades.create', function ($trail) {
 Breadcrumbs::for('admin.objetivosseguridads.index', function ($trail) {
     $trail->parent('admin.iso27001.index');
     $trail->push('Planificación', 'iso27001#planificacion');
-    $trail->push('Objetivos de Seguridad', 'objetivosseguridads'));
+    $trail->push('Objetivos de Seguridad', 'objetivosseguridads');
 });
 Breadcrumbs::for('admin.objetivosseguridads.create', function ($trail) {
     $trail->parent('admin.objetivosseguridads.index');
@@ -209,7 +209,7 @@ Breadcrumbs::for('admin.material-sgsis.index', function ($trail) {
 });
 Breadcrumbs::for('admin.material-sgsis.create', function ($trail) {
     $trail->parent('admin.material-sgsis.index');
-    $trail->push('Formulario', 'material-sgsis/create'));
+    $trail->push('Formulario', 'material-sgsis/create');
 });
 
 Breadcrumbs::for('admin.material-iso-veinticientes.index', function ($trail) {
@@ -455,5 +455,5 @@ Breadcrumbs::for('EV360-Evaluacion-Cuestionario', function ($trail, $evaluacion)
 });
 // Breadcrumbs::for('EV360-Objetivos-Edit', function ($trail) {
 //     $trail->parent('EV360-Objetivos');
-//     $trail->push('Editar Objetivo', 'ev360-objetivos.edit'));
+//     $trail->push('Editar Objetivo', 'ev360-objetivos.edit');
 // });
