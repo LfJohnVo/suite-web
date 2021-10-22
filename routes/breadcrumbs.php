@@ -403,7 +403,7 @@ Breadcrumbs::for('EV360-Evaluaciones-Create', function ($trail) {
 
 Breadcrumbs::for('EV360-Evaluaciones-Evaluacion', function ($trail, $evaluacion) {
     $trail->parent('EV360-Evaluaciones');
-    $trail->push('Evaluación', 'ev360-evaluaciones/evaluacion', $evaluacion->id));
+    $trail->push('Evaluación', 'ev360-evaluaciones/evaluacion', $evaluacion->id);
 });
 
 Breadcrumbs::for('EV360-Competencias', function ($trail) {
@@ -434,7 +434,7 @@ Breadcrumbs::for('EV360-Objetivos', function ($trail) {
 });
 Breadcrumbs::for('EV360-Objetivos-Create', function ($trail, $empleado) {
     $trail->parent('EV360-Objetivos');
-    $trail->push('Asignar Objetivo', 'ev360-objetivos-empleado/create', $empleado));
+    $trail->push('Asignar Objetivo', 'ev360-objetivos-empleado/create', $empleado);
 });
 Breadcrumbs::for('EV360-Objetivos-Edit', function ($trail) {
     $trail->parent('EV360-Objetivos');
@@ -447,11 +447,11 @@ Breadcrumbs::for('EV360-Evaluacion-Resumen', function ($trail, $evaluacion) {
 });
 Breadcrumbs::for('EV360-Evaluacion-Consulta-Evaluado', function ($trail, $evaluacion) {
     $trail->parent('EV360-Evaluaciones-Evaluacion', $evaluacion['evaluacion']);
-    $trail->push($evaluacion['evaluado']->name, 'ev360-evaluaciones.autoevaluacion.consulta.evaluado', ['evaluacion' => $evaluacion['evaluacion']->id, 'evaluado' => $evaluacion['evaluado']->id]));
+    $trail->push($evaluacion['evaluado']->name, 'ev360-evaluaciones.autoevaluacion.consulta.evaluado', ['evaluacion' => $evaluacion['evaluacion']->id, 'evaluado' => $evaluacion['evaluado']->id]);
 });
 Breadcrumbs::for('EV360-Evaluacion-Cuestionario', function ($trail, $evaluacion) {
     $trail->parent('EV360-Evaluaciones-Evaluacion', $evaluacion['evaluacion']);
-    $trail->push('Cuestionario', 'ev360-evaluaciones.contestarCuestionario', ['evaluacion' => $evaluacion['evaluacion']->id, 'evaluado' => $evaluacion['evaluado']->id, 'evaluador' => $evaluacion['evaluador']->id]));
+    $trail->push('Cuestionario', 'ev360-evaluaciones.contestarCuestionario', ['evaluacion' => $evaluacion['evaluacion']->id, 'evaluado' => $evaluacion['evaluado']->id, 'evaluador' => $evaluacion['evaluador']->id]);
 });
 // Breadcrumbs::for('EV360-Objetivos-Edit', function ($trail) {
 //     $trail->parent('EV360-Objetivos');
