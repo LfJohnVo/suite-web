@@ -57,7 +57,7 @@ Breadcrumbs::for('admin.entendimiento-organizacions.create', function ($trail) {
 Breadcrumbs::for('admin.alcance-sgsis.index', function ($trail) {
     $trail->parent('admin.iso27001.index');
     $trail->push('Contexto', 'iso27001#contexto');
-    $trail->push('Determinación de Alcance', 'alcance-sgsis'));
+    $trail->push('Determinación de Alcance', 'alcance-sgsis');
 });
 Breadcrumbs::for('admin.alcance-sgsis.create', function ($trail) {
     $trail->parent('admin.alcance-sgsis.index');
