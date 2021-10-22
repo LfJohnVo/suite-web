@@ -23,7 +23,7 @@
 			}
 		</style>
 	@endsection
-	{{-- {{ Breadcrumbs::render('frontend.politicaSgsis.visualizacion') }} --}}
+	{{-- {{ Breadcrumbs::render('admin.politicaSgsis.visualizacion') }} --}}
 	<div class="card card-body" style="margin-top: -50PX;">
 		<div class="row" style="border-bottom: 2px solid #ccc;">
 			<div class="col-12 caja_titulo">

@@ -112,7 +112,7 @@ text-align: center !important;
 
 </style>
 
-    {{-- {{ Breadcrumbs::render('frontend.alcance-sgsis.index') }} --}}
+    {{-- {{ Breadcrumbs::render('admin.alcance-sgsis.index') }} --}}
     @can('alcance_sgsi_create')
 
         <div class="mt-5 card">

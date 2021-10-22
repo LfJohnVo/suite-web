@@ -1,7 +1,7 @@
 @extends('layouts.frontend')
 @section('content')
 
-    {{-- {{ Breadcrumbs::render('frontend.matriz-requisito-legales.create') }} --}}
+    {{-- {{ Breadcrumbs::render('admin.matriz-requisito-legales.create') }} --}}
 
 <div class="card">
     <div class="card-header">

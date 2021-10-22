@@ -6,7 +6,7 @@
     }
 
 </style>
-{{-- {{ Breadcrumbs::render('frontend.matriz-requisito-legales.create') }} --}}
+{{-- {{ Breadcrumbs::render('admin.matriz-requisito-legales.create') }} --}}
 
 <div class="mt-4 card">
     <div class="py-3 col-md-10 col-sm-9 card-body verde_silent align-self-center" style="margin-top: -40px">

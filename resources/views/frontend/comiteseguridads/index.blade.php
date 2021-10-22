@@ -47,7 +47,7 @@
 
 </style>
 
-    {{-- {{ Breadcrumbs::render('frontend.comiteseguridads.index') }} --}}
+    {{-- {{ Breadcrumbs::render('admin.comiteseguridads.index') }} --}}
 
     @can('comiteseguridad_create')
 

@@ -12,7 +12,7 @@
 
     </style>
 
-    {{-- {{ Breadcrumbs::render('frontend.minutasaltadireccions.index') }} --}}
+    {{-- {{ Breadcrumbs::render('admin.minutasaltadireccions.index') }} --}}
 
     @can('minutasaltadireccion_create')
 

@@ -57,7 +57,7 @@
 </style>
 
 
-    {{-- {{ Breadcrumbs::render('frontend.evidencias-sgsis.index') }} --}}
+    {{-- {{ Breadcrumbs::render('admin.evidencias-sgsis.index') }} --}}
 
     @can('evidencias_sgsi_create')
         <div class="mt-5 card">

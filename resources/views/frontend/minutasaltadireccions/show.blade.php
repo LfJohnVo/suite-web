@@ -1,7 +1,7 @@
 @extends('layouts.frontend')
 @section('content')
 
-    {{-- {{ Breadcrumbs::render('frontend.minutasaltadireccions.create') }} --}}
+    {{-- {{ Breadcrumbs::render('admin.minutasaltadireccions.create') }} --}}
 
 <div class="card">
     <div class="card-header">

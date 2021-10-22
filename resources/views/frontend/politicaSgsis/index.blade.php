@@ -43,7 +43,7 @@
 
 </style>
 
-    {{-- {{ Breadcrumbs::render('frontend.politica-sgsis.index') }} --}}
+    {{-- {{ Breadcrumbs::render('admin.politica-sgsis.index') }} --}}
 
     @can('politica_sgsi_create')
 

@@ -2,7 +2,7 @@
 @section('content')
 
 
-    {{ Breadcrumbs::render('frontend.partes-interesadas.create') }}
+    {{ Breadcrumbs::render('admin.partes-interesadas.create') }}
 
 
 

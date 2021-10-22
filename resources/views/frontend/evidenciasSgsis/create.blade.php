@@ -1,7 +1,7 @@
 @extends('layouts.frontend')
 @section('content')
 
-    {{-- {{ Breadcrumbs::render('frontend.evidencias-sgsis.create') }} --}}
+    {{-- {{ Breadcrumbs::render('admin.evidencias-sgsis.create') }} --}}
 
 <div class="mt-4 card">
     <div class="py-3 col-md-10 col-sm-9 card-body verde_silent align-self-center" style="margin-top: -40px;">

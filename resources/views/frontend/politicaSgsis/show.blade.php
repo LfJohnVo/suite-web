@@ -1,7 +1,7 @@
 @extends('layouts.frontend')
 @section('content')
 
-    {{-- {{ Breadcrumbs::render('frontend.politica-sgsis.create') }} --}}
+    {{-- {{ Breadcrumbs::render('admin.politica-sgsis.create') }} --}}
 
 <div class="card">
     <div class="card-header">

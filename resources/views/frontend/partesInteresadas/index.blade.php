@@ -1,7 +1,7 @@
 @extends('layouts.frontend')
 @section('content')
 
-    {{-- {{ Breadcrumbs::render('frontend.partes-interesadas.index') }} --}}
+    {{-- {{ Breadcrumbs::render('admin.partes-interesadas.index') }} --}}
 
 <style>
 .table tr td:nth-child(2){

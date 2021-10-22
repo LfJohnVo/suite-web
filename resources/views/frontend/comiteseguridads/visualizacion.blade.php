@@ -43,7 +43,7 @@
         }
     </style>
 @endsection
-    {{-- {{ Breadcrumbs::render('frontend.comiteseguridads.visualizacion') }} --}}
+    {{-- {{ Breadcrumbs::render('admin.comiteseguridads.visualizacion') }} --}}
     <div class="card card-body" style="margin-top: -50PX;">
         <div class="row" style="border-bottom: 2px solid #ccc;">
             <div class="col-12 caja_titulo">
