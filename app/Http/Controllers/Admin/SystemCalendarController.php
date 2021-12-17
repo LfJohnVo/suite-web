@@ -90,8 +90,8 @@ class SystemCalendarController extends Controller
         $auditoria_internas = AuditoriaInterna::get();
         // dd($auditoria_internas);
         $recursos = Recurso::get();
-        $eventos =Calendario::get();
+        $eventos = Calendario::get();
 
-        return view('admin.calendar.calendar', compact('plan_base', 'auditorias_anual', 'recursos', 'actividades', 'auditoria_internas',"eventos"));
+        return view('admin.calendar.calendar', compact('plan_base', 'auditorias_anual', 'recursos', 'actividades', 'auditoria_internas', 'eventos'));
     }
 }

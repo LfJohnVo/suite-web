@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
-
 use Symfony\Component\HttpFoundation\Response;
 
 class OrganizacionController extends Controller
@@ -33,8 +32,6 @@ class OrganizacionController extends Controller
         $schedule = Organizacion::find(1)->schedules;
         // dd($schedule);
         $dias = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
-
-
 
         if (empty($organizacions)) {
             $count = Organizacion::get()->count();
@@ -222,7 +219,6 @@ class OrganizacionController extends Controller
     public function visualizarOrganizacion()
     {
         $organizacions = Organizacion::first();
-
 
         $schedule = Organizacion::find(1)->schedules;
 
