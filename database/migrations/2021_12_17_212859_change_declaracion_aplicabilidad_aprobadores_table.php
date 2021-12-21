@@ -14,7 +14,7 @@ class ChangeDeclaracionAplicabilidadAprobadoresTable extends Migration
     public function up()
     {
         Schema::table('declaracion_aplicabilidad_responsables', function (Blueprint $table) {
-            $table->increments('id')->primary()->change();
+            // $table->increments('id')->primary()->change();
         });
     }
 

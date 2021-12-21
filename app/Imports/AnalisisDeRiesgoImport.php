@@ -47,6 +47,7 @@ class AnalisisDeRiesgoImport implements ToModel
 
     public function obtenerEmpleadoPorNombre($nombre)
     {
+        // dd($nombre);
         $empleado_bd = Empleado::select('id', 'name')->where('name', $nombre)->first();
 
         return $empleado_bd->id;
@@ -56,6 +57,6 @@ class AnalisisDeRiesgoImport implements ToModel
     {
         $empleado_bd = Empleado::select('id', 'name')->where('n_empleado', trim($numero))->first();
 
-        return $empleado_bd->id;
+        return $empleado_bd;
     }
 }

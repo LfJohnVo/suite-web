@@ -54,7 +54,7 @@ class Empleado extends Model
     use HasFactory;
     use QueryCacheable;
 
-    public $cacheFor = 3600;
+    public $cacheFor = 1800;
     protected static $flushCacheOnUpdate = true;
 
     protected $table = 'empleados';

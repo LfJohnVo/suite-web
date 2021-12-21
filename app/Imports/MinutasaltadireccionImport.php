@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models\Empleado;
 use App\Models\Minutasaltadireccion;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Illuminate\Support\Facades\DB;
 
 class MinutasaltadireccionImport implements ToModel
 {
@@ -48,10 +49,31 @@ class MinutasaltadireccionImport implements ToModel
         }
     }
 
+    // public function obtenerResponsablePorNombre($nombre)
+    // {
+
+    //     $empleado_bd = Empleado::select('name')->where('name', $nombre)->first();
+    //     dd($empleado_bd);
+    //     return $empleado_bd->id;
+    // }
+
     public function obtenerResponsablePorNombre($nombre)
     {
+      // dd($empleado_bd);
         $empleado_bd = Empleado::select('id', 'name')->where('name', $nombre)->first();
-
+        // $empleado = Empleado::first();
+        // dd($empleado_bd);
         return $empleado_bd->id;
+
+        // DB::beginTransaction();
+        // try {
+        //     $empleado_bd = Empleado::select('id', 'name')->where('name', $nombre)->get();
+        //     return $empleado_bd;
+        // } catch (\Exception $e) {
+        //   DB::rollback();
+        //   return $e->getMessage();
+        // }
+
+
     }
 }
