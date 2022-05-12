@@ -2,42 +2,40 @@
 
 namespace App\Http\Controllers\admin;
 
-use Carbon\Carbon;
-use App\Models\Area;
-use App\Models\Sede;
+use App\Http\Controllers\Controller;
+use App\Mail\AceptacionAccionCorrectivaEmail;
+use App\Mail\SeguimientoQuejaClienteEmail;
+use App\Models\AccionCorrectiva;
 use App\Models\Activo;
 use App\Models\AnalisisQuejasClientes;
+use App\Models\AnalisisQuejasClientes;
+use App\Models\AnalisisSeguridad;
 use App\Models\AnalisisSeguridad;
 use App\Models\Area;
+use App\Models\Area;
+use App\Models\CategoriaIncidente;
 use App\Models\CategoriaIncidente;
 use App\Models\Denuncias;
 use App\Models\Empleado;
 use App\Models\EvidenciaQuejasClientes;
+use App\Models\EvidenciaQuejasClientes;
 use App\Models\EvidenciasQuejasClientesCerrado;
+use App\Models\EvidenciasQuejasClientesCerrado;
+use App\Models\IncidentesSeguridad;
 use App\Models\IncidentesSeguridad;
 use App\Models\Mejoras;
 use App\Models\Proceso;
 use App\Models\Quejas;
 use App\Models\QuejasCliente;
-use Illuminate\Http\Response;
-use App\Models\AccionCorrectiva;
+use App\Models\RiesgoIdentificado;
+use App\Models\Sede;
+use App\Models\SubcategoriaIncidente;
 use App\Models\TimesheetCliente;
 use App\Models\TimesheetProyecto;
-use App\Models\CategoriaIncidente;
-use App\Models\RiesgoIdentificado;
-use App\Models\IncidentesSeguridad;
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Mail;
-use App\Models\SubcategoriaIncidente;
-use App\Models\AnalisisQuejasClientes;
-use App\Models\EvidenciaQuejasClientes;
-use App\Models\SeguimientoQuejaCliente;
-use App\Mail\SeguimientoQuejaClienteEmail;
-use App\Mail\AceptacionAccionCorrectivaEmail;
-use App\Models\EvidenciasQuejasClientesCerrado;
-use App\Models\AnalisisSeguridad; //mejora apunta a este modelo
-
+use Illuminate\Support\Facades\Mail; //mejora apunta a este modelo
 
 class DeskController extends Controller
 {
@@ -841,9 +839,8 @@ class DeskController extends Controller
             'correo_cliente'=>'required',
         ]);
 
-
-        $correo_cliente=intval($request->correo_cliente)==1?true:false;
-        if($correo_cliente){
+        $correo_cliente = intval($request->correo_cliente) == 1 ? true : false;
+        if ($correo_cliente) {
             $request->validate([
                 'correo'=>'required',
             ]);
@@ -902,14 +899,9 @@ class DeskController extends Controller
             }
         }
 
-
-
-        if($correo_cliente){
-
+        if ($correo_cliente) {
             Mail::to($quejasClientes->correo)->cc($quejasClientes->registro->email)->send(new SeguimientoQuejaClienteEmail($quejasClientes));
         }
-
-
 
         return redirect()->route('admin.desk.index')->with('success', 'Reporte generado');
     }
@@ -936,7 +928,7 @@ class DeskController extends Controller
 
         $evidenciaCreate = EvidenciaQuejasClientes::where('quejas_clientes_id', '=', $quejasClientes->id)->get();
 
-        return view('admin.desk.clientes.edit', compact('evidenciaCreate','cierre','clientes','proyectos','quejasClientes', 'procesos', 'empleados', 'areas', 'activos','analisis'));
+        return view('admin.desk.clientes.edit', compact('evidenciaCreate', 'cierre', 'clientes', 'proyectos', 'quejasClientes', 'procesos', 'empleados', 'areas', 'activos', 'analisis'));
     }
 
     public function updateQuejasClientes(Request $request, $id_quejas)
@@ -953,13 +945,13 @@ class DeskController extends Controller
 
         // dd($request->all());
         $quejasClientes = QuejasCliente::findOrfail(intval($id_quejas));
-        $queja_procedente=intval($request->queja_procedente)==1?true:false;
-        $realizar_accion=intval($request->realizar_accion)==1?true:false;
-        $desea_levantar_ac=intval($request->desea_levantar_ac)==1?true:false;
-        $cumplio_ac_responsable=intval($request->cumplio_ac_responsable)==1?true:false;
-        $conforme_solucion=intval($request->conforme_solucion)==1?true:false;
-        $cerrar_ticket=intval($request->cerrar_ticket)==1?true:false;
-        if($desea_levantar_ac){
+        $queja_procedente = intval($request->queja_procedente) == 1 ? true : false;
+        $realizar_accion = intval($request->realizar_accion) == 1 ? true : false;
+        $desea_levantar_ac = intval($request->desea_levantar_ac) == 1 ? true : false;
+        $cumplio_ac_responsable = intval($request->cumplio_ac_responsable) == 1 ? true : false;
+        $conforme_solucion = intval($request->conforme_solucion) == 1 ? true : false;
+        $cerrar_ticket = intval($request->cerrar_ticket) == 1 ? true : false;
+        if ($desea_levantar_ac) {
             $request->validate([
                 'responsable_sgi_id'=>'required',
             ]);
@@ -1007,7 +999,6 @@ class DeskController extends Controller
             'cerrar_ticket'=>$cerrar_ticket,
         ]);
 
-
         $documento = null;
 
         if ($request->file('evidencia') != null or !empty($request->file('evidencia'))) {
@@ -1054,16 +1045,14 @@ class DeskController extends Controller
             }
         }
 
-
-
-        if($desea_levantar_ac){
-            $quejasClientes->load('cliente','proyectos','responsableAtencion','responsableSgi','registro');
-            $evidenciaArr=[];
+        if ($desea_levantar_ac) {
+            $quejasClientes->load('cliente', 'proyectos', 'responsableAtencion', 'responsableSgi', 'registro');
+            $evidenciaArr = [];
             $evidencias = EvidenciaQuejasClientes::where('quejas_clientes_id', '=', $quejasClientes->id)->get();
-            foreach($evidencias as $evidencia){
-                array_push($evidenciaArr,$evidencia->evidencia);
+            foreach ($evidencias as $evidencia) {
+                array_push($evidenciaArr, $evidencia->evidencia);
             }
-            $accion_correctiva=AccionCorrectiva::create([
+            $accion_correctiva = AccionCorrectiva::create([
                 'tema'=>$request->titulo,
                 'causaorigen'=>'Queja de un cliente',
                 'descripcion'=>$request->descripcion,
@@ -1087,13 +1076,12 @@ class DeskController extends Controller
             ]);
             $quejasClientes->accionCorrectivaAprobacional()->sync($accion_correctiva->id);
 
-            if(!$quejasClientes->correoEnviado){
+            if (!$quejasClientes->correoEnviado) {
                 $quejasClientes->update([
                     'correoEnviado'=>true,
                 ]);
-            Mail::to($quejasClientes->responsableSgi->email)->send(new AceptacionAccionCorrectivaEmail($quejasClientes,$evidenciaArr));
+                Mail::to($quejasClientes->responsableSgi->email)->send(new AceptacionAccionCorrectivaEmail($quejasClientes, $evidenciaArr));
             }
-
         }
         // return redirect()->route('admin.desk.quejas-edit', $id_quejas)->with('success', 'Reporte actualizado');
         return redirect()->route('admin.desk.index')->with('success', 'Reporte actualizado');
@@ -1101,7 +1089,6 @@ class DeskController extends Controller
 
     public function updateAnalisisQuejasClientes(Request $request, $id_quejas)
     {
-
         $analisis_quejasClientes = AnalisisQuejasClientes::findOrfail(intval($id_quejas));
         $analisis_quejasClientes->update([
             'problema_diagrama' => $request->problema_diagrama,
@@ -1174,62 +1161,55 @@ class DeskController extends Controller
 
     public function quejasClientesDashboard()
     {
+        $quejasClientesSaA = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'Sin atender')->where('prioridad', 'Alta')->count();
+        $quejasClientesSaM = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'Sin atender')->where('prioridad', 'Media')->count();
+        $quejasClientesSaB = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'Sin atender')->where('prioridad', 'Baja')->count();
+        $quejasClientesSaSd = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'Sin atender')->where('prioridad', null)->count();
 
-        $quejasClientesSaA= QuejasCliente::select('id','prioridad','estatus')->where('estatus','Sin atender')->where('prioridad','Alta')->count();
-        $quejasClientesSaM= QuejasCliente::select('id','prioridad','estatus')->where('estatus','Sin atender')->where('prioridad','Media')->count();
-        $quejasClientesSaB= QuejasCliente::select('id','prioridad','estatus')->where('estatus','Sin atender')->where('prioridad','Baja')->count();
-        $quejasClientesSaSd= QuejasCliente::select('id','prioridad','estatus')->where('estatus','Sin atender')->where('prioridad', null)->count();
+        $quejasClientesEcA = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'En curso')->where('prioridad', 'Alta')->count();
+        $quejasClientesEcM = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'En curso')->where('prioridad', 'Media')->count();
+        $quejasClientesEcB = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'En curso')->where('prioridad', 'Baja')->count();
+        $quejasClientesEcSd = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'En curso')->where('prioridad', null)->count();
 
-        $quejasClientesEcA= QuejasCliente::select('id','prioridad','estatus')->where('estatus','En curso')->where('prioridad','Alta')->count();
-        $quejasClientesEcM= QuejasCliente::select('id','prioridad','estatus')->where('estatus','En curso')->where('prioridad','Media')->count();
-        $quejasClientesEcB= QuejasCliente::select('id','prioridad','estatus')->where('estatus','En curso')->where('prioridad','Baja')->count();
-        $quejasClientesEcSd= QuejasCliente::select('id','prioridad','estatus')->where('estatus','En curso')->where('prioridad', null)->count();
+        $quejasClientesEeA = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'En espera')->where('prioridad', 'Alta')->count();
+        $quejasClientesEeM = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'En espera')->where('prioridad', 'Media')->count();
+        $quejasClientesEeB = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'En espera')->where('prioridad', 'Baja')->count();
+        $quejasClientesEeSd = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'En espera')->where('prioridad', null)->count();
 
-        $quejasClientesEeA= QuejasCliente::select('id','prioridad','estatus')->where('estatus','En espera')->where('prioridad','Alta')->count();
-        $quejasClientesEeM= QuejasCliente::select('id','prioridad','estatus')->where('estatus','En espera')->where('prioridad','Media')->count();
-        $quejasClientesEeB= QuejasCliente::select('id','prioridad','estatus')->where('estatus','En espera')->where('prioridad','Baja')->count();
-        $quejasClientesEeSd= QuejasCliente::select('id','prioridad','estatus')->where('estatus','En espera')->where('prioridad', null)->count();
+        $quejasClientesCA = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'Cerrado')->where('prioridad', 'Alta')->count();
+        $quejasClientesCM = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'Cerrado')->where('prioridad', 'Media')->count();
+        $quejasClientesCB = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'Cerrado')->where('prioridad', 'Baja')->count();
+        $quejasClientesCSd = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'Cerrado')->where('prioridad', null)->count();
 
-        $quejasClientesCA= QuejasCliente::select('id','prioridad','estatus')->where('estatus','Cerrado')->where('prioridad','Alta')->count();
-        $quejasClientesCM= QuejasCliente::select('id','prioridad','estatus')->where('estatus','Cerrado')->where('prioridad','Media')->count();
-        $quejasClientesCB= QuejasCliente::select('id','prioridad','estatus')->where('estatus','Cerrado')->where('prioridad','Baja')->count();
-        $quejasClientesCSd= QuejasCliente::select('id','prioridad','estatus')->where('estatus','Cerrado')->where('prioridad', null)->count();
+        $quejasClientesCanA = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'Cancelado')->where('prioridad', 'Alta')->count();
+        $quejasClientesCanM = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'Cancelado')->where('prioridad', 'Media')->count();
+        $quejasClientesCanB = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'Cancelado')->where('prioridad', 'Baja')->count();
+        $quejasClientesCanSd = QuejasCliente::select('id', 'prioridad', 'estatus')->where('estatus', 'Cancelado')->where('prioridad', null)->count();
 
-        $quejasClientesCanA= QuejasCliente::select('id','prioridad','estatus')->where('estatus','Cancelado')->where('prioridad','Alta')->count();
-        $quejasClientesCanM= QuejasCliente::select('id','prioridad','estatus')->where('estatus','Cancelado')->where('prioridad','Media')->count();
-        $quejasClientesCanB= QuejasCliente::select('id','prioridad','estatus')->where('estatus','Cancelado')->where('prioridad','Baja')->count();
-        $quejasClientesCanSd= QuejasCliente::select('id','prioridad','estatus')->where('estatus','Cancelado')->where('prioridad', null)->count();
+        $quejaEstatusAltaArray = [$quejasClientesSaA, $quejasClientesEcA, $quejasClientesEeA, $quejasClientesCA, $quejasClientesCanA];
+        $quejaEstatusMediaArray = [$quejasClientesSaM, $quejasClientesEcM, $quejasClientesEeM, $quejasClientesCM, $quejasClientesCanM];
+        $quejaEstatusBajaArray = [$quejasClientesSaB, $quejasClientesEcB, $quejasClientesEeB, $quejasClientesCB, $quejasClientesCanB];
+        $quejaEstatusSinDArray = [$quejasClientesSaSd, $quejasClientesEcSd, $quejasClientesEeSd, $quejasClientesCSd, $quejasClientesCanSd];
 
-        $quejaEstatusAltaArray=[$quejasClientesSaA,$quejasClientesEcA,$quejasClientesEeA,$quejasClientesCA,$quejasClientesCanA];
-        $quejaEstatusMediaArray=[$quejasClientesSaM,$quejasClientesEcM,$quejasClientesEeM,$quejasClientesCM,$quejasClientesCanM];
-        $quejaEstatusBajaArray=[$quejasClientesSaB,$quejasClientesEcB,$quejasClientesEeB, $quejasClientesCB,$quejasClientesCanB];
-        $quejaEstatusSinDArray=[$quejasClientesSaSd, $quejasClientesEcSd, $quejasClientesEeSd,$quejasClientesCSd, $quejasClientesCanSd];
+        $quejaPrioridadA = QuejasCliente::select('id', 'prioridad')->where('prioridad', 'Alta')->count();
+        $quejaPrioridadB = QuejasCliente::select('id', 'prioridad')->where('prioridad', 'Baja')->count();
 
-        $quejaPrioridadA= QuejasCliente::select('id','prioridad')->where('prioridad','Alta')->count();
-        $quejaPrioridadB= QuejasCliente::select('id','prioridad')->where('prioridad','Baja')->count();
+        $quejaAcSolicitada = QuejasCliente::select('id', 'desea_levantar_ac')->where('desea_levantar_ac', true)->count();
+        $quejaAcNoSolicitada = QuejasCliente::select('id', 'desea_levantar_ac')->where('desea_levantar_ac', false)->count();
 
-        $quejaAcSolicitada= QuejasCliente::select('id','desea_levantar_ac')->where('desea_levantar_ac', true)->count();
-        $quejaAcNoSolicitada= QuejasCliente::select('id','desea_levantar_ac')->where('desea_levantar_ac',false)->count();
+        $quejaCanalCorreoE = QuejasCliente::select('id', 'canal')->where('canal', 'Correo electronico')->count();
+        $quejaCanalTelefono = QuejasCliente::select('id', 'canal')->where('canal', 'Via telefonica')->count();
+        $quejaCanalPresencial = QuejasCliente::select('id', 'canal')->where('canal', 'Forma presencial')->count();
+        $quejaCanalRemota = QuejasCliente::select('id', 'canal')->where('canal', 'Forma remota')->count();
+        $quejaCanalOficio = QuejasCliente::select('id', 'canal')->where('canal', 'Oficio')->count();
+        $quejaCanalOtro = QuejasCliente::select('id', 'canal')->where('canal', 'Otro')->count();
 
-
-        $quejaCanalCorreoE= QuejasCliente::select('id','canal')->where('canal','Correo electronico')->count();
-        $quejaCanalTelefono= QuejasCliente::select('id','canal')->where('canal','Via telefonica')->count();
-        $quejaCanalPresencial= QuejasCliente::select('id','canal')->where('canal','Forma presencial')->count();
-        $quejaCanalRemota= QuejasCliente::select('id','canal')->where('canal','Forma remota')->count();
-        $quejaCanalOficio= QuejasCliente::select('id','canal')->where('canal','Oficio')->count();
-        $quejaCanalOtro= QuejasCliente::select('id','canal')->where('canal','Otro')->count();
-
-        return view('admin.desk.clientes.dashboard',compact('quejaCanalCorreoE','quejaCanalTelefono','quejaCanalPresencial','quejaCanalRemota','quejaCanalOficio','quejaCanalOtro','quejaAcSolicitada','quejaAcNoSolicitada','quejaPrioridadA','quejaPrioridadB','quejaEstatusAltaArray','quejaEstatusMediaArray','quejaEstatusBajaArray','quejaEstatusSinDArray'));
+        return view('admin.desk.clientes.dashboard', compact('quejaCanalCorreoE', 'quejaCanalTelefono', 'quejaCanalPresencial', 'quejaCanalRemota', 'quejaCanalOficio', 'quejaCanalOtro', 'quejaAcSolicitada', 'quejaAcNoSolicitada', 'quejaPrioridadA', 'quejaPrioridadB', 'quejaEstatusAltaArray', 'quejaEstatusMediaArray', 'quejaEstatusBajaArray', 'quejaEstatusSinDArray'));
     }
 
     // public function enviarCorreos($request, $quejasClientes){
     //     dd($request->all);
 
-
-
     // //    Mail::to($quejas->email)->send(new SeguimientoQuejaClienteEmail($quejas,$quejasCliente));
     // }
-
-
-
 }
