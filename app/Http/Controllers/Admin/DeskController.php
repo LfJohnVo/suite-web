@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\AceptacionAccionCorrectivaEmail;
+use App\Mail\AtencionQuejaAtendidaEmail;
 use App\Mail\CierreQuejaAceptadaEmail;
 use App\Mail\NotificacionResponsableQuejaEmail;
 use App\Mail\ResolucionQuejaRechazadaEmail;
@@ -178,7 +179,7 @@ class DeskController extends Controller
 
         $activos = Activo::get();
 
-        $empleados = Empleado::get();
+        $empleados = Empleado::alta()->get();
 
         $sedes = Sede::get();
 
@@ -330,7 +331,7 @@ class DeskController extends Controller
 
         $sedes = Sede::get();
 
-        $empleados = Empleado::get();
+        $empleados = Empleado::alta()->get();
 
         return view('admin.desk.riesgos.edit', compact('riesgos', 'procesos', 'empleados', 'areas', 'activos', 'sedes', 'analisis'));
     }
@@ -437,7 +438,7 @@ class DeskController extends Controller
 
         $sedes = Sede::get();
 
-        $empleados = Empleado::get();
+        $empleados = Empleado::alta()->get();
 
         return view('admin.desk.quejas.edit', compact('quejas', 'procesos', 'empleados', 'areas', 'activos', 'sedes', 'analisis'));
     }
@@ -543,7 +544,7 @@ class DeskController extends Controller
 
         $activos = Activo::get();
 
-        $empleados = Empleado::get();
+        $empleados = Empleado::alta()->get();
 
         return view('admin.desk.denuncias.edit', compact('denuncias', 'activos', 'empleados', 'analisis'));
     }
@@ -640,7 +641,7 @@ class DeskController extends Controller
 
         $activos = Activo::get();
 
-        $empleados = Empleado::get();
+        $empleados = Empleado::alta()->get();
 
         $areas = Area::get();
 
@@ -739,7 +740,7 @@ class DeskController extends Controller
 
         $activos = Activo::get();
 
-        $empleados = Empleado::get();
+        $empleados = Empleado::alta()->get();
 
         $areas = Area::get();
 
@@ -819,7 +820,7 @@ class DeskController extends Controller
 
         $activos = Activo::get();
 
-        $empleados = Empleado::get();
+        $empleados = Empleado::alta()->get();
 
         $clientes = TimesheetCliente::get();
 
@@ -965,6 +966,7 @@ class DeskController extends Controller
         $conforme_solucion = intval($request->conforme_solucion ? $request->conforme_solucion : $quejasClientes->conforme_solucion) == 1 ? true : false;
         $cumplio_fecha = intval($request->cumplio_fecha ? $request->cumplio_fecha : $quejasClientes->cumplio_fecha) == 1 ? true : false;
         $cerrar_ticket = intval($request->cerrar_ticket ? $request->cerrar_ticket : $quejasClientes->cerrar_ticket) == 1 ? true : false;
+        $email_realizara_accion_inmediata = intval($request->email_realizara_accion_inmediata ? $request->email_realizara_accion_inmediata : $quejasClientes->email_realizara_accion_inmediata) == 1 ? true : false;
         //if ($desea_levantar_ac) {
         //     $request->validate([
         //        'responsable_sgi_id' => 'required',
@@ -1081,10 +1083,12 @@ class DeskController extends Controller
         if ($notificar_atencion_queja_no_aprobada) {
             if ($cerrar_ticket == false) {
                 if (!$quejasClientes->email_env_resolucion_rechazada) {
-                    $quejasClientes->update([
-                        'email_env_resolucion_rechazada' => true,
-                    ]);
-                    Mail::to($quejasClientes->responsableAtencion->email)->cc($quejasClientes->registro->email)->send(new ResolucionQuejaRechazadaEmail($quejasClientes));
+                    if ($quejasClientes->registro != null && $quejasClientes->responsableAtencion != null) {
+                        $quejasClientes->update([
+                            'email_env_resolucion_rechazada' => true,
+                        ]);
+                        Mail::to($quejasClientes->responsableAtencion->email)->cc($quejasClientes->registro->email)->send(new ResolucionQuejaRechazadaEmail($quejasClientes));
+                    }
                 }
             }
         }
@@ -1092,20 +1096,35 @@ class DeskController extends Controller
         if ($notificar_atencion_queja_no_aprobada) {
             if ($cerrar_ticket) {
                 if (!$quejasClientes->email_env_resolucion_aprobada) {
+                    if ($quejasClientes->registro != null && $quejasClientes->responsableAtencion != null) {
+                        $quejasClientes->update([
+                            'email_env_resolucion_aprobada' => true,
+                        ]);
+                        Mail::to($quejasClientes->responsableAtencion->email)->cc($quejasClientes->registro->email)->send(new CierreQuejaAceptadaEmail($quejasClientes));
+                    }
+                }
+            }
+        }
+
+        if (!$email_realizara_accion_inmediata) {
+            if (!is_null($quejasClientes->acciones_tomara_responsable)) {
+                if ($quejasClientes->registro != null && $quejasClientes->responsableAtencion != null) {
                     $quejasClientes->update([
-                        'email_env_resolucion_aprobada' => true,
-                    ]);
-                    Mail::to($quejasClientes->responsableAtencion->email)->cc($quejasClientes->registro->email)->send(new CierreQuejaAceptadaEmail($quejasClientes));
+                    'email_realizara_accion_inmediata' => true,
+                ]);
+                    Mail::to($quejasClientes->registro->email)->cc($quejasClientes->responsableAtencion->email)->send(new AtencionQuejaAtendidaEmail($quejasClientes));
                 }
             }
         }
 
         if ($notificar_registro_queja) {
             if (!$quejasClientes->correo_enviado_registro) {
-                $quejasClientes->update([
-                    'correo_enviado_registro' => true,
-                ]);
-                Mail::to($quejasClientes->registro->email)->cc($quejasClientes->responsableAtencion->email)->send(new NotificacionResponsableQuejaEmail($quejasClientes));
+                if ($quejasClientes->registro != null && $quejasClientes->responsableAtencion != null) {
+                    $quejasClientes->update([
+                        'correo_enviado_registro' => true,
+                    ]);
+                    Mail::to($quejasClientes->registro->email)->cc($quejasClientes->responsableAtencion->email)->send(new NotificacionResponsableQuejaEmail($quejasClientes));
+                }
             }
         }
 
@@ -1127,7 +1146,7 @@ class DeskController extends Controller
                 'es_externo' => true,
                 'otro_categoria' => $request->otro_categoria,
                 'id_registro' => $request->responsable_sgi_id,
-                'estatus' => 'solicitada',
+                'estatus' => 'Sin atender',
                 'aprobada' => false,
                 'aprobacion_contestada' => false,
                 'id_reporto'=>$request->empleado_reporto_id,
@@ -1165,8 +1184,12 @@ class DeskController extends Controller
             'responsable_atencion_queja_id'=>$request->responsable_atencion_queja_id,
         ]);
 
-        // dd($request->all());
-        Mail::to($quejasClientes->responsableAtencion->email)->cc($quejasClientes->registro->email)->send(new NotificacionResponsableQuejaEmail($quejasClientes));
+        $empleado_email = Empleado::select('name', 'email')->find($request->responsable_atencion_queja_id);
+        $empleado_copia = auth()->user()->empleado;
+
+        if ($quejasClientes->registro != null && $request->responsable_atencion_queja_id != null) {
+            Mail::to($empleado_email->email)->cc($empleado_copia->email)->send(new NotificacionResponsableQuejaEmail($quejasClientes, $empleado_email));
+        }
 
         return response()->json(['success' => true, 'request' => $request->all(), 'message'=>'Enviado con éxito']);
     }
@@ -1176,7 +1199,6 @@ class DeskController extends Controller
         $id_quejas = $request->id;
         $quejasClientes = QuejasCliente::find(intval($id_quejas))->load('evidencias_quejas', 'planes', 'cierre_evidencias', 'cliente', 'proyectos', 'responsableAtencion');
 
-        // dd($request->all());
         Mail::to($quejasClientes->registro->email)->cc($quejasClientes->responsableAtencion->email)->send(new SolicitarCierreQuejaEmail($quejasClientes));
 
         return response()->json(['success' => true, 'request' => $request->all(), 'message'=>'Enviado con éxito']);
@@ -1313,6 +1335,7 @@ class DeskController extends Controller
         $quejaNoCumplioFecha = QuejasCliente::select('id', 'cumplio_fecha')->where('cumplio_fecha', false)->count();
 
         $areasCollect = [];
+        $areas = [];
         $ticketPorArea = QuejasCliente::select('area_quejado')->get();
         foreach ($ticketPorArea as $ticketArea) {
             $areas = $ticketArea->area_quejado;
@@ -1465,6 +1488,14 @@ class DeskController extends Controller
         }
     }
 
+    public function destroyQuejasClientes(Request $request, $quejasClientes)
+    {
+        $quejasClientes = QuejasCliente::find($quejasClientes);
+        $quejasClientes->delete();
+
+        return response()->json(['status' => 'success', 'message' => 'Dato Eliminado']);
+    }
+
     public function validateRequestRegistroQuejaCliente($request)
     {
         // dd($request->all());
@@ -1553,5 +1584,14 @@ class DeskController extends Controller
             'porque_no_cierre_ticket'=>  'El campo por qué no se cierra el ticket es obligatorio',
         ]
         );
+    }
+
+    public function showQuejaClientes(Request $request)
+    {
+        $id_quejas = $request->quejas_clientes_id;
+
+        $quejasClientes = QuejasCliente::findOrfail(intval($id_quejas))->load('evidencias_quejas', 'planes', 'cierre_evidencias', 'cliente', 'proyectos');
+
+        return view('admin.desk.quejas-clientes.show', compact('quejasClientes', 'id_quejas'));
     }
 }

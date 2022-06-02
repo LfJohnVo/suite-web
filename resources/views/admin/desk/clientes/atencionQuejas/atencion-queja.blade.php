@@ -106,12 +106,12 @@
                 <input type="file" name="cierre[]" class="form-control" multiple="multiple">
             </div>
         @else
-            <div class="row">
+            <div class="row ml-1">
                 <div class="form-group col-md-8">
                     <input type="file" name="cierre[]" class="form-control" multiple="multiple">
                 </div>
                 <div class="form-group col-md-4">
-                    <span type="button" class="mt-5 mr-5" data-toggle="modal"
+                    <span type="button" class="mt-2 mr-5" data-toggle="modal"
                         data-target="#evidenciaDeCierreAgregada">
                         <i class="mr-2 fas fa-file-download text-primary" style="font-size:14pt"></i>Ver
                         evidencia(s) de cierre
@@ -209,15 +209,15 @@
 
 
 <script type="text/javascript">
-    let id_quejas = @json($id_quejas);
+    let queja = @json($id_quejas);
     document.getElementById("cierra_queja_btn_correo").addEventListener("click", (event) => {
         event.preventDefault();
         console.log('click');
         let empleado_reporto_id = @json($quejasClientes->empleado_reporto_id);
-        sendEmailCierre(empleado_reporto_id, id_quejas);
+        sendEmailCierre(empleado_reporto_id, queja);
     });
 
-    function sendEmailCierre(empleado_reporto_id, id_quejas) {
+    function sendEmailCierre(empleado_reporto_id, queja) {
         let url = "{{ route('admin.desk.quejas-clientes.correoSolicitarCierreQueja') }}";
         Swal.fire({
             title: `¿Está seguro(a) de enviar el correo al responsable?`,
@@ -236,7 +236,7 @@
                             Accept: 'application/json'
                         },
                         body: JSON.stringify({
-                            id: id_quejas,
+                            id: queja,
                             empleado_reporto_id: empleado_reporto_id,
                         })
                     })

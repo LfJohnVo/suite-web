@@ -132,12 +132,19 @@ class AccionCorrectivaController extends Controller
         $users = User::get();
         $teams = Team::get();
 
-        return view('admin.accionCorrectivas.index', compact('users', 'puestos', 'users', 'puestos', 'users', 'users', 'teams'));
+        $total_AC = AccionCorrectiva::get()->count();
+        $nuevos_AC = AccionCorrectiva::where('estatus', 'Sin atender')->get()->count();
+        $en_curso_AC = AccionCorrectiva::where('estatus', 'En curso')->get()->count();
+        $en_espera_AC = AccionCorrectiva::where('estatus', 'En espera')->get()->count();
+        $cerrados_AC = AccionCorrectiva::where('estatus', 'Cerrado')->get()->count();
+        $cancelados_AC = AccionCorrectiva::where('estatus', 'No procedente')->get()->count();
+
+        return view('admin.accionCorrectivas.index', compact('total_AC', 'nuevos_AC', 'en_curso_AC', 'en_espera_AC', 'cerrados_AC', 'cancelados_AC', 'users', 'puestos', 'users', 'puestos', 'users', 'users', 'teams'));
     }
 
     public function obtenerAccionesCorrectivasSinAprobacion()
     {
-        $accionesCorrectivas = AccionCorrectiva::with(['deskQuejaCliente'=>function ($query) {
+        $accionesCorrectivas = AccionCorrectiva::with(['deskQuejaCliente' => function ($query) {
             $query->with('registro', 'responsableSgi');
         }])->where('aprobada', false)->where('aprobacion_contestada', false)->get();
 
@@ -162,7 +169,7 @@ class AccionCorrectivaController extends Controller
         if ($esAprobada) {
             return response()->json(['success'=>true, 'message'=>'Acción Correctiva Generada', 'aprobado'=>true]);
         } else {
-            return response()->json(['success'=>true, 'message'=>'Acción Correctiva Rechazada', 'aprobado'=>false]);
+            return response()->json(['success' => true, 'message' => 'Acción Correctiva Rechazada', 'aprobado' => false]);
         }
     }
 
@@ -182,7 +189,7 @@ class AccionCorrectivaController extends Controller
 
         $nombre_autorizas = User::get()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $empleados = Empleado::with('area')->get();
+        $empleados = Empleado::alta()->with('area')->get();
 
         $areas = Area::get();
 
@@ -196,17 +203,17 @@ class AccionCorrectivaController extends Controller
     public function store(Request $request)
     {
         $accionCorrectiva = AccionCorrectiva::create([
-        'tema' => $request->tema,
-        'fecharegistro' => $request->fecharegistro,
-        'id_reporto' => $request->id_reporto,
-        'id_registro' => $request->id_registro,
-        'causaorigen' => $request->causaorigen,
-        'descripcion' => $request->descripcion,
-        'areas' => $request->areas,
-        'procesos' => $request->procesos,
-        'activos' => $request->activos,
-        'estatus'=> 'Nuevo',
-    ]);
+            'tema' => $request->tema,
+            'fecharegistro' => $request->fecharegistro,
+            'id_reporto' => $request->id_reporto,
+            'id_registro' => $request->id_registro,
+            'causaorigen' => $request->causaorigen,
+            'descripcion' => $request->descripcion,
+            'areas' => $request->areas,
+            'procesos' => $request->procesos,
+            'activos' => $request->activos,
+            'estatus' => 'Nuevo',
+        ]);
 
         // $accionCorrectiva = AccionCorrectiva::create($request->all());;
         //dd($request['pdf-value']);
@@ -246,7 +253,7 @@ class AccionCorrectivaController extends Controller
 
         $accionCorrectiva->load('nombrereporta', 'puestoreporta', 'nombreregistra', 'puestoregistra', 'responsable_accion', 'nombre_autoriza', 'team');
 
-        $empleados = Empleado::with('area')->get();
+        $empleados = Empleado::with('area')->orderBy('name')->get();
 
         $areas = Area::get();
 
@@ -376,7 +383,7 @@ class AccionCorrectivaController extends Controller
             $analisis = AnalisisAccionCorrectiva::where('accion_correctiva_id', $accion)->first();
             $analisis->update($request->all());
         } else {
-            $analisis = AnalisisAccionCorrectiva::create(array_merge($request->all(), ['accion_correctiva_id'=>$accion]));
+            $analisis = AnalisisAccionCorrectiva::create(array_merge($request->all(), ['accion_correctiva_id' => $accion]));
         }
 
         return redirect()->route('admin.accion-correctivas.edit', $accion);

@@ -80,6 +80,8 @@ class QuejasCliente extends Model
         'email_env_resolucion_rechazada',
         'notificar_atencion_queja_no_aprobada',
         'email_env_resolucion_aprobada',
+        'email_realizara_accion_inmediata',
+
     ];
 
     protected $appends = [
@@ -105,7 +107,7 @@ class QuejasCliente extends Model
 
     public function empleado()
     {
-        return $this->belongsTo(Empleado::class, 'colaborador_quejado_id');
+        return $this->belongsTo(Empleado::class, 'colaborador_quejado_id')->alta();
     }
 
     public function proceso()
@@ -160,17 +162,17 @@ class QuejasCliente extends Model
 
     public function registro()
     {
-        return $this->belongsTo(Empleado::class, 'empleado_reporto_id', 'id');
+        return $this->belongsTo(Empleado::class, 'empleado_reporto_id', 'id')->alta();
     }
 
     public function responsableSgi()
     {
-        return $this->belongsTo(Empleado::class, 'responsable_sgi_id', 'id');
+        return $this->belongsTo(Empleado::class, 'responsable_sgi_id', 'id')->alta();
     }
 
     public function responsableAtencion()
     {
-        return $this->belongsTo(Empleado::class, 'responsable_atencion_queja_id', 'id');
+        return $this->belongsTo(Empleado::class, 'responsable_atencion_queja_id', 'id')->alta();
     }
 
     public function accionCorrectiva()
