@@ -23,15 +23,16 @@ use App\Models\RH\ContactosEmergenciaEmpleado;
 use App\Models\RH\DependientesEconomicosEmpleados;
 use App\Models\RH\EntidadCrediticia;
 use App\Models\RH\TipoContratoEmpleado;
+use App\Models\Role;
 use App\Models\Sede;
 use App\Models\User;
 use App\Rules\MonthAfterOrEqual;
+use App\Traits\GeneratePassword;
 use App\Traits\ObtenerOrganizacion;
 use Barryvdh\DomPDF\Facade as PDF;
 use Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -44,6 +45,14 @@ use Yajra\DataTables\Facades\DataTables;
 class EmpleadoController extends Controller
 {
     use ObtenerOrganizacion;
+    use GeneratePassword;
+
+    public function getListaEmpleadosIndex()
+    {
+        $empleados = Empleado::with('area', 'sede', 'supervisor')->alta()->orderByDesc('id')->get();
+
+        return dataTables()->of($empleados)->toJson();
+    }
 
     /**
      * Display a listing of the resource.
@@ -53,86 +62,86 @@ class EmpleadoController extends Controller
     public function index(Request $request)
     {
         abort_if(Gate::denies('configuracion_empleados_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        if ($request->ajax()) {
-            $query = Empleado::orderByDesc('id')->alta()->get();
-            $table = DataTables::of($query);
+        // if ($request->ajax()) {
+        //     $query = Empleado::orderByDesc('id')->alta()->get();
+        //     $table = DataTables::of($query);
 
-            $table->addColumn('placeholder', '&nbsp;');
-            $table->addColumn('actions', '&nbsp;');
-            $table->addIndexColumn();
+        //     $table->addColumn('placeholder', '&nbsp;');
+        //     $table->addColumn('actions', '&nbsp;');
+        //     $table->addIndexColumn();
 
-            $table->editColumn('actions', function ($row) {
-                $viewGate = 'configuracion_empleados_show';
-                $editGate = 'configuracion_empleados_edit';
-                $deleteGate = 'configuracion_empleados_delete';
-                $crudRoutePart = 'empleados';
+        //     $table->editColumn('actions', function ($row) {
+        //         $viewGate = 'configuracion_empleados_show';
+        //         $editGate = 'configuracion_empleados_edit';
+        //         $deleteGate = 'configuracion_empleados_delete';
+        //         $crudRoutePart = 'empleados';
 
-                return view('partials.datatablesActions', compact(
-                    'viewGate',
-                    'editGate',
-                    'deleteGate',
-                    'crudRoutePart',
-                    'row'
-                ));
-            });
+        //         return view('partials.datatablesActions', compact(
+        //             'viewGate',
+        //             'editGate',
+        //             'deleteGate',
+        //             'crudRoutePart',
+        //             'row'
+        //         ));
+        //     });
 
-            $table->editColumn('checkbox', function ($row) {
-                return $row->id ? $row->id : '';
-            });
-            $table->editColumn('id', function ($row) {
-                return $row->id ? $row->id : '';
-            });
-            $table->editColumn('name', function ($row) {
-                return $row->name ? $row->name : '';
-            });
+        //     $table->editColumn('checkbox', function ($row) {
+        //         return $row->id ? $row->id : '';
+        //     });
+        //     $table->editColumn('id', function ($row) {
+        //         return $row->id ? $row->id : '';
+        //     });
+        //     $table->editColumn('name', function ($row) {
+        //         return $row->name ? $row->name : '';
+        //     });
 
-            $table->editColumn('avatar', function ($row) {
-                return $row->avatar ? $row->avatar : '';
-            });
+        //     $table->editColumn('avatar', function ($row) {
+        //         return $row->avatar ? $row->avatar : '';
+        //     });
 
-            $table->editColumn('area', function ($row) {
-                return $row->area ? $row->area->area : '';
-            });
-            $table->editColumn('puesto', function ($row) {
-                return $row->puesto ? $row->puesto : '';
-            });
-            $table->editColumn(
-                'jefe',
-                function ($row) {
-                    return $row->supervisor ? $row->supervisor->name : '';
-                }
-            );
-            $table->editColumn('antiguedad', function ($row) {
-                return $row->obtener_antiguedad;
-                // return Carbon::parse(Carbon::parse($row->obtener_antiguedad))->diffForHumans(Carbon::now()->subDays());
-            });
-            $table->editColumn('estatus', function ($row) {
-                return $row->estatus ? $row->estatus : '';
-            });
-            $table->editColumn('email', function ($row) {
-                return $row->email ? $row->email : '';
-            });
+        //     $table->editColumn('area', function ($row) {
+        //         return $row->area ? $row->area->area : '';
+        //     });
+        //     $table->editColumn('puesto', function ($row) {
+        //         return $row->puesto ? $row->puesto : '';
+        //     });
+        //     $table->editColumn(
+        //         'jefe',
+        //         function ($row) {
+        //             return $row->supervisor ? $row->supervisor->name : '';
+        //         }
+        //     );
+        //     $table->editColumn('antiguedad', function ($row) {
+        //         return $row->obtener_antiguedad;
+        //         // return Carbon::parse(Carbon::parse($row->obtener_antiguedad))->diffForHumans(Carbon::now()->subDays());
+        //     });
+        //     $table->editColumn('estatus', function ($row) {
+        //         return $row->estatus ? $row->estatus : '';
+        //     });
+        //     $table->editColumn('email', function ($row) {
+        //         return $row->email ? $row->email : '';
+        //     });
 
-            $table->editColumn('telefono', function ($row) {
-                return $row->telefono ? $row->telefono : '';
-            });
+        //     $table->editColumn('telefono', function ($row) {
+        //         return $row->telefono ? $row->telefono : '';
+        //     });
 
-            $table->editColumn('n_empleado', function ($row) {
-                return $row->n_empleado ? $row->n_empleado : '';
-            });
+        //     $table->editColumn('n_empleado', function ($row) {
+        //         return $row->n_empleado ? $row->n_empleado : '';
+        //     });
 
-            $table->editColumn('n_registro', function ($row) {
-                return $row->n_registro ? $row->n_registro : '';
-            });
+        //     $table->editColumn('n_registro', function ($row) {
+        //         return $row->n_registro ? $row->n_registro : '';
+        //     });
 
-            $table->editColumn('sede', function ($row) {
-                return $row->sede ? $row->sede->sede : '';
-            });
+        //     $table->editColumn('sede', function ($row) {
+        //         return $row->sede ? $row->sede->sede : '';
+        //     });
 
-            $table->rawColumns(['actions', 'placeholder']);
+        //     $table->rawColumns(['actions', 'placeholder']);
 
-            return $table->make(true);
-        }
+        //     return $table->make(true);
+        // }
 
         $ceo_exists = Empleado::select('supervisor_id')->whereNull('supervisor_id')->exists();
 
@@ -215,7 +224,7 @@ class EmpleadoController extends Controller
 
         $request->validate([
             'name' => 'required|string',
-            'n_empleado' => 'required|unique:empleados',
+            'n_empleado' => 'nullable|unique:empleados',
             'area_id' => 'required|exists:areas,id',
             'supervisor_id' => $validateSupervisor,
             'puesto_id' => 'required|exists:puestos,id',
@@ -413,23 +422,17 @@ class EmpleadoController extends Controller
             'email' => $empleado->email,
             'password' =>  $generatedPassword['hash'],
             'n_empleado' => $empleado->n_empleado,
+            'empleado_id' => $empleado->id,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
-
+        if (Role::find(4) != null) {
+            User::findOrFail($user->id)->roles()->sync(4);
+        }
         //Send email with generated password
         Mail::to($empleado->email)->send(new EnviarCorreoBienvenidaTabantaj($empleado, $generatedPassword['password']));
 
         return $user;
-    }
-
-    public function generatePassword()
-    {
-        $random = str_shuffle('abcdefghjklmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ234567890!$%^&!$%^&');
-        $password = substr($random, 0, 10);
-        $hashed_random_password = Hash::make($password);
-
-        return ['hash' => $hashed_random_password, 'password' => $password];
     }
 
     public function assignDependenciesModel($request, $empleado)
@@ -1134,7 +1137,7 @@ class EmpleadoController extends Controller
         }
         $request->validate([
             'name' => 'required|string',
-            'n_empleado' => 'unique:empleados,n_empleado,' . $id,
+            'n_empleado' => 'nullable|unique:empleados,n_empleado,' . $id,
             'area_id' => 'required|exists:areas,id',
             'supervisor_id' => $validateSupervisor,
             'puesto_id' => 'required|exists:puestos,id',
@@ -1205,7 +1208,6 @@ class EmpleadoController extends Controller
         //         }
         //     }
         // }
-
         $empleado->update([
             'name' => $request->name,
             'area_id' =>  $request->area_id,
@@ -1217,6 +1219,7 @@ class EmpleadoController extends Controller
             'email' =>  $request->email,
             'telefono' =>  $request->telefono,
             'genero' =>  $request->genero,
+            'estatus' => 'alta',
             'n_empleado' =>  $request->n_empleado,
             'n_registro' =>  $request->n_registro,
             'sede_id' =>  $request->sede_id,
@@ -1265,7 +1268,10 @@ class EmpleadoController extends Controller
             'periodicidad_nomina' => $request->periodicidad_nomina,
             'foto' => $image,
         ]);
-
+        $usuario = User::where('empleado_id', $empleado->id)->orWhere('n_empleado', $empleado->n_empleado)->first();
+        $usuario->update([
+            'n_empleado' => $request->n_empleado,
+        ]);
         $this->assignDependenciesModel($request, $empleado);
 
         return response()->json(['status' => 'success', 'message' => 'Empleado Actualizado', 'from' => 'rh'], 200);

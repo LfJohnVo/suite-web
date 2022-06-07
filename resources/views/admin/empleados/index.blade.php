@@ -61,17 +61,17 @@
                 </div>
             </div>
         @endcan
-        <div class="grid justify-content-between">
-            {{-- <div class="col-10"> --}}
-            {{-- <button id="eliminar_todo" class="btn btn-danger btn-sm"
+        <div class="d-flex justify-content-between">
+            {{-- <div class="p-10">
+                <button id="eliminar_todo" class="btn btn-danger btn-sm"
                     style="text-align: right;padding-right: 20px; background-color: red !important;"><i
                         class="fa-solid fa-trash"></i> seleccionados</button>
                 <div class="spinner-grow hide" role="status" id="loaderDiv">
                     <span class="sr-only">Loading...</span>
                 </div>
-                <span class="sr-only">Loading...</span> --}}
-            {{-- </div> --}}
-            <div class="col-12" style="text-align: end">
+                <span class="sr-only">Loading...</span>
+            </div> --}}
+            <div class="p-2 w-100" style="text-align: end;">
                 <a href="{{ url('admin/panel-inicio') }}" style="text-align: right;padding-right: 20px;"
                     class="btn btn-success btn-sm active" role="button" aria-pressed="true"><i
                         class="pl-2 pr-3 fas fa-plus"></i> Configurar vista datos</a>
@@ -97,9 +97,15 @@
 
         @include('partials.flashMessages')
         <div class="card-body datatable-fix">
-            <table class="table table-bordered w-100 datatable-Empleado">
+            <table class="table table-bordered w-100 datatable-Empleado tblCSV">
                 <thead class="thead-dark">
                     <tr>
+                        {{-- <th>
+
+                        </th> --}}
+                        <th style="vertical-align: top">
+                            ID
+                        </th>
                         <th style="vertical-align: top">
                             Foto
                         </th>
@@ -315,7 +321,13 @@
                 serverSide: true,
                 retrieve: true,
                 aaSorting: [],
-                ajax: "{{ route('admin.empleados.index') }}",
+                ajax: {
+                    url: "{{ route('admin.empleado.getListaEmpleadosIndex') }}",
+                    type: 'POST',
+                    data: {
+                        _token: _token
+                    }
+                },
                 columns: [
                     // {
                     //     data: 'checkbox',
@@ -325,6 +337,10 @@
                     //             row.id + '" value="' + row.id + '">';
                     //     }
                     // },
+                    {
+                        data: 'id',
+                        name: 'id'
+                    },
                     {
                         data: 'avatar',
                         name: 'avatar',
@@ -336,35 +352,76 @@
                     },
                     {
                         data: 'n_empleado',
-                        name: 'n_empleado'
+                        render: function(data, type, row, meta) {
+                            if (data != null) {
+                                return data;
+                            }
+                            return '- -';
+                        }
                     },
                     {
                         data: 'name',
-                        name: 'name'
+                        render: function(data, type, row, meta) {
+                            if (data != null) {
+                                return data;
+                            }
+                            return '- -';
+                        }
                     },
                     {
                         data: 'email',
-                        name: 'email'
+                        render: function(data, type, row, meta) {
+                            if (data != null) {
+                                return data;
+                            }
+                            return '- -';
+                        }
                     },
                     {
                         data: 'telefono',
-                        name: 'telefono'
+                        render: function(data, type, row, meta) {
+                            if (data != null) {
+                                return data;
+                            }
+                            return '- -';
+                        }
                     },
                     {
-                        data: 'area',
-                        name: 'area'
+                        data: 'area.area',
+                        render: function(data, type, row, meta) {
+                            if (data != null) {
+                                return data;
+                            }
+                            return '- -';
+                        }
                     },
                     {
                         data: 'puesto',
-                        name: 'puesto'
+                        render: function(data, type, row, meta) {
+                            if (row.puesto != null) {
+                                return row.puesto;
+                            }
+                            return '- -';
+                        }
                     },
                     {
-                        data: 'jefe',
-                        name: 'jefe'
+                        data: 'supervisor',
+                        render: function(data, type, row, meta) {
+                            if (row.supervisor != null) {
+                                return row.supervisor.name;
+                            }
+                            return '- -';
+                        }
                     },
                     {
                         data: 'antiguedad',
-                        name: 'antiguedad'
+                        name: 'antiguedad',
+                        render: function(data, type, row, meta) {
+                            if (data != null) {
+                                return data;
+                            }
+                            return '- -';
+                        }
                     },
                     {
                         data: 'estatus',
@@ -379,7 +436,12 @@
                     },
                     {
                         data: 'sede',
-                        name: 'sede'
+                        render: function(data, type, row, meta) {
+                            if (row.sede != null) {
+                                return row.sede.sede;
+                            }
+                            return '- -';
+                        }
                     },
                     {
                         data: 'id',
