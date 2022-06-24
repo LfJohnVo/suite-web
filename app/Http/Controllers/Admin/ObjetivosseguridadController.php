@@ -191,4 +191,13 @@ class ObjetivosseguridadController extends Controller
         return view('admin.objetivosseguridads.evaluacion')
             ->with('objetivos', $objetivos);
     }
+
+    public function objetivosDashboard(Request $request)
+    {
+        $objetivos = Objetivosseguridad::with('evaluacion_objetivos')->get();
+
+        $tipos = TiposObjetivosSistema::get();
+
+        return view('admin.objetivosseguridads.dashboard', compact('objetivos', 'tipos'));
+    }
 }
