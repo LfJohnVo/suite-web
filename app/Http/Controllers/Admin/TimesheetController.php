@@ -58,14 +58,16 @@ class TimesheetController extends Controller
 
         if (Timesheet::count() > 0) {
             $time_viejo = Timesheet::orderBy('fecha_dia')->first()->fecha_dia;
+            $time_exist = true;
         } else {
             $time_viejo = null;
+            $time_exist = false;
         }
 
         $rechazos_contador = Timesheet::where('empleado_id', auth()->user()->empleado->id)->where('estatus', 'rechazado')->count();
         $aprobar_contador = Timesheet::where('aprobador_id', auth()->user()->empleado->id)->where('estatus', 'pendiente')->count();
 
-        return view('admin.timesheet.timesheet-inicio', compact('organizacion', 'rechazos_contador', 'aprobar_contador', 'time_viejo'));
+        return view('admin.timesheet.timesheet-inicio', compact('organizacion', 'rechazos_contador', 'aprobar_contador', 'time_viejo', 'time_exist'));
     }
 
     public function actualizarDia(Request $request)
@@ -119,6 +121,7 @@ class TimesheetController extends Controller
                 if ($area['id'] == $empleado->area_id) {
                     $proyectos_array->push([
                         'id'=>$proyecto->id,
+                        'identificador'=>$proyecto->identificador,
                         'proyecto'=>$proyecto->proyecto,
                     ]);
                 }
@@ -307,6 +310,7 @@ class TimesheetController extends Controller
                 if ($area['id'] == $empleado->area_id) {
                     $proyectos_array->push([
                         'id'=>$proyecto->id,
+                        'identificador'=>$proyecto->identificador,
                         'proyecto'=>$proyecto->proyecto,
                     ]);
                 }
@@ -521,15 +525,24 @@ class TimesheetController extends Controller
             [
                 'identificador' => 'required|unique:timesheet_proyectos,identificador,' . $id,
                 'proyecto'=>'required',
-                'fecha_inicio'=>'required|before:fecha_fin',
-                'fecha_fin'=>'required|after:fecha_inicio',
             ],
             [
                 'identificador.unique' => 'El ID ya esta en uso',
-                'fecha_inicio.before'=>'La fecha de incio debe ser anterior a la fecha de fin',
-                'fecha_fin.after'=>'La fecha de fin debe ser posterior a la fecha de incio',
             ],
         );
+
+        if ($request->fecha_inicio && $request->fecha_fin) {
+            $request->validate(
+                [
+                    'fecha_inicio'=>'required|before:fecha_fin',
+                    'fecha_fin'=>'required|after:fecha_inicio',
+                ],
+                [
+                    'fecha_inicio.before'=>'La fecha de incio debe ser anterior a la fecha de fin',
+                    'fecha_fin.after'=>'La fecha de fin debe ser posterior a la fecha de incio',
+                ],
+            );
+        }
 
         $edit_proyecto = TimesheetProyecto::find($id);
 
@@ -816,38 +829,18 @@ class TimesheetController extends Controller
             if ($porcentaje_participacion_area >= 90) {
                 $nivel_participacion = 'alta';
             }
+            
             $contador_times_aprobados_areas = 0;
             $contador_times_pendientes_areas = 0;
             $contador_times_rechazados_areas = 0;
             $contador_times_papelera_areas = 0;
-            // $proyectos_area = TimesheetProyecto::where('area_id', $area->id)->get();
-            $proyectos_areas_pivot = TimesheetProyectoArea::where('area_id', $area->id)->get();
-            $proyectos_area = Collect();
-            foreach ($proyectos_areas_pivot as $key => $proyect_area_p) {
-                $proyecto_area = TimesheetProyecto::where('id', $proyect_area_p->proyecto_id)->first();
-                $proyectos_area->push([
-                    'id'=>$proyecto_area->id,
-                ]);
+            foreach ($area->empleados as $key => $empleado_t) {
+                $contador_times_aprobados_areas += Timesheet::where('empleado_id', $empleado_t->id)->where('estatus', 'aprobado')->count();
+                $contador_times_pendientes_areas += Timesheet::where('empleado_id', $empleado_t->id)->where('estatus', 'pendiente')->count();
+                $contador_times_rechazados_areas += Timesheet::where('empleado_id', $empleado_t->id)->where('estatus', 'rechazado')->count();
+                $contador_times_papelera_areas += Timesheet::where('empleado_id', $empleado_t->id)->where('estatus', 'papelera')->count();
             }
-            $proyectos_area = $proyectos_area->unique();
-            foreach ($proyectos_area as $pro_a) {
-                $times_horas_area = TimesheetHoras::where('proyecto_id', $pro_a['id'])->with('timesheet')->get();
 
-                foreach ($times_horas_area as $times_h_a) {
-                    if ($times_h_a->timesheet->estatus == 'pendiente') {
-                        $contador_times_pendientes_areas++;
-                    }
-                    if ($times_h_a->timesheet->estatus == 'aprobado') {
-                        $contador_times_aprobados_areas++;
-                    }
-                    if ($times_h_a->timesheet->estatus == 'rechazado') {
-                        $contador_times_rechazados_areas++;
-                    }
-                    if ($times_h_a->timesheet->estatus == 'papelera') {
-                        $contador_times_papelera_areas++;
-                    }
-                }
-            }
             $areas_array->push([
                 'area'=>$area->area,
                 'times_aprobados'=>$contador_times_aprobados_areas,
