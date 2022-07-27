@@ -98,7 +98,7 @@
                     @endcan
                     @can('mi_perfil_mis_reportes_realizar_reporte_de_propuesta_de_mejora')
                         <a href="{{ asset('admin/solicitud-permiso-goce-sueldo') }}" class="btn_reporte">
-                            <i class="bi bi-piggy-bank"></i><br><span>Permisos con goce de sueldo</span>
+                            <i class="bi bi-coin"></i><br><span>Permisos con goce de sueldo</span>
                         </a>
                     @endcan
                     @can('mi_perfil_mis_reportes_realizar_reporte_de_propuesta_de_mejora')
