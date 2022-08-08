@@ -80,7 +80,6 @@
         .select2-selection__choice__remove {
             display: none;
         }
-
     </style>
     <h5 class="col-12 titulo_general_funcion">Editar Documento</h5>
     <div class="card">
@@ -93,10 +92,8 @@
                 <div class="text-right form-group col-12">
                     <a href="{{ route('admin.documentos.index') }}" class="btn_cancelar">Cancelar</a>
                     <input type="submit" class="btn btn-danger" value="Actualizar">
-                    @can('documentos_publish')
-                        <button id="publicar" class="btn btn-danger">Publicar</button>
-                    </div>
-                @endcan
+                    <button id="publicar" class="btn btn-danger">Publicar</button>
+                </div>
             </form>
 
             <!-- Modal -->
