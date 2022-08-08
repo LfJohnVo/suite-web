@@ -1,6 +1,9 @@
 <div>
     <x-loading-indicator />
     <div class="row" wire:ignore>
+        <div class="col-12" style="text-align: end">
+            @livewire('timesheet.empleados-timesheet-export', ['tipo' => 'xlsx'])
+        </div>
         <div class="col-md-4 form-group" style="padding-left:0px !important;">
             <label class="form-label">Área</label>
             <select class="form-control" wire:model="area_id">
@@ -91,13 +94,19 @@
                                 {!! $time->semana !!}
                             </td>
                             <td>
-                                {{ $time->empleado->name }}
+                                @if ($time->empleado)
+                                    {{ $time->empleado->name }}
+                                @endif
                             </td>
                             <td>
-                                {{ $time->aprobador->name }}
+                                @if ($time->aprobador)
+                                    {{ $time->aprobador->name }}
+                                @endif
                             </td>
                             <td>
-                                {{ $time->empleado->area->area }}
+                                @if ($time->empleado)
+                                    {{ $time->empleado->area->area }}
+                                @endif
                             </td>
                             <td>
                                 @if ($time->estatus == 'aprobado')

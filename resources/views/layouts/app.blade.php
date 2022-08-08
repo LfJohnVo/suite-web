@@ -22,20 +22,30 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('img/Silent4Business-Logo-Color.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('img/favicon_tabantaj_v2.png') }}">
     @yield('styles')
     @livewireStyles
     <!-- PWA  -->
     <meta name="theme-color" content="#6777ef" />
     <link rel="apple-touch-icon" href="{{ asset('/img/logo_policromatico.png') }}">
     <link rel="manifest" href="{{ asset('/manifest.json') }}">
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            min-height: 100%;
+        }
+    </style>
 </head>
 
 
 
-<body class="header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden login-page">
-    <div class="flex-row align-items-center">
-        <div class="container-fluid">
-            @yield("content")
+<body class="">
+    <div class="flex-row align-items-center" style="height: 100vh">
+        <div class="container-fluid" style="height: 100vh">
+            @yield('content')
         </div>
     </div>
     @yield('scripts')
@@ -48,6 +58,7 @@
             });
         }
     </script>
+
 </body>
 
 </html>
