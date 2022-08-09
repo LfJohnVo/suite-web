@@ -6,10 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MassDestroyPlanificacionControlRequest;
 use App\Http\Requests\StorePlanificacionControlRequest;
 use App\Http\Requests\UpdatePlanificacionControlRequest;
+use App\Models\Activo;
+use App\Models\Amenaza;
 use App\Models\Empleado;
 use App\Models\PlanificacionControl;
+use App\Models\SubcategoriaActivo;
 use App\Models\Team;
 use App\Models\User;
+use App\Models\Vulnerabilidad;
 use Gate;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -101,9 +105,12 @@ class PlanificacionControlController extends Controller
         abort_if(Gate::denies('planificacion_y_control_agregar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $duenos = User::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
-        $empleados = Empleado::alta()->with('area')->get();
+        $empleados = Empleado::orderBy('name')->alta()->with('area')->get();
+        $amenazas = Amenaza::orderBy('nombre')->get();
+        $vulnerabilidades = Vulnerabilidad::orderBy('nombre')->get();
+        $activos = SubcategoriaActivo::orderBy('subcategoria')->get();
 
-        return view('admin.planificacionControls.create', compact('duenos', 'empleados'));
+        return view('admin.planificacionControls.create', compact('activos','vulnerabilidades','amenazas','duenos', 'empleados'));
     }
 
     public function store(StorePlanificacionControlRequest $request)
@@ -121,11 +128,17 @@ class PlanificacionControlController extends Controller
 
         $duenos = User::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $empleados = Empleado::alta()->with('area')->get();
+        $empleados = Empleado::orderBy('name')->alta()->with('area')->get();
 
         $planificacionControl->load('dueno', 'team');
 
-        return view('admin.planificacionControls.edit', compact('duenos', 'planificacionControl', 'empleados'));
+        $amenazas = Amenaza::get();
+
+        $vulnerabilidades = Vulnerabilidad::orderBy('nombre')->get();
+
+        $activos = SubcategoriaActivo::orderBy('subcategoria')->get();
+
+        return view('admin.planificacionControls.edit', compact('amenazas','vulnerabilidades','activos','duenos', 'planificacionControl', 'empleados'));
     }
 
     public function update(UpdatePlanificacionControlRequest $request, PlanificacionControl $planificacionControl)

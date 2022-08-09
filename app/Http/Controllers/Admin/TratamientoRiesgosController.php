@@ -103,7 +103,7 @@ class TratamientoRiesgosController extends Controller
 
         $controls = DeclaracionAplicabilidad::with('control')->get();
         $responsables = User::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
-        $empleados = Empleado::alta()->with('area')->get();
+        $empleados = Empleado::orderBy('name')->alta()->with('area')->get();
 
         return view('admin.tratamientoRiesgos.create', compact('controls', 'responsables', 'empleados'));
     }

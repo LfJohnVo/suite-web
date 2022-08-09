@@ -15,7 +15,6 @@ class DatabaseSeeder extends Seeder
             GapunoTableSeeder::class,
             GaptresTableSeeder::class,
             GapdosTableSeeder::class,
-            declaracion_aplicabilidad_table::class,
             EstadodocumentosTableSeeder::class,
             // ControlDocumentosSeeder::class,
             EstadoincidentesTableSeeder::class,
@@ -55,6 +54,7 @@ class DatabaseSeeder extends Seeder
             // PlanBaseSeeder::class,
             TablaImpactoSeeder::class,
             PermissionQuejasClientesSeeder::class,
+            declaracion_aplicabilidad_table_version_2::class,
         ]);
     }
 }
