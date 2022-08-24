@@ -839,9 +839,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::resource('informacion-documetadas', 'InformacionDocumetadaController');
 
     // Planificacion Controls
+    Route::post('planificacion-controls/firma', 'PlanificacionControlController@guardarFirmaAprobacion')->name('planificacion-controls.firma-aprobacion');
     Route::delete('planificacion-controls/destroy', 'PlanificacionControlController@massDestroy')->name('planificacion-controls.massDestroy');
     Route::resource('planificacion-controls', 'PlanificacionControlController');
-
+    
     // Activos
 
     // Route::post('activos/create', 'ActivosController@create');
@@ -1083,6 +1084,19 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::resource('analisis-riesgos', 'AnalisisdeRiesgosController');
     Route::get('getEmployeeData', 'AnalisisdeRiesgosController@getEmployeeData')->name('getEmployeeData');
 
+    Route::delete('analisis-impacto/destroy', 'AnalisisdeImpactoController@massDestroy')->name('analisis-impacto.massDestroy');
+    Route::get('analisis-impacto/{id}/edit', 'AnalisisdeImpactoController@edit')->name('analisis-impacto.edit');
+    Route::get('analisis-impacto-menu', 'AnalisisdeImpactoController@menu')->name('analisis-impacto.menu');
+    Route::get('getEmployeeData', 'AnalisisdeImpactoController@getEmployeeData')->name('analisis-impacto.getEmployeeData');
+    Route::resource('analisis-impacto', 'AnalisisdeImpactoController')->names([
+        'index' => 'analisis-impacto.index',
+        'create' => 'analisis-impacto.create',
+        'store' => 'analisis-impacto.store',
+        'show' => 'analisis-impacto.show',
+        'update' => 'analisis-impacto.update',
+    ])->except(['edit']);;
+   
+
     //Carta de Aceptación
     // Route::get('carta-aceptacion/riesgos', 'CartadeAceptacionController@ISO31000')->name('matriz-seguridad.ISO31000');
     Route::delete('carta-aceptacion/destroy', 'CartaAceptacionRiesgosController@destroy')->name('carta-aceptacion.destroy');
@@ -1128,6 +1142,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('octave/graficas/{matriz}', 'MatrizRiesgosController@graficas')->name('octave-graficas');
 
     // Matriz de riesgos -- Sistema de Gestion
+    Route::post('matriz-seguridad/sistema-gestion/identificadorExist', 'MatrizRiesgosController@identificadorExist')->name('matriz-seguridad.sistema-gestion.identificadorExist');
     Route::get('matriz-seguridad/sistema-gestion', 'MatrizRiesgosController@SistemaGestion')->name('matriz-seguridad.sistema-gestion');
     Route::post('matriz-seguridad/sistema-gestion/data', 'MatrizRiesgosController@SistemaGestionData')->name('matriz-seguridad.sistema-gestion.data');
     Route::get('matriz-riesgos/sistema-gestion/create', 'MatrizRiesgosController@createSistemaGestion')->name('matriz-riesgos.sistema-gestion.create');
@@ -1135,7 +1150,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('matriz-riesgos/sistema-gestion/edit/{id}', 'MatrizRiesgosController@editSistemaGestion')->name('matriz-riesgos.sistema-gestion.edit');
     Route::put('matriz-seguridad/sistema-gestion/update/{id}', 'MatrizRiesgosController@updateSistemaGestion')->name('matriz-riesgos.sistema-gestion.update');
     Route::get('matriz-seguridad/sistema-gestion/show/{id}', 'MatrizRiesgosController@showSistemaGestion')->name('matriz-riesgos.sistema-gestion.show');
-    Route::delete('matriz-seguridad/sistema-gestion/destroy/{id}', 'MatrizRiesgosController@destroySistemaGestion')->name('matriz-riesgos.sistema-gestion.destroy');
+    Route::delete('matriz-seguridad/sistema-gestion/{riesgo}', 'MatrizRiesgosController@destroySistemaGestion')->name('matriz-riesgos.sistema-gestion.destroy');
     Route::get('matriz-seguridad/sistema-gestion/seguridadMapa', 'MatrizRiesgosController@MapaCalorSistemaGestion')->name('matriz-mapa.SistemaGestion');
 
     //ProcesosOctave

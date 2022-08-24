@@ -588,4 +588,14 @@ class Empleado extends Model
     {
         return $this->hasMany(Comiteseguridad::class, 'id_asignada', 'id')->orderBy('id');
     }
+
+    public function planificacion()
+    {
+        return $this->belongsToMany(PlanificacionControl::class, 'planificacion_id');
+    }
+
+    public function tratamiento()
+    {
+        return $this->belongsToMany(PlanificacionControl::class, 'tratamiento_id');
+    }
 }

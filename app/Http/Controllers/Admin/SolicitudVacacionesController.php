@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+
 use App\Mail\RespuestaVacaciones as MailRespuestaVacaciones;
 use App\Mail\SolicitudVacaciones as MailSolicitudVacaciones;
+
 use App\Models\Empleado;
 use App\Models\IncidentesVacaciones;
 use App\Models\Organizacion;
@@ -27,7 +29,7 @@ class SolicitudVacacionesController extends Controller
     public function index(Request $request)
     {
 
-        abort_if(Gate::denies('amenazas_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('solicitud_vacaciones_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $data = auth()->user()->empleado->id;
 
         if ($request->ajax()) {
@@ -105,8 +107,8 @@ class SolicitudVacacionesController extends Controller
 
 
     public function create()
-    {
-       
+    {   
+        abort_if(Gate::denies('solicitud_vacaciones_crear'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $ingreso = auth()->user()->empleado->antiguedad;
         $dia_hoy = Carbon::now();
         $no_vacaciones = $ingreso->format('d-m-Y');
@@ -254,7 +256,7 @@ class SolicitudVacacionesController extends Controller
 
     public function store(Request $request)
     {
-        abort_if(Gate::denies('amenazas_agregar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('solicitud_vacaciones_crear'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $request->validate([
             'fecha_inicio' => 'required|date',
@@ -278,7 +280,7 @@ class SolicitudVacacionesController extends Controller
 
     public function show($id)
     {
-        abort_if(Gate::denies('amenazas_editar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('solicitud_vacaciones_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $vacacion = SolicitudVacaciones::with('empleado')->find($id);
 
@@ -300,7 +302,7 @@ class SolicitudVacacionesController extends Controller
 
     public function update(Request $request, $id)
     {
-        abort_if(Gate::denies('amenazas_editar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('solicitud_vacaciones_aprobar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $request->validate([
             'fecha_inicio' => 'required|date',
@@ -327,6 +329,7 @@ class SolicitudVacacionesController extends Controller
 
     public function destroy(Request $request)
     {
+        abort_if(Gate::denies('solicitud_vacaciones_eliminar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $id = $request->id;
         $vacaciones = SolicitudVacaciones::find($id);
         $vacaciones->delete();
@@ -410,6 +413,7 @@ class SolicitudVacacionesController extends Controller
 
     public function aprobacionMenu(Request $request)
     {
+        abort_if(Gate::denies('modulo_aprobacion_ausencia'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $solicitud_vacacion = SolicitudVacaciones::where('autoriza', auth()->user()->empleado->id)->where('aprobacion', 1)->count();
         $solicitud_dayoff = SolicitudDayOff::where('autoriza', auth()->user()->empleado->id)->where('aprobacion', 1)->count();
         $solicitud_permiso = SolicitudPermisoGoceSueldo::where('autoriza', auth()->user()->empleado->id)->where('aprobacion', 1)->count();
@@ -420,7 +424,7 @@ class SolicitudVacacionesController extends Controller
 
     public function aprobacion(Request $request)
     {
-        abort_if(Gate::denies('amenazas_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('modulo_aprobacion_ausencia'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $data = auth()->user()->empleado->id;
 
         if ($request->ajax()) {
@@ -469,7 +473,7 @@ class SolicitudVacacionesController extends Controller
     public function respuesta($id)
     {
 
-        abort_if(Gate::denies('amenazas_editar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('modulo_aprobacion_ausencia'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $vacacion = SolicitudVacaciones::with('empleado')->find($id);
 
         if (empty($vacacion)) {
@@ -494,7 +498,7 @@ class SolicitudVacacionesController extends Controller
     public function archivo(Request $request)
     {
 
-        abort_if(Gate::denies('amenazas_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('modulo_aprobacion_ausencia'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $data = auth()->user()->empleado->id;
 
         if ($request->ajax()) {
@@ -549,6 +553,7 @@ class SolicitudVacacionesController extends Controller
     }
     public function showVistaGlobal($id)
     {
+        abort_if(Gate::denies('reglas_vacaciones_vista_global'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $vacacion = SolicitudVacaciones::with('empleado')->find($id);
 
         if (empty($vacacion)) {
@@ -560,6 +565,8 @@ class SolicitudVacacionesController extends Controller
 
     public function archivoShow($id)
     {
+        
+        abort_if(Gate::denies('modulo_aprobacion_ausencia'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $vacacion = SolicitudVacaciones::with('empleado')->find($id);
 
         if (empty($vacacion)) {

@@ -33,9 +33,11 @@ use App\Models\Sede;
 use App\Models\SubcategoriaActivo;
 use App\Models\Team;
 use App\Models\Tipoactivo;
+use App\Models\TratamientoRiesgo;
 use App\Models\Vulnerabilidad;
 use Gate;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -477,8 +479,8 @@ class MatrizRiesgosController extends Controller
                 ));
             });
 
-            $table->editColumn('id', function ($row) {
-                return $row->id ? $row->id : '';
+            $table->editColumn('identificador', function ($row) {
+                return $row->identificador ? $row->identificador : '';
             });
             $table->editColumn('id_sede', function ($row) {
                 return $row->sede ? $row->sede->sede : '';
@@ -783,12 +785,21 @@ class MatrizRiesgosController extends Controller
         return view('admin.matrizSistemaGestion.create', compact('amenazas', 'matrizRiesgo', 'activos', 'vulnerabilidades', 'sedes', 'areas', 'procesos', 'controles', 'responsables'))->with('id_analisis', \request()->idAnalisis);
     }
 
+    public function identificadorExist(Request $request){
+        $identificador = $request->identificador;
+        $exist = MatrizRiesgosSistemaGestion::where('identificador',$identificador)->exists();
+        return response()->json(['existe'=>$exist]);
+    }
+
     public function storeSistemaGestion(Request $request)
     {
         abort_if(Gate::denies('analisis_de_riesgo_integral_agregar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $request->validate([
             'controles_id' => 'required',
+            'identificador' => ['required', Rule::unique('matriz_riesgos_sistema_gestion')->whereNull('deleted_at')]
         ]);
+        // dd($request->all());
         $controles = array_map(function ($value) {
             return intval($value);
         }, $request->controles_id);
@@ -798,6 +809,20 @@ class MatrizRiesgosController extends Controller
         if (isset($request->plan_accion)) {
             // $planImplementacion = PlanImplementacion::find(intval($request->plan_accion)); // Necesario se carga inicialmente el Diagrama Universal de Gantt
             $matrizRiesgo->planes()->sync($request->plan_accion);
+        }
+
+        if($matrizRiesgo->riesgo_total >=90){
+            $tratamiento_riesgo=TratamientoRiesgo::create([
+                'matriz_sistema_gestion_id'=>$matrizRiesgo->id,
+                'identificador'=>$request->identificador,
+                'descripcionriesgo'=>$request->descripcionriesgo,
+                'tipo_riesgo'=>$request->tipo_riesgo,
+                'riesgototal'=>$request->riesgo_total,
+                'riesgo_total_residual'=>$request->riesgo_residual,
+                'acciones'=>$request->acciones,
+                'id_proceso'=>$request->id_proceso,
+                'id_dueno'=>$request->id_responsable,
+            ]);
         }
 
         return redirect()->route('admin.matriz-seguridad.sistema-gestion', ['id' => $request->id_analisis])->with('success', 'Guardado con éxito');
@@ -839,6 +864,12 @@ class MatrizRiesgosController extends Controller
     public function updateSistemaGestion(Request $request, $matrizRiesgo)
     {
         abort_if(Gate::denies('analisis_de_riesgo_integral_editar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $request->validate([
+            'controles_id' => 'required',
+            'identificador' => 'required|unique:matriz_riesgos_sistema_gestion,identificador,'.$matrizRiesgo.',id,deleted_at,NULL',
+        ]);
+
+        // dd($matrizRiesgo);
         $matrizRiesgo = MatrizRiesgosSistemaGestion::with('matriz_riesgos_controles_pivots')->find($matrizRiesgo);
         $calculo = new Mriesgos();
         $res = $calculo->CalculoD($request);
@@ -851,13 +882,17 @@ class MatrizRiesgosController extends Controller
             $matrizRiesgo->planes()->sync($request->plan_accion);
         }
 
+        
+
+        
+
         return redirect()->route('admin.matriz-seguridad.sistema-gestion', ['id' => $request->id_analisis])->with('success', 'Actualizado con éxito');
     }
 
-    public function destroySistemaGestion($id)
+    public function destroySistemaGestion($matrizRiesgo)
     {
         abort_if(Gate::denies('analisis_de_riesgo_integral_eliminar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $matrizRiesgo = MatrizRiesgosSistemaGestion::find($id);
+        $matrizRiesgo = MatrizRiesgosSistemaGestion::find($matrizRiesgo);
         $matrizRiesgo->delete();
 
         return back()->with('deleted', 'Registro eliminado con éxito');

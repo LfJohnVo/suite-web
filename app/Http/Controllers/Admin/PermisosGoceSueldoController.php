@@ -14,10 +14,9 @@ use Illuminate\Support\Facades\Gate;
 
 class PermisosGoceSueldoController extends Controller
 {
-
     public function index(Request $request)
     {
-        abort_if(Gate::denies('amenazas_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('reglas_goce_sueldo_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if ($request->ajax()) {
             $query = PermisosGoceSueldo::orderByDesc('id')->get();
             $table = datatables()::of($query);
@@ -62,52 +61,56 @@ class PermisosGoceSueldoController extends Controller
         }
         $logo_actual = $organizacion_actual->logotipo;
         $empresa_actual = $organizacion_actual->empresa;
+
         return view('admin.permisosGoceSueldo.index', compact('logo_actual', 'empresa_actual'));
     }
 
-
     public function create()
     {
+        abort_if(Gate::denies('reglas_goce_sueldo_crear'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $vacacion = new Vacaciones();
+
         return view('admin.permisosGoceSueldo.create', compact('vacacion'));
     }
 
-
     public function store(Request $request)
     {
+        abort_if(Gate::denies('reglas_goce_sueldo_crear'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $request->validate([
             'nombre' => 'required|string',
             'dias' => 'required|int',
         ]);
         $vacacion = PermisosGoceSueldo::create($request->all());
         Flash::success('Regla añadida satisfactoriamente.');
+
         return redirect()->route('admin.permisos-goce-sueldo.index');
     }
 
     public function show($id)
     {
-        abort_if(Gate::denies('amenazas_ver'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('reglas_goce_sueldo_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $vacacion = PermisosGoceSueldo::find($id);
+
         return view('admin.permisosGoceSueldo.show', compact('vacacion'));
     }
 
     public function edit($id)
     {
-        abort_if(Gate::denies('amenazas_editar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-       
+        abort_if(Gate::denies('reglas_goce_sueldo_editar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $vacacion = PermisosGoceSueldo::find($id);
         if (empty($vacacion)) {
             Flash::error('Vacación not found');
 
             return redirect(route('admin.permisos-goce-sueldo.index'));
         }
-       
+
         return view('admin.permisosGoceSueldo.edit', compact('vacacion'));
     }
 
     public function update(Request $request, $id)
     {
-        abort_if(Gate::denies('amenazas_editar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('reglas_goce_sueldo_editar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $request->validate([
             'nombre' => 'required|string',
             'dias' => 'required|int',
@@ -116,27 +119,28 @@ class PermisosGoceSueldoController extends Controller
         $vacacion = PermisosGoceSueldo::find($id);
 
         $vacacion->update($request->all());
-       
 
         Flash::success('Regla actualizada con exito.');
 
         return redirect(route('admin.permisos-goce-sueldo.index'));
     }
 
-  
     public function destroy($id)
     {
-        $vacaciones =PermisosGoceSueldo::find($id);
+        abort_if(Gate::denies('reglas_goce_sueldo_eliminar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $vacaciones = PermisosGoceSueldo::find($id);
         $vacaciones->delete();
+
         return back()->with('deleted', 'Registro eliminado con éxito');
     }
 
-    public function vistaGlobal(Request $request){
-        abort_if(Gate::denies('amenazas_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+    public function vistaGlobal(Request $request)
+    {
+        abort_if(Gate::denies('reglas_goce_sueldo_vista_global'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $data = auth()->user()->empleado->id;
 
         if ($request->ajax()) {
-            $query =SolicitudPermisoGoceSueldo::with('empleado')->orderByDesc('id')->get();
+            $query = SolicitudPermisoGoceSueldo::with('empleado')->orderByDesc('id')->get();
             $table = datatables()::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -159,7 +163,7 @@ class PermisosGoceSueldoController extends Controller
                 return $row->fecha_fin ? $row->fecha_fin : '';
             });
             $table->editColumn('aprobacion', function ($row) {
-                return $row->aprobacion ? $row->aprobacion  : '';
+                return $row->aprobacion ? $row->aprobacion : '';
             });
             $table->editColumn('descripcion', function ($row) {
                 return $row->descripcion ? $row->descripcion : '';
@@ -177,6 +181,7 @@ class PermisosGoceSueldoController extends Controller
         }
         $logo_actual = $organizacion_actual->logotipo;
         $empresa_actual = $organizacion_actual->empresa;
+
         return view('admin.permisosGoceSueldo.solicitudes', compact('logo_actual', 'empresa_actual'));
     }
 }
