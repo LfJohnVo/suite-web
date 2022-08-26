@@ -957,7 +957,7 @@ class DeskController extends Controller
                 ]);
             }
         }
-        
+
         if ($correo_cliente) {
             Mail::to($quejasClientes->correo)->cc($quejasClientes->registro->email)->send(new SeguimientoQuejaClienteEmail($quejasClientes));
         }
@@ -1004,7 +1004,6 @@ class DeskController extends Controller
             ]);
         }
 
-        // dd($request->all());
         $quejasClientes = QuejasCliente::findOrfail(intval($id_quejas));
         $queja_procedente = intval($request->queja_procedente ? $request->queja_procedente : $quejasClientes->queja_procedente) == 1 ? true : false;
         $realizar_accion = intval($request->realizar_accion ? $request->realizar_accion : $quejasClientes->realizar_accion) == 1 ? true : false;
@@ -1172,7 +1171,7 @@ class DeskController extends Controller
                     $quejasClientes->update([
                         'correo_enviado_registro' => true,
                     ]);
-                    Mail::to($quejasClientes->registro->email)->cc($quejasClientes->responsableAtencion->email)->send(new NotificacionResponsableQuejaEmail($quejasClientes));
+                    Mail::to($quejasClientes->registro->email)->cc($quejasClientes->responsableAtencion->email)->send(new NotificacionResponsableQuejaEmail($quejasClientes, $quejasClientes->responsableAtencion));
                 }
             }
         }
@@ -1184,31 +1183,36 @@ class DeskController extends Controller
             foreach ($evidencias as $evidencia) {
                 array_push($evidenciaArr, $evidencia->evidencia);
             }
-            $accion_correctiva = AccionCorrectiva::create([
-                'tema' => $request->titulo,
-                'causaorigen' => 'Queja de un cliente',
-                'descripcion' => $request->descripcion,
-                'estatus' => 'nuevo',
-                'fecharegistro' => Carbon::now(),
-                'areas' => $request->area_quejado,
-                'procesos' => $request->proceso_quejado,
-                'es_externo' => true,
-                'otro_categoria' => $request->otro_categoria,
-                'id_registro' => $request->responsable_sgi_id,
-                'estatus' => 'Sin atender',
-                'aprobada' => false,
-                'aprobacion_contestada' => false,
-                'id_reporto' => $request->empleado_reporto_id,
-                'otros' => $request->otro_quejado,
-                'colaborador_quejado' => $request->colaborador_quejado,
+            $existeAC = AccionCorrectiva::whereHas('deskQuejaCliente', function ($query) use ($quejasClientes) {
+                $query->where('acciones_correctivas_aprobacionables_id', $quejasClientes->id);
+            })->exists();
 
-            ]);
+            if (!$existeAC) {
+                $accion_correctiva = AccionCorrectiva::create([
+                    'tema' => $request->titulo,
+                    'causaorigen' => 'Queja de un cliente',
+                    'descripcion' => $request->descripcion,
+                    'estatus' => 'nuevo',
+                    'fecharegistro' => Carbon::now(),
+                    'areas' => $request->area_quejado,
+                    'procesos' => $request->proceso_quejado,
+                    'es_externo' => true,
+                    'otro_categoria' => $request->otro_categoria,
+                    'id_registro' => $request->responsable_sgi_id,
+                    'estatus' => 'Sin atender',
+                    'aprobada' => false,
+                    'aprobacion_contestada' => false,
+                    'id_reporto' => $request->empleado_reporto_id,
+                    'otros' => $request->otro_quejado,
+                    'colaborador_quejado' => $request->colaborador_quejado,
 
-            $quejasClientes->update([
-                'accion_correctiva_id' => $accion_correctiva->id,
+                ]);
+                $quejasClientes->update([
+                    'accion_correctiva_id' => $accion_correctiva->id,
 
-            ]);
-            $quejasClientes->accionCorrectivaAprobacional()->sync($accion_correctiva->id);
+                ]);
+                $quejasClientes->accionCorrectivaAprobacional()->sync($accion_correctiva->id);
+            }
 
             if (!$quejasClientes->correoEnviado) {
                 $quejasClientes->update([
