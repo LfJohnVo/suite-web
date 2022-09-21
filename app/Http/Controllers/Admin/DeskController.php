@@ -20,6 +20,7 @@ use App\Models\Denuncias;
 use App\Models\Empleado;
 use App\Models\EvidenciaQuejasClientes;
 use App\Models\EvidenciasQuejasClientesCerrado;
+use App\Models\EvidenciasSeguridad;
 use App\Models\IncidentesSeguridad;
 use App\Models\Mejoras;
 use App\Models\Organizacion;
@@ -51,11 +52,11 @@ class DeskController extends Controller
         $sugerencias = Sugerencias::orderBy('id')->get();
 
         $total_seguridad = IncidentesSeguridad::get()->count();
-        $nuevos_seguridad = IncidentesSeguridad::where('estatus', 'nuevo')->get()->count();
-        $en_curso_seguridad = IncidentesSeguridad::where('estatus', 'en curso')->get()->count();
-        $en_espera_seguridad = IncidentesSeguridad::where('estatus', 'en espera')->get()->count();
-        $cerrados_seguridad = IncidentesSeguridad::where('estatus', 'cerrado')->get()->count();
-        $cancelados_seguridad = IncidentesSeguridad::where('estatus', 'cancelado')->get()->count();
+        $nuevos_seguridad = IncidentesSeguridad::where('estatus', 'Sin atender')->get()->count();
+        $en_curso_seguridad = IncidentesSeguridad::where('estatus', 'En curso')->get()->count();
+        $en_espera_seguridad = IncidentesSeguridad::where('estatus', 'En espera')->get()->count();
+        $cerrados_seguridad = IncidentesSeguridad::where('estatus', 'Cerrado')->get()->count();
+        $cancelados_seguridad = IncidentesSeguridad::where('estatus', 'No procedente')->get()->count();
 
         $total_riesgos = RiesgoIdentificado::get()->count();
         $nuevos_riesgos = RiesgoIdentificado::where('estatus', 'nuevo')->get()->count();
@@ -201,15 +202,14 @@ class DeskController extends Controller
     public function updateSeguridad(Request $request, $id_incidente)
     {
         abort_if(Gate::denies('centro_atencion_incidentes_de_seguridad_editar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
+    //    dd($request->all());
         $incidentesSeguridad = IncidentesSeguridad::findOrfail(intval($id_incidente));
+        // dd( $incidentesSeguridad);
         $incidentesSeguridad->update([
             'titulo' => $request->titulo,
             'estatus' => $request->estatus,
             'fecha' => $request->fecha,
             'empleado_asignado_id' => $request->empleado_asignado_id,
-            'categoria' => $request->categoria,
-            'subcategoria' => $request->subcategoria,
             'sede' => $request->sede,
             'ubicacion' => $request->ubicacion,
             'descripcion' => $request->descripcion,
@@ -217,14 +217,39 @@ class DeskController extends Controller
             'areas_afectados' => $request->areas_afectados,
             'procesos_afectados' => $request->procesos_afectados,
             'activos_afectados' => $request->activos_afectados,
-
             'empleado_reporto_id' => $incidentesSeguridad->empleado_reporto_id,
-
             'urgencia' => $request->urgencia,
             'impacto' => $request->impacto,
             'prioridad' => $request->prioridad,
             'comentarios' => $request->comentarios,
+            'justificacion' => $request->justificacion,
+            'categoria_id' => $request->categoria_id,
+            'subcategoria_id' => $request->subcategoria_id,
         ]);
+        // dd($incidentesSeguridad);
+        $documento = $incidentesSeguridad->evidencia;
+        // dd($documento);
+        if ($request->file('evidencia') != null or !empty($request->file('evidencia'))) {
+            foreach ($request->file('evidencia') as $file) {
+                $extension = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
+
+                $name_documento = basename(pathinfo($file->getClientOriginalName(), PATHINFO_BASENAME), '.' . $extension);
+
+                $new_name_documento = 'Seguridad_file_' . $incidentesSeguridad->id . '_' . $name_documento . '.' . $extension;
+
+                $route = 'public/evidencias_seguridad';
+
+                $documento = $new_name_documento;
+
+                $file->storeAs($route, $documento);
+
+                EvidenciasSeguridad::create([
+                    'evidencia' => $documento,
+                    'id_seguridad' => $incidentesSeguridad->id,
+                ]);
+            }
+        }
+
 
         return redirect()->route('admin.desk.index', $id_incidente)->with('success', 'Reporte actualizado');
     }

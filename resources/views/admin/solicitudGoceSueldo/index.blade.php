@@ -78,7 +78,7 @@
         }
     </style>
 
-    <h5 class="col-12 titulo_general_funcion">Solicitud Permiso con Goce de Sueldo</h5>
+    <h5 class="col-12 titulo_general_funcion">Solicitud Permiso</h5>
 
     <div class="card">
         @can('amenazas_agregar')
@@ -252,6 +252,35 @@
                         render: function(data, type, row) {
                             data = JSON.parse(data);
                             return `<div style="text-align:left">${data.nombre}</div>`;
+                        }
+                    },
+                    {
+                        data: 'tipo',
+                        name: 'tipo',
+                        render: function(data, type, row) {
+                            const tipo = row.tipo;
+                            switch (Number(tipo)) {
+                                case 1:
+                                    return `
+                                    <div  style="text-align:left">
+                                        Permisos conforme a la ley
+                                    </div>
+                                    `;
+                                    break;
+                                case 2:
+                                    return `
+                                    <div style="text-align:left">
+                                        Permisos otorgados por la empresa
+                                    </div>
+                                    `;
+                                    break;
+                                default:
+                                    return `
+                                    <div style="text-align:left">
+                                       No definido
+                                    </div>
+                                    `;
+                            }
                         }
                     },
                     {

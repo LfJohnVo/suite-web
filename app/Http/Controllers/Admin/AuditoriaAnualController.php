@@ -4,25 +4,27 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MassDestroyAuditoriaAnualRequest;
-use App\Http\Requests\StoreAuditoriaAnualRequest;
-use App\Http\Requests\UpdateAuditoriaAnualRequest;
 use App\Models\AuditoriaAnual;
+use App\Models\AuditoriaAnualDocumento;
 use App\Models\Empleado;
 use App\Models\Team;
 use App\Models\User;
 use Gate;
 use Illuminate\Http\Request;
+use App\Traits\ObtenerOrganizacion;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
 class AuditoriaAnualController extends Controller
 {
+    use ObtenerOrganizacion;
+
     public function index(Request $request)
     {
         abort_if(Gate::denies('programa_anual_auditoria_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         if ($request->ajax()) {
-            $query = AuditoriaAnual::with(['auditorlider', 'team'])->select(sprintf('%s.*', (new AuditoriaAnual)->table))->orderByDesc('id');
+            $query = AuditoriaAnual::with(['auditorlider', 'team', 'documentos_material'])->select(sprintf('%s.*', (new AuditoriaAnual)->table))->orderByDesc('id');
             $table = Datatables::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -47,8 +49,8 @@ class AuditoriaAnualController extends Controller
                 return $row->id ? $row->id : '';
             });
 
-            $table->editColumn('tipo', function ($row) {
-                return $row->tipo ? AuditoriaAnual::TIPO_SELECT[$row->tipo] : '';
+            $table->editColumn('nombre', function ($row) {
+                return $row->nombre ? $row->nombre : '';
             });
 
             $table->editColumn('fechainicio', function ($row) {
@@ -58,12 +60,12 @@ class AuditoriaAnualController extends Controller
             $table->editColumn('fechafin', function ($row) {
                 return $row->fechafin ? \Carbon\Carbon::parse($row->fechafin)->format('d-m-Y') : '';
             });
-            $table->addColumn('auditorlider_name', function ($row) {
-                return $row->auditorlider ? $row->auditorlider->name : '';
+            $table->addColumn('objetivo', function ($row) {
+                return $row->objetivo ? html_entity_decode(strip_tags($row->objetivo), ENT_QUOTES, 'UTF-8') : 'n/a';
             });
 
-            $table->editColumn('observaciones', function ($row) {
-                return $row->observaciones ? $row->observaciones : '';
+            $table->editColumn('alcance', function ($row) {
+                return $row->alcance ? html_entity_decode(strip_tags($row->alcance), ENT_QUOTES, 'UTF-8') : 'n/a';
             });
 
             $table->rawColumns(['actions', 'placeholder', 'auditorlider']);
@@ -73,8 +75,13 @@ class AuditoriaAnualController extends Controller
 
         $users = User::get();
         $teams = Team::get();
+        $auditoriaAnual = AuditoriaAnual::with('documentos_material')->get();
+        $documentoAuditoriaAnuals = AuditoriaAnualDocumento::get();
+        $organizacion_actual = $this->obtenerOrganizacion();
+        $logo_actual = $organizacion_actual->logo;
+        $empresa_actual = $organizacion_actual->empresa;
 
-        return view('admin.auditoriaAnuals.index', compact('users', 'teams'));
+        return view('admin.auditoriaAnuals.index', compact('auditoriaAnual', 'documentoAuditoriaAnuals', 'users', 'teams','organizacion_actual','logo_actual','empresa_actual'));
     }
 
     public function create()
@@ -89,9 +96,15 @@ class AuditoriaAnualController extends Controller
         return view('admin.auditoriaAnuals.create', compact('auditorliders'));
     }
 
-    public function store(StoreAuditoriaAnualRequest $request)
+    public function store(Request $request)
     {
         abort_if(Gate::denies('programa_anual_auditoria_agregar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $request->validate([
+            'nombre' => 'required',
+            'objetivo' => 'required',
+            'alcance' => 'required',
+        ]);
 
         $auditoriaAnual = AuditoriaAnual::create($request->all());
 
@@ -111,9 +124,15 @@ class AuditoriaAnualController extends Controller
         return view('admin.auditoriaAnuals.edit', compact('auditorliders', 'auditoriaAnual', 'empleados'));
     }
 
-    public function update(UpdateAuditoriaAnualRequest $request, AuditoriaAnual $auditoriaAnual)
+    public function update(Request $request, AuditoriaAnual $auditoriaAnual)
     {
         abort_if(Gate::denies('programa_anual_auditoria_editar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $request->validate([
+            'nombre' => 'required',
+            'objetivo' => 'required',
+            'alcance' => 'required',
+        ]);
 
         $auditoriaAnual->update($request->all());
 
@@ -124,7 +143,7 @@ class AuditoriaAnualController extends Controller
     {
         abort_if(Gate::denies('programa_anual_auditoria_ver'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $auditoriaAnual->load('auditorlider', 'team', 'fechaPlanAuditoria');
+        $auditoriaAnual->load( 'team');
 
         return view('admin.auditoriaAnuals.show', compact('auditoriaAnual'));
     }
@@ -138,10 +157,35 @@ class AuditoriaAnualController extends Controller
         return back();
     }
 
+
     public function massDestroy(MassDestroyAuditoriaAnualRequest $request)
     {
         AuditoriaAnual::whereIn('id', request('ids'))->delete();
 
         return response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    public function programa($id)
+    {
+
+
+
+        return view('admin.auditoriaAnuals.programa', compact('id'));
+    }
+
+    public function programaDocumentos(Request $request)
+    {
+
+        $auditoria = AuditoriaAnual::with('documentos_material')->find($request->auditoriaId);
+        $paths = [];
+        foreach ($auditoria->documentos_material as $documento) {
+            $path = asset('storage/programaAnualAuditoria/documentos/' . $auditoria->id . '/' . $documento->documento);
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+            array_push($paths, [
+                'path' => $path,
+                'extension' => $extension,
+            ]);
+        }
+        return response()->json(['paths' => $paths]);
     }
 }

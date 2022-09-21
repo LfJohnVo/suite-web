@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('content')
-    {{ Breadcrumbs::render('admin.amenazas.index') }}
+    {{ Breadcrumbs::render('admin.analisis-riesgos.index') }}
 
     <style>
         .btn_cargar {
@@ -39,7 +39,14 @@
 
     <h5 class="col-12 titulo_general_funcion">Cuestionario de Análisis de Impacto</h5>
 
+
+
     <div class="mt-5 card">
+
+        {{-- <a class="pr-3 ml-2 rounded btn btn-success" style=" margin: 13px 12px 12px 10px;"
+        href="{{ route('admin.matriz-mapa.SistemaGestion', ['idAnalisis' => $id_matriz]) }}">Gráfica</a> --}}
+     
+
         @can('amenazas_agregar')
             <div style="margin-bottom: 10px; margin-left:10px;" class="row">
                 <div class="col-lg-12">
@@ -54,7 +61,8 @@
         @include('flash::message')
         @include('partials.flashMessages')
         <div class="card-body datatable-fix">
-            <table class="table table-bordered w-100 datatable datatable-analisis-impacto tblCSV" id="datatable-analisis-impacto">
+            <table class="table table-bordered w-100 datatable datatable-analisis-impacto tblCSV"
+                id="datatable-analisis-impacto">
                 <thead class="thead-dark">
                     <tr>
                         <th style="min-width: 20px;">
@@ -82,10 +90,10 @@
                             Puesto:
                         </th>
                         <th style="min-width: 250px;">
-                            Correo: 
+                            Correo:
                         </th>
                         <th style="min-width: 25px;">
-                            Extensión: 
+                            Extensión:
                         </th>
                         <th style="min-width: 100px;">
                             Opciones
@@ -93,7 +101,7 @@
                     </tr>
                 </thead>
             </table>
-            
+
         </div>
     </div>
 @endsection
@@ -277,7 +285,7 @@
                 columns: [{
                         data: 'id',
                         name: 'id',
-                         render: function(data, type, row) {
+                        render: function(data, type, row) {
                             return `<div style="text-align:left">${data}</div>`;
                         }
                     },
@@ -292,56 +300,56 @@
                     {
                         data: 'area',
                         name: 'area',
-                         render: function(data, type, row) {
+                        render: function(data, type, row) {
                             return `<div style="text-align:left">${data}</div>`;
                         }
                     },
                     {
                         data: 'fecha_entrevista',
                         name: 'fecha_entrevista',
-                         render: function(data, type, row) {
+                        render: function(data, type, row) {
                             return `<div style="text-align:left">${data}</div>`;
                         }
                     },
                     {
                         data: 'id_proceso',
                         name: 'id_proceso',
-                         render: function(data, type, row) {
+                        render: function(data, type, row) {
                             return `<div style="text-align:left">${data}</div>`;
                         }
                     },
                     {
                         data: 'nombre_proceso',
                         name: 'nombre_proceso',
-                         render: function(data, type, row) {
+                        render: function(data, type, row) {
                             return `<div style="text-align:left">${data}</div>`;
                         }
                     },
                     {
                         data: 'entrevistado',
                         name: 'entrevistado',
-                         render: function(data, type, row) {
+                        render: function(data, type, row) {
                             return `<div style="text-align:left">${data}</div>`;
                         }
                     },
                     {
                         data: 'puesto',
                         name: 'puesto',
-                         render: function(data, type, row) {
+                        render: function(data, type, row) {
                             return `<div style="text-align:left">${data}</div>`;
                         }
                     },
                     {
                         data: 'correo',
                         name: 'correo',
-                         render: function(data, type, row) {
+                        render: function(data, type, row) {
                             return `<div style="text-align:left">${data}</div>`;
                         }
                     },
                     {
                         data: 'extencion',
                         name: 'extencion',
-                         render: function(data, type, row) {
+                        render: function(data, type, row) {
                             return `<div style="text-align:left">${data}</div>`;
                         }
                     },

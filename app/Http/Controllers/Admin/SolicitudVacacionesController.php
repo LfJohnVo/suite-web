@@ -114,12 +114,15 @@ class SolicitudVacacionesController extends Controller
         $no_vacaciones = $ingreso->format('d-m-Y');
         $año = Carbon::createFromDate($ingreso)->age;
         $seis_meses = ($dia_hoy->diffInMonths($ingreso));
-       
-        if ($año == 0) {
-           
+        
+        if ($año == 0 and $seis_meses >=6) {
+            $leyenda_sin_beneficio = false;
+            $año = 1;
+        }elseif($año == 0 and $seis_meses < 6){
+            $leyenda_sin_beneficio = true;
             $año = 1;
         }else{
-           
+            $leyenda_sin_beneficio = false;
         }
        
 
@@ -158,8 +161,9 @@ class SolicitudVacacionesController extends Controller
             $año_pasado = 0;
             $periodo_vencido = 0;
             $finVacaciones_periodo_pasado = null;
+        
 
-            return view('admin.solicitudVacaciones.create', compact('finVacaciones_periodo_pasado','periodo_vencido','año_pasado','mostrar_reclamo','vacacion', 'dias_disponibles', 'año', 'autoriza', 'no_vacaciones', 'organizacion', 'finVacaciones', 'dias_pendientes', 'tipo_conteo'));
+            return view('admin.solicitudVacaciones.create', compact('leyenda_sin_beneficio','finVacaciones_periodo_pasado','periodo_vencido','año_pasado','mostrar_reclamo','vacacion', 'dias_disponibles', 'año', 'autoriza', 'no_vacaciones', 'organizacion', 'finVacaciones', 'dias_pendientes', 'tipo_conteo'));
         }
 
         $tipo_conteo = $regla_aplicada->tipo_conteo;
@@ -202,9 +206,9 @@ class SolicitudVacacionesController extends Controller
                $periodo_vencido = 0;
                $finVacaciones_periodo_pasado = null;
            }
-          
-
-        return view('admin.solicitudVacaciones.create', compact('vacacion', 'dias_disponibles', 'año', 'autoriza', 'no_vacaciones', 'organizacion', 'finVacaciones', 'dias_pendientes', 'tipo_conteo','mostrar_reclamo','periodo_vencido','año_pasado','finVacaciones_periodo_pasado'));
+         
+       
+        return view('admin.solicitudVacaciones.create', compact('leyenda_sin_beneficio','vacacion', 'dias_disponibles', 'año', 'autoriza', 'no_vacaciones', 'organizacion', 'finVacaciones', 'dias_pendientes', 'tipo_conteo','mostrar_reclamo','periodo_vencido','año_pasado','finVacaciones_periodo_pasado'));
     }
 
     public function periodoAdicional()

@@ -67,7 +67,10 @@
 @section('content')
     <ol class="breadcrumb">
         <li class="breadcrumb-item">
-            <a href="{!! route('admin.analisis-impacto.index') !!}">Cuestionario de Análisis de Impacto</a>
+            <a href="{!! route('admin.analisis-impacto.menu') !!}">Análisis de Impacto (BIA)</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{!! route('admin.analisis-impacto.index') !!}">Cuestionario</a>
         </li>
         <li class="breadcrumb-item active">Editar</li>
     </ol>
@@ -401,7 +404,7 @@
             <div class="row">
                 <div class="text-center form-group col-12 mt-4"
                     style="background-color:#345183; border-radius: 100px; color: white;">
-                    INFRAESTRUCTURA TECNOLÓGICA (inciso b Anexo 67)
+                    INFRAESTRUCTURA TECNOLÓGICA
                 </div>
             </div>
             <div class="row">
@@ -414,7 +417,7 @@
             <div class="row">
                 <div class="text-center form-group col-12 mt-4"
                     style="background-color:#345183; border-radius: 100px; color: white;">
-                    RECURSOS HUMANOS (inciso b Anexo67)
+                    RECURSOS HUMANOS
                 </div>
             </div>
             <div class="row">
@@ -428,7 +431,7 @@
             <div class="row">
                 <div class="text-center form-group col-12 mt-4"
                     style="background-color:#345183; border-radius: 100px; color: white;">
-                    RECURSOS MATERIALES (inciso b Anexo67)
+                    RECURSOS MATERIALES
                 </div>
             </div>
             <div class="row">
@@ -441,7 +444,7 @@
             <div class="row">
                 <div class="text-center form-group col-12 mt-4"
                     style="background-color:#345183; border-radius: 100px; color: white;">
-                    RECURSOS MATERIALES (inciso b Anexo67)
+                    PERÍODOS CRÍTICOS
                 </div>
             </div>
             <div class="row">
@@ -601,7 +604,7 @@
                     <table class="table table_checkbox">
                         <TR style="color: rgb(0, 0, 0); text-align:center; height:65px;">
                             <TD>
-                                <label for="s1Checkbox">S1</label>
+                                <label for="s1Checkbox">SEMANA 1</label>
                                 <br>
                                 <div class="form-check">
                                     <input type="hidden" value="1" name="s1">
@@ -611,7 +614,7 @@
                             </TD>
                             <TD>
                                 <label for="s2Checkbox">
-                                    S2
+                                    SEMANA 2
                                 </label>
                                 <br>
                                 <div class="form-check">
@@ -621,7 +624,7 @@
                                 </div>
                             </TD>
                             <TD>
-                                <label for="s3Checkbox">S3</label>
+                                <label for="s3Checkbox">SEMANA 3</label>
                                 <br>
                                 <div class="form-check">
                                     <input type="hidden" value="1" name="s3">
@@ -630,7 +633,7 @@
                                 </div>
                             </TD>
                             <TD>
-                                <label for="s4Checkbox">S4</label>
+                                <label for="s4Checkbox">SEMANA 4</label>
                                 <br>
                                 <div class="form-check">
                                     <input type="hidden" value="1" name="s4">
@@ -648,10 +651,10 @@
                 </div>
 
                 <div class="text-center form-group col-12">
-                    <table class="table table-sm table_checkbox table-responsive">
-                        <TR style="color: rgb(0, 0, 0); text-align:center; font-size:10px; height:65px;">
+                    <table class="table table-sm table_checkbox">
+                        <TR style="color: rgb(0, 0, 0); text-align:center; height:65px;">
                             <TD>
-                                <label for="check_number_01">01</label>
+                                <label for="check_number_01">LUNES</label>
                                 <br>
                                 <div class="form-check">
                                     <input type="hidden" value="1" name="d1">
@@ -660,7 +663,7 @@
                                 </div>
                             </TD>
                             <TD>
-                                <label for="check_number_02">02</label>
+                                <label for="check_number_02">MARTES</label>
                                 <br>
                                 <div class="form-check">
                                     <input type="hidden" value="1" name="d2">
@@ -669,7 +672,7 @@
                                 </div>
                             </TD>
                             <TD>
-                                <label for="check_number_03">03</label>
+                                <label for="check_number_03">MIERCOLES</label>
                                 <br>
                                 <div class="form-check">
                                     <input type="hidden" value="1" name="d3">
@@ -678,7 +681,7 @@
                                 </div>
                             </TD>
                             <TD>
-                                <label for="check_number_04">04</label>
+                                <label for="check_number_04">JUEVES</label>
                                 <br>
                                 <div class="form-check">
                                     <input type="hidden" value="1" name="d4">
@@ -687,7 +690,7 @@
                                 </div>
                             </TD>
                             <TD>
-                                <label for="check_number_05">05</label>
+                                <label for="check_number_05">VIERNES</label>
                                 <br>
                                 <div class="form-check">
                                     <input type="hidden" value="1" name="d5">
@@ -696,7 +699,7 @@
                                 </div>
                             </TD>
                             <TD>
-                                <label for="check_number_06">06</label>
+                                <label for="check_number_06">SABADO</label>
                                 <br>
                                 <div class="form-check">
                                     <input type="hidden" value="1" name="d6">
@@ -705,7 +708,7 @@
                                 </div>
                             </TD>
                             <TD>
-                                <label for="check_number_07">07</label>
+                                <label for="check_number_07">DOMINGO</label>
                                 <br>
                                 <div class="form-check">
                                     <input type="hidden" value="1" name="d7">
@@ -713,7 +716,7 @@
                                         id="check_number_07" {{ old('d7', $cuestionario->d7) == 2 ? 'checked' : '' }}>
                                 </div>
                             </TD>
-                            <TD>
+                            {{-- <TD>
                                 <label for="check_number_08">08</label>
                                 <br>
                                 <div class="form-check">
@@ -929,7 +932,7 @@
                                         id="check_number_031" {{ old('d31', $cuestionario->d31) == 2 ? 'checked' : '' }}>
                                 </div>
                             </TD>
-                        </TR>
+                        </TR> --}}
                     </table>
                 </div>
 
@@ -947,7 +950,7 @@
                                 <label for="check_no_01">01</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h1">
+                                    <input type="hidden" value="1" name="h1">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h1"
                                         id="check_no_01" {{ old('h1', $cuestionario->h1) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -956,7 +959,7 @@
                                 <label for="check_no_02">02</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h2">
+                                    <input type="hidden" value="1" name="h2">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h2"
                                         id="check_no_02" {{ old('h2', $cuestionario->h2) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -965,7 +968,7 @@
                                 <label for="check_no_03">03</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h3">
+                                    <input type="hidden" value="1" name="h3">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h3"
                                         id="check_no_03" {{ old('h3', $cuestionario->h3) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -974,7 +977,7 @@
                                 <label for="check_no_04">04</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h4">
+                                    <input type="hidden" value="1" name="h4">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h4"
                                         id="check_no_04" {{ old('h4', $cuestionario->h4) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -983,7 +986,7 @@
                                 <label for="check_no_05">05</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h5">
+                                    <input type="hidden" value="1" name="h5">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h5"
                                         id="check_no_05" {{ old('h5', $cuestionario->h5) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -992,7 +995,7 @@
                                 <label for="check_no_06">06</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h6">
+                                    <input type="hidden" value="1" name="h6">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h6"
                                         id="check_no_06" {{ old('h6', $cuestionario->h6) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -1001,7 +1004,7 @@
                                 <label for="check_no_07">07</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h7">
+                                    <input type="hidden" value="1" name="h7">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h7"
                                         id="check_no_07" {{ old('h7', $cuestionario->h7) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -1010,7 +1013,7 @@
                                 <label for="check_no_08">08</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h8">
+                                    <input type="hidden" value="1" name="h8">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h8"
                                         id="check_no_08" {{ old('h8', $cuestionario->h8) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -1019,7 +1022,7 @@
                                 <label for="check_no_09">09</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h9">
+                                    <input type="hidden" value="1" name="h9">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h9"
                                         id="check_no_09" {{ old('h9', $cuestionario->h9) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -1028,7 +1031,7 @@
                                 <label for="check_no_10">10</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h10">
+                                    <input type="hidden" value="1" name="h10">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h10"
                                         id="check_no_10" {{ old('h10', $cuestionario->h10) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -1037,7 +1040,7 @@
                                 <label for="check_no_11">11</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h11">
+                                    <input type="hidden" value="1" name="h11">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h11"
                                         id="check_no_11" {{ old('h11', $cuestionario->h11) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -1046,7 +1049,7 @@
                                 <label for="check_no_12">12</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h12">
+                                    <input type="hidden" value="1" name="h12">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h12"
                                         id="check_no_12" {{ old('h12', $cuestionario->h12) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -1055,7 +1058,7 @@
                                 <label for="check_no_13">13</label>
                                 <br>
                                 <div class="form-check">
-                                      <input type="hidden" value="1" name="h13">
+                                    <input type="hidden" value="1" name="h13">
                                     <input class="form-check-input d-none" type="checkbox" value="2" name="h13"
                                         id="check_no_13" {{ old('h13', $cuestionario->h13) == 2 ? 'checked' : '' }}>
                                 </div>
@@ -1198,29 +1201,29 @@
                     <span class="badge badge-secondary mt-4" style="font-size: 21px">RPO:</span>
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_meses', 'Mes(es)') !!}
-                    {!! Form::number('flujo_meses', null, [
+                    {!! Form::label('rpo_mes', 'Mes(es)') !!}
+                    {!! Form::number('rpo_mes', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_semanas', 'Semana(s)') !!}
-                    {!! Form::number('flujo_semanas', null, [
+                    {!! Form::label('rpo_semana', 'Semana(s)') !!}
+                    {!! Form::number('rpo_semana', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_dias', 'Día(s)') !!}
-                    {!! Form::number('flujo_dias', null, [
+                    {!! Form::label('rpo_dia', 'Día(s)') !!}
+                    {!! Form::number('rpo_dia', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_años', 'Horas(s)') !!}
-                    {!! Form::number('flujo_años', null, [
+                    {!! Form::label('rpo_hora', 'Horas(s)') !!}
+                    {!! Form::number('rpo_hora', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
@@ -1234,29 +1237,29 @@
                     <span class="badge badge-secondary mt-4" style="font-size: 21px">RTO:</span>
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_meses', 'Mes(es)') !!}
-                    {!! Form::number('flujo_meses', null, [
+                    {!! Form::label('rto_mes', 'Mes(es)') !!}
+                    {!! Form::number('rto_mes', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_semanas', 'Semana(s)') !!}
-                    {!! Form::number('flujo_semanas', null, [
+                    {!! Form::label('rto_semana', 'Semana(s)') !!}
+                    {!! Form::number('rto_semana', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_dias', 'Día(s)') !!}
-                    {!! Form::number('flujo_dias', null, [
+                    {!! Form::label('rto_dia', 'Día(s)') !!}
+                    {!! Form::number('rto_dia', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_años', 'Horas(s)') !!}
-                    {!! Form::number('flujo_años', null, [
+                    {!! Form::label('rto_hora', 'Horas(s)') !!}
+                    {!! Form::number('rto_hora', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
@@ -1270,29 +1273,29 @@
                 </div>
 
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_meses', 'Mes(es)') !!}
-                    {!! Form::number('flujo_meses', null, [
+                    {!! Form::label('wrt_mes', 'Mes(es)') !!}
+                    {!! Form::number('wrt_mes', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_semanas', 'Semana(s)') !!}
-                    {!! Form::number('flujo_semanas', null, [
+                    {!! Form::label('wrt_semana', 'Semana(s)') !!}
+                    {!! Form::number('wrt_semana', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_dias', 'Día(s)') !!}
-                    {!! Form::number('flujo_dias', null, [
+                    {!! Form::label('wrt_dia', 'Día(s)') !!}
+                    {!! Form::number('wrt_dia', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_años', 'Horas(s)') !!}
-                    {!! Form::number('flujo_años', null, [
+                    {!! Form::label('wrt_hora', 'Horas(s)') !!}
+                    {!! Form::number('wrt_hora', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
@@ -1307,29 +1310,29 @@
                 </div>
 
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_meses', 'Mes(es)') !!}
-                    {!! Form::number('flujo_meses', null, [
+                    {!! Form::label('mtpd_mes', 'Mes(es)') !!}
+                    {!! Form::number('mtpd_mes', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_semanas', 'Semana(s)') !!}
-                    {!! Form::number('flujo_semanas', null, [
+                    {!! Form::label('mtpd_semana', 'Semana(s)') !!}
+                    {!! Form::number('mtpd_semana', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_dias', 'Día(s)') !!}
-                    {!! Form::number('flujo_dias', null, [
+                    {!! Form::label('mtpd_dia', 'Día(s)') !!}
+                    {!! Form::number('mtpd_dia', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
                 </div>
                 <div class="form-group col-sm-2">
-                    {!! Form::label('flujo_años', 'Horas(s)') !!}
-                    {!! Form::number('flujo_años', null, [
+                    {!! Form::label('mtpd_hora', 'Horas(s)') !!}
+                    {!! Form::number('mtpd_hora', null, [
                         'class' => 'form-control form-control-sm',
                         'placeholder' => '...',
                     ]) !!}
@@ -1627,18 +1630,15 @@
 
                 <div class="form-group col-sm-2">
                     <input type="number" style="text-align: center;" class="form-control form-control-sm"
-                        name="operacion_q_1" placeholder="..."
-                        value="{{ old('meta', $cuestionario->operacion_q_1) }}">
+                        name="operacion_q_1" placeholder="..." value="{{ old('meta', $cuestionario->operacion_q_1) }}">
                 </div>
                 <div class="form-group col-sm-2">
                     <input type="number" style="text-align: center;" class="form-control form-control-sm"
-                        name="operacion_q_2" placeholder="..."
-                        value="{{ old('meta', $cuestionario->operacion_q_2) }}">
+                        name="operacion_q_2" placeholder="..." value="{{ old('meta', $cuestionario->operacion_q_2) }}">
                 </div>
                 <div class="form-group col-sm-2">
                     <input type="number" style="text-align: center;" class="form-control form-control-sm"
-                        name="operacion_q_3" placeholder="..."
-                        value="{{ old('meta', $cuestionario->operacion_q_2) }}">
+                        name="operacion_q_3" placeholder="..." value="{{ old('meta', $cuestionario->operacion_q_2) }}">
                 </div>
                 <hr>
 
@@ -1747,11 +1747,36 @@
             </div>
 
             <div class="row">
-                @livewire('firma-bia', ['cuestionario_id' => $cuestionario->id, 'firmante' => 'Entrevistado'], key(1))
-                @livewire('firma-bia', ['cuestionario_id' => $cuestionario->id, 'firmante' => 'Jefe'], key(2))
+                @if ($cuestionario->firma_Entrevistado)
+                    <div class="form-group col-sm-6">
+                        <label>Eentrevistado</label><br>
+                        <img src="{{ asset('storage/' . $cuestionario->firma_Entrevistado) }}">
+                    </div>
+                @else
+                    @livewire('firma-bia', ['cuestionario_id' => $cuestionario->id, 'firmante' => 'Entrevistado'], key(1))
+                @endif
+
+                @if ($cuestionario->firma_Jefe)
+                    <div class="form-group col-sm-6">
+                        <label>Jefe</label><br>
+                        <img src="{{ asset('storage/' . $cuestionario->firma_Jefe) }}">
+                    </div>
+                @else
+                    @livewire('firma-bia', ['cuestionario_id' => $cuestionario->id, 'firmante' => 'Jefe'], key(2))
+                @endif
+
+
             </div>
             <div class="row offset-3">
-                @livewire('firma-bia', ['cuestionario_id' => $cuestionario->id, 'firmante' => 'Entrevistador'], key(3))
+                @if ($cuestionario->firma_Entrevistador)
+                    <div class="form-group col-sm-6">
+                        <label>Entrevistador</label><br>
+                        <img src="{{ asset('storage/' . $cuestionario->firma_Entrevistador) }}">
+                    </div>
+                @else
+                    @livewire('firma-bia', ['cuestionario_id' => $cuestionario->id, 'firmante' => 'Entrevistador'], key(3))
+                @endif
+
             </div>
 
             <div class="row">

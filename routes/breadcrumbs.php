@@ -156,13 +156,17 @@ Breadcrumbs::for('admin.analisis-riesgos.menu', function ($trail) {
     $trail->push('Menú');
 });
 Breadcrumbs::for('admin.analisis-impacto.menu', function ($trail) {
-    $trail->push('Análisis de de Impacto');
+    $trail->push('Análisis de Impacto (BIA)');
     $trail->push('Menú');
 });
 
 Breadcrumbs::for('admin.analisis-riesgos.index', function ($trail) {
-    $trail->push('Análisis de Riesgos', route('admin.analisis-riesgos.menu'));
-    $trail->push('Matriz de Riesgos', route('admin.analisis-riesgos.index'));
+    $trail->push('Análisis de Impacto (BIA)', route('admin.analisis-impacto.menu'));
+    $trail->push('Cuestionario', route('admin.analisis-impacto.index'));
+});
+Breadcrumbs::for('admin.BIA.Cuestionario.index', function ($trail) {
+    $trail->push('Análisis de ', route('admin.analisis-riesgos.menu'));
+    $trail->push('Amenazas', route('admin.amenazas.index'));
 });
 
 Breadcrumbs::for('admin.riesgosoportunidades.index', function ($trail) {
@@ -576,7 +580,7 @@ Breadcrumbs::for('Ajustes-permisos-goce-sueldo', function ($trail) {
     $trail->parent('capital-humano');
     $trail->push('Empleados', route('admin.capital-humano.index'));
     $trail->push('Solicitudes e Incidencias', route('admin.Ausencias.index'));
-    $trail->push('Ajustes de Permisos con Goce de Sueldo', route('admin.Ausencias.index'));
+    $trail->push('Ajustes de Permisos', route('admin.Ausencias.index'));
 });
 
 Breadcrumbs::for('Ajustes-dayoff', function ($trail) {
@@ -598,7 +602,7 @@ Breadcrumbs::for('Reglas-Goce-Sueldo', function ($trail) {
     $trail->parent('capital-humano');
     $trail->push('Empleados', route('admin.capital-humano.index'));
     $trail->push('Solicitudes e Incidencias', route('admin.Ausencias.index'));
-    $trail->push('Ajustes de Permisos con Goce de Sueldo', route('admin.ajustes-permisos-goce-sueldo'));
+    $trail->push('Ajustes de Permisos', route('admin.ajustes-permisos-goce-sueldo'));
     $trail->push('Lineamientos', route('admin.permisos-goce-sueldo.index'));
 });
 Breadcrumbs::for('Incidentes-Vacaciones', function ($trail) {
@@ -626,7 +630,7 @@ Breadcrumbs::for('Vista-Global-Permisos', function ($trail) {
     $trail->parent('capital-humano');
     $trail->push('Empleados', route('admin.capital-humano.index'));
     $trail->push('Solicitudes e Incidencias', route('admin.Ausencias.index'));
-    $trail->push('Ajustes de Permisos con Goce de Sueldo', route('admin.ajustes-permisos-goce-sueldo'));
+    $trail->push('Ajustes de Permisos', route('admin.ajustes-permisos-goce-sueldo'));
     $trail->push('Vista Global', route('admin.permisos-goce-sueldo.index'));
 });
 Breadcrumbs::for('Vista-Global-Dayoff', function ($trail) {
@@ -877,7 +881,7 @@ Breadcrumbs::for('Solicitud-Vacaciones', function ($trail) {
 Breadcrumbs::for('Solicitud-Permiso-Goce', function ($trail) {
     $trail->parent('Mi-Perfil');
     $trail->push('Solicitudes', route('admin.inicio-Usuario.index'));
-    $trail->push('Solicitar Permiso con Goce de Sueldo', route('admin.solicitud-permiso-goce-sueldo.index'));
+    $trail->push('Solicitar Permiso', route('admin.solicitud-permiso-goce-sueldo.index'));
 });
 
 Breadcrumbs::for('Solicitud-Dayoff', function ($trail) {
@@ -900,7 +904,7 @@ Breadcrumbs::for('Aprobacion-Goce-Sueldo', function ($trail) {
     $trail->parent('Mi-Perfil');
     $trail->push('Solicitudes', route('admin.inicio-Usuario.index'));
     $trail->push('Aprobación', route('admin.solicitud-vacaciones.menu'));
-    $trail->push('Permisos con Goce de Sueldo', route('admin.solicitud-permiso-goce-sueldo.aprobacion'));
+    $trail->push('Permisos', route('admin.solicitud-permiso-goce-sueldo.aprobacion'));
 });
 Breadcrumbs::for('Aprobacion-Dayoff', function ($trail) {
     $trail->parent('Mi-Perfil');
@@ -917,7 +921,7 @@ Breadcrumbs::for('Archivo-Vacaciones', function ($trail) {
 Breadcrumbs::for('Archivo-Permisos-Goce', function ($trail) {
     $trail->parent('Mi-Perfil');
     $trail->push('Solicitudes', route('admin.inicio-Usuario.index') . '#reportes');
-    $trail->push('Aprobación de Permisos con Goce de Sueldo', route('admin.solicitud-permiso-goce-sueldo.aprobacion'));
+    $trail->push('Aprobación de Permisos', route('admin.solicitud-permiso-goce-sueldo.aprobacion'));
     $trail->push('Archivo', route('admin.solicitud-permiso-goce-sueldo.aprobacion'));
 });
 Breadcrumbs::for('Archivo-Dayoff', function ($trail) {

@@ -82,6 +82,7 @@
 
     </div>
     <div class="card">
+        @include('flash::message')
         <div class="card-body">
             <div class="tab-content" id="nav-tabContent">
                 <div class="tab-pane mb-4 fade show active" id="nav-empleados" role="tabpanel"
@@ -115,11 +116,21 @@
                                 <a href="ajustes-permisos-goce-sueldo">
                                     <div>
                                         <i class="fas fa-hand-holding-usd"></i><br>
-                                        Ajustes Permisos con goce de sueldo
+                                        Ajustes Permisos
                                     </div>
                                 </a>
                             </li>
                         @endcan
+                        {{-- @can('reglas_goce_sueldo_acceder')
+                            <li>
+                                <a href="ajustes-envio-documentos">
+                                    <div>
+                                        <i class="bi bi-send-plus-fill"></i><br>
+                                        Ajustes Envios
+                                    </div>
+                                </a>
+                            </li>
+                        @endcan --}}
                     </ul>
 
                 </div>
