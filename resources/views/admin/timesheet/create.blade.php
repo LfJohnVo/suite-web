@@ -1,4 +1,7 @@
 @extends('layouts.admin')
+
+
+
 @section('content')
     <link rel="stylesheet" type="text/css" href="{{ asset('css/timesheet.css') }}">
 
@@ -7,7 +10,7 @@
     <h5 class="col-12 titulo_general_funcion">TimeSheet: <font style="font-weight:lighter;">Registrar Jornada Laboral</font>
     </h5>
 
-    <div class="card card-body">
+    <div class="card card-body" id="caja_timesheet_create">
         <div class="row">
             <x-loading-indicator />
             @livewire('timesheet.timesheet-horas-filas', ['origen' => 'create', 'timesheet_id' => null])
@@ -15,6 +18,7 @@
         </div>
     </div>
 @endsection
+
 
 
 @section('scripts')
@@ -28,6 +32,11 @@
 
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                console.log('mobile');
+               document.getElementById('timesheet-mobile').style.display='block';
+               document.getElementById('timesheet-web').style.display='none';
+            }
             let fechasRegistradas = @json($fechasRegistradas);
 
             let dia_semana = @json($organizacion->dia_timesheet);

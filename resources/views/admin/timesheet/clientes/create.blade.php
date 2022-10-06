@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 @section('content')
-    
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/responsive.css') }}">
+
     <style type="text/css">
         .btn-transparent{
             background-color: rgba(0, 0, 0, 0) !important;
