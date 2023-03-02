@@ -72,9 +72,9 @@ class HistorialVersionesDocumento extends Model
     {
         $documento = Documento::find($this->documento_id);
         $version_actual = $documento->version;
-        $path_documento = '/storage/Documentos publicados';
+        $path_documento = '/storage/Documentos_publicados';
         if (intval($this->version) != intval($version_actual)) {
-            $path_documento = '/storage/Documento versiones anteriores';
+            $path_documento = '/storage/Documento_versiones_anteriores';
         }
 
         switch ($this->tipo) {

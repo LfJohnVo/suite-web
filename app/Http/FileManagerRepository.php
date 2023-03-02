@@ -33,16 +33,16 @@ class FileManagerRepository implements ConfigRepository
             array_push($disklist, 'Normas');
         }
         if (auth()->user()->can('documentos_publicados_respositorio_access')) {
-            array_push($disklist, 'Documentos publicados');
+            array_push($disklist, 'Documentos_publicados');
         }
         if (auth()->user()->can('documentos_aprobacion_respositorio_access')) {
-            array_push($disklist, 'Documentos en aprobacion');
+            array_push($disklist, 'Documentos_en_aprobacion');
         }
         if (auth()->user()->can('documentos_obsoletos_respositorio_access')) {
-            array_push($disklist, 'Documentos obsoletos');
+            array_push($disklist, 'Documentos_obsoletos');
         }
         if (auth()->user()->can('documentos_versiones_anteriores_respositorio_access')) {
-            array_push($disklist, 'Documentos versiones anteriores');
+            array_push($disklist, 'Documentos_versiones_anteriores');
         }
 
         return $disklist;

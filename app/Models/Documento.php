@@ -108,12 +108,12 @@ class Documento extends Model
 
     public function getArchivoActualAttribute()
     {
-        $path_documento = '/storage/Documentos publicados';
+        $path_documento = '/storage/Documentos_publicados';
         if ($this->estatus == $this::EN_REVISION) {
-            $path_documento = '/storage/Documentos en aprobacion';
+            $path_documento = '/storage/Documentos_en_aprobacion';
         }
         if ($this->estatus == $this::EN_ELABORACION) {
-            $path_documento = '/storage/Documentos en aprobacion';
+            $path_documento = '/storage/Documentos_en_aprobacion';
         }
 
         switch ($this->tipo) {

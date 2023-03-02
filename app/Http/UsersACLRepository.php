@@ -22,20 +22,20 @@ class UsersACLRepository implements ACLRepository
             return [
                 ['disk' => 'Administrador', 'path' => '*', 'access' => 2],
                 ['disk' => 'Normas', 'path' => '*', 'access' => 2],
-                ['disk' => 'Documentos publicados', 'path' => '*', 'access' => 2],
-                ['disk' => 'Documentos en aprobacion', 'path' => '*', 'access' => 2],
-                ['disk' => 'Documentos obsoletos', 'path' => '*', 'access' => 2],
-                ['disk' => 'Documentos versiones anteriores', 'path' => '*', 'access' => 2],
+                ['disk' => 'Documentos_publicados', 'path' => '*', 'access' => 2],
+                ['disk' => 'Documentos_en_aprobacion', 'path' => '*', 'access' => 2],
+                ['disk' => 'Documentos_obsoletos', 'path' => '*', 'access' => 2],
+                ['disk' => 'Documentos_versiones_anteriores', 'path' => '*', 'access' => 2],
             ];
         }
 
         return [
             ['disk' => 'Administrador', 'path' => '*', 'access' => 1],  // Not Admin then only read
             ['disk' => 'Normas', 'path' => '*', 'access' => 1], // Not Admin then only read
-            ['disk' => 'Documentos publicados', 'path' => '*', 'access' => 1],  // Not Admin then only read
-            ['disk' => 'Documentos en aprobacion', 'path' => '*', 'access' => 1],   // Not Admin then only read
-            ['disk' => 'Documentos obsoletos', 'path' => '*', 'access' => 1],   // Not Admin then only read
-            ['disk' => 'Documentos versiones anteriores', 'path' => '*', 'access' => 1],    // Not Admin then only read
+            ['disk' => 'Documentos_publicados', 'path' => '*', 'access' => 1],  // Not Admin then only read
+            ['disk' => 'Documentos_en_aprobacion', 'path' => '*', 'access' => 1],   // Not Admin then only read
+            ['disk' => 'Documentos_obsoletos', 'path' => '*', 'access' => 1],   // Not Admin then only read
+            ['disk' => 'Documentos_versiones_anteriores', 'path' => '*', 'access' => 1],    // Not Admin then only read
         ];
     }
 }

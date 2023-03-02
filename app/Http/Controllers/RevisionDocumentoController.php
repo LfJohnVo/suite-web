@@ -25,7 +25,7 @@ class RevisionDocumentoController extends Controller
         if (!$documento) {
             abort_if(!$documento, 404);
         }
-        $path_documentos_aprobacion = 'storage/Documentos en aprobacion';
+        $path_documentos_aprobacion = 'storage/Documentos_en_aprobacion';
         switch ($documento->tipo) {
             case 'politica':
                 $path_documentos_aprobacion .= '/politicas';
@@ -91,7 +91,7 @@ class RevisionDocumentoController extends Controller
                             'estatus' => strval(Documento::DOCUMENTO_RECHAZADO),
                         ]);
                     } else {
-                        $path_documentos_aprobacion = 'public/Documentos en aprobacion';
+                        $path_documentos_aprobacion = 'public/Documentos_en_aprobacion';
                         switch ($documentoOriginal->tipo) {
                             case 'politica':
                                 $path_documentos_aprobacion .= '/politicas';
@@ -198,7 +198,7 @@ class RevisionDocumentoController extends Controller
                         // $documentoActual = Documento::with('elaborador')->find($documento->documento_id);
                         // $this->sendMailNotPublish($documentoActual->elaborador->email, $documentoActual);
                     } else {
-                        $path_documentos_aprobacion = 'public/Documentos en aprobacion';
+                        $path_documentos_aprobacion = 'public/Documentos_en_aprobacion';
                         switch ($documentoOriginal->tipo) {
                             case 'politica':
                                 $path_documentos_aprobacion .= '/politicas';
@@ -397,7 +397,7 @@ class RevisionDocumentoController extends Controller
     public function publishDocumentInFolder($path_documento_aprobacion, Documento $documento)
     {
         $this->createDocumentosPublicadosIfNotExists();
-        $path_documentos_publicados = 'public/Documentos publicados';
+        $path_documentos_publicados = 'public/Documentos_publicados';
         switch ($documento->tipo) {
             case 'politica':
                 $path_documentos_publicados .= '/politicas';
@@ -453,7 +453,7 @@ class RevisionDocumentoController extends Controller
     public function moveBeforeVersionOfDirectory($path_documento_version_anterior, Documento $documento)
     {
         $this->createDocumentoVersionesAnterioresIfNotExists();
-        $path_documentos_versiones_anteriores = 'public/Documento versiones anteriores';
+        $path_documentos_versiones_anteriores = 'public/Documento_versiones_anteriores';
         switch ($documento->tipo) {
             case 'politica':
                 $path_documentos_versiones_anteriores .= '/politicas';
@@ -498,69 +498,69 @@ class RevisionDocumentoController extends Controller
 
     public function createDocumentosPublicadosIfNotExists()
     {
-        if (!Storage::exists('/public/Documentos publicados')) {
-            Storage::makeDirectory('/public/Documentos publicados', 0775, true);
+        if (!Storage::exists('/public/Documentos_publicados')) {
+            Storage::makeDirectory('/public/Documentos_publicados', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos publicados/politicas')) {
-            Storage::makeDirectory('/public/Documentos publicados/politicas', 0775, true);
+        if (!Storage::exists('/public/Documentos_publicados/politicas')) {
+            Storage::makeDirectory('/public/Documentos_publicados/politicas', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos publicados/procedimientos')) {
-            Storage::makeDirectory('/public/Documentos publicados/procedimientos', 0775, true);
+        if (!Storage::exists('/public/Documentos_publicados/procedimientos')) {
+            Storage::makeDirectory('/public/Documentos_publicados/procedimientos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos publicados/manuales')) {
-            Storage::makeDirectory('/public/Documentos publicados/manuales', 0775, true);
+        if (!Storage::exists('/public/Documentos_publicados/manuales')) {
+            Storage::makeDirectory('/public/Documentos_publicados/manuales', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos publicados/planes')) {
-            Storage::makeDirectory('/public/Documentos publicados/planes', 0775, true);
+        if (!Storage::exists('/public/Documentos_publicados/planes')) {
+            Storage::makeDirectory('/public/Documentos_publicados/planes', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos publicados/instructivos')) {
-            Storage::makeDirectory('/public/Documentos publicados/instructivos', 0775, true);
+        if (!Storage::exists('/public/Documentos_publicados/instructivos')) {
+            Storage::makeDirectory('/public/Documentos_publicados/instructivos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos publicados/reglamentos')) {
-            Storage::makeDirectory('/public/Documentos publicados/reglamentos', 0775, true);
+        if (!Storage::exists('/public/Documentos_publicados/reglamentos')) {
+            Storage::makeDirectory('/public/Documentos_publicados/reglamentos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos publicados/externos')) {
-            Storage::makeDirectory('/public/Documentos publicados/externos', 0775, true);
+        if (!Storage::exists('/public/Documentos_publicados/externos')) {
+            Storage::makeDirectory('/public/Documentos_publicados/externos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos publicados/procesos')) {
-            Storage::makeDirectory('/public/Documentos publicados/procesos', 0775, true);
+        if (!Storage::exists('/public/Documentos_publicados/procesos')) {
+            Storage::makeDirectory('/public/Documentos_publicados/procesos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos publicados/formatos')) {
-            Storage::makeDirectory('/public/Documentos publicados/formatos', 0775, true);
+        if (!Storage::exists('/public/Documentos_publicados/formatos')) {
+            Storage::makeDirectory('/public/Documentos_publicados/formatos', 0775, true);
         }
     }
 
     public function createDocumentoVersionesAnterioresIfNotExists()
     {
-        if (!Storage::exists('/public/Documento versiones anteriores')) {
-            Storage::makeDirectory('/public/Documento versiones anteriores', 0775, true);
+        if (!Storage::exists('/public/Documento_versiones_anteriores')) {
+            Storage::makeDirectory('/public/Documento_versiones_anteriores', 0775, true);
         }
-        if (!Storage::exists('/public/Documento versiones anteriores/politicas')) {
-            Storage::makeDirectory('/public/Documento versiones anteriores/politicas', 0775, true);
+        if (!Storage::exists('/public/Documento_versiones_anteriores/politicas')) {
+            Storage::makeDirectory('/public/Documento_versiones_anteriores/politicas', 0775, true);
         }
-        if (!Storage::exists('/public/Documento versiones anteriores/procedimientos')) {
-            Storage::makeDirectory('/public/Documento versiones anteriores/procedimientos', 0775, true);
+        if (!Storage::exists('/public/Documento_versiones_anteriores/procedimientos')) {
+            Storage::makeDirectory('/public/Documento_versiones_anteriores/procedimientos', 0775, true);
         }
-        if (!Storage::exists('/public/Documento versiones anteriores/manuales')) {
-            Storage::makeDirectory('/public/Documento versiones anteriores/manuales', 0775, true);
+        if (!Storage::exists('/public/Documento_versiones_anteriores/manuales')) {
+            Storage::makeDirectory('/public/Documento_versiones_anteriores/manuales', 0775, true);
         }
-        if (!Storage::exists('/public/Documento versiones anteriores/planes')) {
-            Storage::makeDirectory('/public/Documento versiones anteriores/planes', 0775, true);
+        if (!Storage::exists('/public/Documento_versiones_anteriores/planes')) {
+            Storage::makeDirectory('/public/Documento_versiones_anteriores/planes', 0775, true);
         }
-        if (!Storage::exists('/public/Documento versiones anteriores/instructivos')) {
-            Storage::makeDirectory('/public/Documento versiones anteriores/instructivos', 0775, true);
+        if (!Storage::exists('/public/Documento_versiones_anteriores/instructivos')) {
+            Storage::makeDirectory('/public/Documento_versiones_anteriores/instructivos', 0775, true);
         }
-        if (!Storage::exists('/public/Documento versiones anteriores/reglamentos')) {
-            Storage::makeDirectory('/public/Documento versiones anteriores/reglamentos', 0775, true);
+        if (!Storage::exists('/public/Documento_versiones_anteriores/reglamentos')) {
+            Storage::makeDirectory('/public/Documento_versiones_anteriores/reglamentos', 0775, true);
         }
-        if (!Storage::exists('/public/Documento versiones anteriores/externos')) {
-            Storage::makeDirectory('/public/Documento versiones anteriores/externos', 0775, true);
+        if (!Storage::exists('/public/Documento_versiones_anteriores/externos')) {
+            Storage::makeDirectory('/public/Documento_versiones_anteriores/externos', 0775, true);
         }
-        if (!Storage::exists('/public/Documento versiones anteriores/procesos')) {
-            Storage::makeDirectory('/public/Documento versiones anteriores/procesos', 0775, true);
+        if (!Storage::exists('/public/Documento_versiones_anteriores/procesos')) {
+            Storage::makeDirectory('/public/Documento_versiones_anteriores/procesos', 0775, true);
         }
-        if (!Storage::exists('/public/Documento versiones anteriores/formatos')) {
-            Storage::makeDirectory('/public/Documento versiones anteriores/formatos', 0775, true);
+        if (!Storage::exists('/public/Documento_versiones_anteriores/formatos')) {
+            Storage::makeDirectory('/public/Documento_versiones_anteriores/formatos', 0775, true);
         }
     }
 }

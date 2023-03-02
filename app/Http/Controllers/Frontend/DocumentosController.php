@@ -88,7 +88,7 @@ class DocumentosController extends Controller
     {
         $this->validateRequestStore($request);
         $this->createDocumentosEnAprobacionIfNotExists();
-        $path_documentos_aprobacion = 'public/Documentos en aprobacion';
+        $path_documentos_aprobacion = 'public/Documentos_en_aprobacion';
         switch ($request->tipo) {
             case 'politica':
                 $path_documentos_aprobacion .= '/politicas';
@@ -293,7 +293,7 @@ class DocumentosController extends Controller
 
     public function pathDocumentsWhenUpdate($tipo)
     {
-        $path_documentos_aprobacion = 'public/Documentos en aprobacion';
+        $path_documentos_aprobacion = 'public/Documentos_en_aprobacion';
         switch ($tipo) {
             case 'politica':
                 $path_documentos_aprobacion .= '/politicas';
@@ -480,7 +480,7 @@ class DocumentosController extends Controller
     public function getPublicPathObsoleteDocument(Documento $documento)
     {
         $this->createDocumentosObsoletosIfNotExists();
-        $path_documento = 'public/Documentos obsoletos';
+        $path_documento = 'public/Documentos_obsoletos';
         switch ($documento->tipo) {
             case 'politica':
                 $path_documento .= '/politicas';
@@ -516,10 +516,10 @@ class DocumentosController extends Controller
 
     public function getPathDocumento(Documento $documento, $ruta)
     {
-        $path_documento = $ruta . '/Documentos en aprobacion';
+        $path_documento = $ruta . '/Documentos_en_aprobacion';
 
         if ($documento->estatus == strval(Documento::PUBLICADO)) {
-            $path_documento = $ruta . '/Documentos publicados';
+            $path_documento = $ruta . '/Documentos_publicados';
         }
 
         switch ($documento->tipo) {
@@ -557,63 +557,63 @@ class DocumentosController extends Controller
 
     public function createDocumentosEnAprobacionIfNotExists()
     {
-        if (!Storage::exists('/public/Documentos en aprobacion')) {
-            Storage::makeDirectory('/public/Documentos en aprobacion', 0775, true);
+        if (!Storage::exists('/public/Documentos_en_aprobacion')) {
+            Storage::makeDirectory('/public/Documentos_en_aprobacion', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos en aprobacion/politicas')) {
-            Storage::makeDirectory('/public/Documentos en aprobacion/politicas', 0775, true);
+        if (!Storage::exists('/public/Documentos_en_aprobacion/politicas')) {
+            Storage::makeDirectory('/public/Documentos_en_aprobacion/politicas', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos en aprobacion/procedimientos')) {
-            Storage::makeDirectory('/public/Documentos en aprobacion/procedimientos', 0775, true);
+        if (!Storage::exists('/public/Documentos_en_aprobacion/procedimientos')) {
+            Storage::makeDirectory('/public/Documentos_en_aprobacion/procedimientos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos en aprobacion/manuales')) {
-            Storage::makeDirectory('/public/Documentos en aprobacion/manuales', 0775, true);
+        if (!Storage::exists('/public/Documentos_en_aprobacion/manuales')) {
+            Storage::makeDirectory('/public/Documentos_en_aprobacion/manuales', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos en aprobacion/planes')) {
-            Storage::makeDirectory('/public/Documentos en aprobacion/planes', 0775, true);
+        if (!Storage::exists('/public/Documentos_en_aprobacion/planes')) {
+            Storage::makeDirectory('/public/Documentos_en_aprobacion/planes', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos en aprobacion/instructivos')) {
-            Storage::makeDirectory('/public/Documentos en aprobacion/instructivos', 0775, true);
+        if (!Storage::exists('/public/Documentos_en_aprobacion/instructivos')) {
+            Storage::makeDirectory('/public/Documentos_en_aprobacion/instructivos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos en aprobacion/reglamentos')) {
-            Storage::makeDirectory('/public/Documentos en aprobacion/reglamentos', 0775, true);
+        if (!Storage::exists('/public/Documentos_en_aprobacion/reglamentos')) {
+            Storage::makeDirectory('/public/Documentos_en_aprobacion/reglamentos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos en aprobacion/externos')) {
-            Storage::makeDirectory('/public/Documentos en aprobacion/externos', 0775, true);
+        if (!Storage::exists('/public/Documentos_en_aprobacion/externos')) {
+            Storage::makeDirectory('/public/Documentos_en_aprobacion/externos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos en aprobacion/procesos')) {
-            Storage::makeDirectory('/public/Documentos en aprobacion/procesos', 0775, true);
+        if (!Storage::exists('/public/Documentos_en_aprobacion/procesos')) {
+            Storage::makeDirectory('/public/Documentos_en_aprobacion/procesos', 0775, true);
         }
     }
 
     public function createDocumentosObsoletosIfNotExists()
     {
-        if (!Storage::exists('/public/Documentos obsoletos')) {
-            Storage::makeDirectory('/public/Documentos obsoletos', 0775, true);
+        if (!Storage::exists('/public/Documentos_obsoletos')) {
+            Storage::makeDirectory('/public/Documentos_obsoletos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos obsoletos/politicas')) {
-            Storage::makeDirectory('/public/Documentos obsoletos/politicas', 0775, true);
+        if (!Storage::exists('/public/Documentos_obsoletos/politicas')) {
+            Storage::makeDirectory('/public/Documentos_obsoletos/politicas', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos obsoletos/procedimientos')) {
-            Storage::makeDirectory('/public/Documentos obsoletos/procedimientos', 0775, true);
+        if (!Storage::exists('/public/Documentos_obsoletos/procedimientos')) {
+            Storage::makeDirectory('/public/Documentos_obsoletos/procedimientos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos obsoletos/manuales')) {
-            Storage::makeDirectory('/public/Documentos obsoletos/manuales', 0775, true);
+        if (!Storage::exists('/public/Documentos_obsoletos/manuales')) {
+            Storage::makeDirectory('/public/Documentos_obsoletos/manuales', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos obsoletos/planes')) {
-            Storage::makeDirectory('/public/Documentos obsoletos/planes', 0775, true);
+        if (!Storage::exists('/public/Documentos_obsoletos/planes')) {
+            Storage::makeDirectory('/public/Documentos_obsoletos/planes', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos obsoletos/instructivos')) {
-            Storage::makeDirectory('/public/Documentos obsoletos/instructivos', 0775, true);
+        if (!Storage::exists('/public/Documentos_obsoletos/instructivos')) {
+            Storage::makeDirectory('/public/Documentos_obsoletos/instructivos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos obsoletos/reglamentos')) {
-            Storage::makeDirectory('/public/Documentos obsoletos/reglamentos', 0775, true);
+        if (!Storage::exists('/public/Documentos_obsoletos/reglamentos')) {
+            Storage::makeDirectory('/public/Documentos_obsoletos/reglamentos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos obsoletos/externos')) {
-            Storage::makeDirectory('/public/Documentos obsoletos/externos', 0775, true);
+        if (!Storage::exists('/public/Documentos_obsoletos/externos')) {
+            Storage::makeDirectory('/public/Documentos_obsoletos/externos', 0775, true);
         }
-        if (!Storage::exists('/public/Documentos obsoletos/procesos')) {
-            Storage::makeDirectory('/public/Documentos obsoletos/procesos', 0775, true);
+        if (!Storage::exists('/public/Documentos_obsoletos/procesos')) {
+            Storage::makeDirectory('/public/Documentos_obsoletos/procesos', 0775, true);
         }
     }
 
