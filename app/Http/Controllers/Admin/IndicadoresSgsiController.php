@@ -298,6 +298,8 @@ class IndicadoresSgsiController extends Controller
                 }
             }
 
+            $finish_array = array_values(preg_replace('/[^A-Za-z0-9$ áéíóú]/s', '', $finish_array));
+
             return view('admin.indicadoresSgsis.evaluacion')
             ->with('indicadoresSgsis', $indicadoresSgsis)
             ->with('variables', $finish_array);
