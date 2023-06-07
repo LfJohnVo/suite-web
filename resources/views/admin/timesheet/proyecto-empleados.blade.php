@@ -66,7 +66,7 @@
                                     </div>
                                     <div class="col-4 text-center p-2" style="border:2px solid #CCCCCC">
                                         <p>${empresa_actual}</p>
-                                        <strong style="color:#345183">Timesheet: Tareas</strong>
+                                        <strong style="color:#345183">Timesheet: Reportes</strong>
                                     </div>
                                     <div class="col-4 text-center p-2" style="border:2px solid #CCCCCC">
                                         Fecha: ${jsDate}
@@ -123,9 +123,6 @@
                 };
                 let dtOverrideGlobals = {
                     buttons: dtButtons,
-                    order: [
-                        [0, 'desc']
-                    ],
                     destroy: true,
                     render: true,
                 };

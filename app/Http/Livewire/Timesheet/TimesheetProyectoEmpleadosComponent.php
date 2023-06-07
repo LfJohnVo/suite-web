@@ -4,16 +4,20 @@ namespace App\Http\Livewire\Timesheet;
 use App\Models\TimesheetProyecto;
 use App\Models\TimesheetProyectoEmpleado;
 use App\Models\Empleado;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 use Livewire\Component;
 use PhpOffice\PhpSpreadsheet\Calculation\Statistical\Distributions\F;
 
 class TimesheetProyectoEmpleadosComponent extends Component
 {
+    use LivewireAlert;
+
     public $proyecto;
     public $empleados;
     public $proyecto_empleados;
     public $proyecto_id;
+    public $area_empleado;
 
     public $empleado_añadido;
     public $horas_asignadas;
@@ -23,6 +27,7 @@ class TimesheetProyectoEmpleadosComponent extends Component
     {
         $this->proyecto = TimesheetProyecto::find($proyecto_id);
         $this->empleados = Empleado::get();
+        $this->area_empleado = null;
     }
 
     public function render()
@@ -42,6 +47,9 @@ class TimesheetProyectoEmpleadosComponent extends Component
             'horas_asignadas' => $this->horas_asignadas,
             'costo_hora' => $this->costo_hora,
         ]);
+
+        $this->alert('success', 'Empleado añadido!');
+        $this->emit('postAdd');
     }
 
     public function empleadoProyectoRemove($id)
@@ -49,5 +57,11 @@ class TimesheetProyectoEmpleadosComponent extends Component
         $empleado_remov = TimesheetProyectoEmpleado::find($id);
 
         $empleado_remov->delete();
+    }
+
+    public function empleadoSeleccionado($id)
+    {
+        $empleado = Empleado::select('area_id')->find($id);
+        $this->area_empleado = $empleado->area->area;
     }
 }

@@ -1,8 +1,9 @@
 <div class="w-100">
-    <h5 class="d-flex justify-content-between">Asignar Empleado a Proyecto <a href="{{ route('admin.timesheet-proyectos-edit', $proyecto->id) }}" class="btn btn_cancelar">Regresar</a></h5>
-    <form wire:submit.prevent="addEmpleado">
+    <x-loading-indicator />
+     <h5 class="d-flex justify-content-between">Asignar Empleado a Proyecto <a href="{{ route('admin.timesheet-proyectos-edit', $proyecto->id) }}" class="btn btn_cancelar">Regresar</a></h5>
+    <form id="add-empleado-form" wire:submit.prevent="addEmpleado">
         <div class="row mt-4">
-            <div class="form-group col-md-7">
+            <div class="form-group col-md-7" wire:ignore>
                 <label for="">Empleado</label>
                 <select wire:model="empleado_añadido" name="" id="" class="select2" required>
                     <option value="" selected disabled></option>
@@ -13,23 +14,24 @@
             </div>
             <div class="form-group col-md-5">
                 <label for="">Área</label>
-                <div class="form-control">Área de emp</div>
+                <div class="form-control">{{ $area_empleado }}</div>
             </div>
         </div>
         <div class="row">
             <div class="form-group col-md-4">
                 <label for="">Horas asignadas</label>
-                <input type="number" class="form-control">
+                <input type="number" class="form-control" required>
             </div>
             <div class="form-group col-md-4">
                 <label for="">Costo por hora</label>
-                <input type="number" class="form-control">
+                <input type="number" class="form-control" required>
             </div>
             <div class="form-group col-md-4" style="display: flex; align-items: flex-end;">
                 <button class="btn btn-success">Agregar</button>
             </div>
         </div>
     </form>
+    @include('partials.flashMessages')
     <div class="datatable-fix w-100 mt-5">
         <table id="tabla_time_poyect_empleados" class="table w-100 tabla-animada">
             <thead class="w-100">
@@ -50,7 +52,7 @@
                         <td>{{ $proyect_empleado->empleado->area->area }} </td>
                         <td>{{ $proyect_empleado->empleado->puesto }} </td>
                         <td>{{ $proyect_empleado->horas_asignadas }} </td>
-                        <td>{{ $proyect_empleado->costo_horas }} </td>
+                        <td>{{ $proyect_empleado->costo_hora }} </td>
                         <td>
                             <button class="btn" data-toggle="modal"
                                 data-target="#modal_proyecto_empleado_eliminar_{{ $proyect_empleado->id }}">
@@ -98,12 +100,12 @@
 
     @section('scripts')
     @parent
-        <script type="text/javascript">
+        {{-- <script type="text/javascript">
             document.addEventListener('DOMContentLoaded', () => {
-                
+
                 Livewire.on('scriptTabla', () => {
                     tablaLivewire('tabla_time_poyect_empleados');
-                    
+
                     $('.select2').select2().on('change', function (e) {
                         var data = $(this).select2("val");
                         @this.set('empleado_añadido', data);
@@ -113,6 +115,28 @@
                 $('.select2').select2().on('change', function (e) {
                     var data = $(this).select2("val");
                     @this.set('empleado_añadido', data);
+                });
+            });
+        </script> --}}
+
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', () => {
+                Livewire.on('tablaLivewire', () => {
+                    tablaLivewire('tabla_time_poyect_empleados');
+                });
+
+                $('.select2').select2({
+                    'theme' : 'bootstrap4',
+                }).on('change', function (e) {
+                    var data = $(this).select2("val");
+                    @this.set('empleado_añadido', data);
+                    @this.empleadoSeleccionado(data);
+                });
+
+                Livewire.on('postAdd', () => {
+                    $('.select2').val(null).trigger('change');
+                    var form = document.querySelector('#add-empleado-form');
+                    form.reset();
                 });
             });
         </script>
