@@ -23,6 +23,25 @@
     body.c-sidebar-lg-show #sidebar .botones_g_s {
         display: none;
     }
+    .botones_g_s {
+        position: sticky;
+        bottom: 0;
+        left: 50px;
+        width: 100%;
+        padding: 10px 0px;
+        background: white;
+        text-align: center;
+    }
+
+    .botones_g_s a {
+        display: inline-block;
+        padding: 0px 25px;
+        font-size: 15pt;
+        color: #747474;
+        text-align: center;
+        border-radius: 6px;
+        border: 1px solid #E1E1E1;
+    }
     body.c-sidebar-lg-show #sidebar:hover .botones_g_s {
         display: block;
     }
@@ -146,7 +165,7 @@ body.c-dark-theme .needsclick {
     content: "";
     background: #345183;
     z-index: -1;
-    width: 5px;
+    width: 7px;
     height: 50%;
     top: 25%;
     left: 0;

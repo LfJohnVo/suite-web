@@ -1006,27 +1006,6 @@
                 </a>
             </li>
         @endif
-        <style type="text/css">
-            .botones_g_s {
-                position: sticky;
-                bottom: 0;
-                left: 50px;
-                width: 100%;
-                background: white;
-                text-align: center;
-            }
-
-            .botones_g_s a {
-                display: inline-block;
-                padding: 0px 25px;
-                font-size: 15pt;
-                color: #747474;
-                text-align: center;
-                border-radius: 6px;
-                border: 1px solid #E1E1E1;
-
-            }
-        </style>
         <div class="text-center botones_g_s">
             @can('principal_soporte_acceder')
                 <a href="{{ route('admin.soporte') }}" title="Soporte" style="margin-right:14px;"><i

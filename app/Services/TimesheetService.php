@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Services;
 
@@ -62,7 +62,7 @@ class TimesheetService
             }
         }
         return [
-            'borrador_contador' => $papelera, 
+            'borrador_contador' => $papelera,
             'pendientes_contador' => $pendiente,
             'aprobados_contador' => $aprobado,
             'rechazos_contador' => $rechazado,
@@ -161,7 +161,7 @@ class TimesheetService
             ];
             $participacion_total += $contador_times_aprobados_areas;
         }
-        
+
         $response = [];
         foreach($array as $item){
             $item['total_participacion_porcentaje'] = round((($item['times_aprobados'] * 100) / $participacion_total), 2);
@@ -183,10 +183,12 @@ class TimesheetService
         $horas_totales_terminados = 0;
         $horas_totales_proceso = 0;
         foreach($proyectos as $proyecto){
+            // dd($proyecto->areas->count());
             switch($proyecto->estatus){
                 case 'cancelado':
                     $cancelados++;
                     $totales = $this->calcularHorasProyecto($proyecto->tareas);
+                    $areas = $proyecto->areas;
                     $horas_totales_cancelados += $totales;
                     $proyectos_array['cancelados'][] = [
                         'proyecto' => $proyecto->proyecto,
@@ -235,7 +237,7 @@ class TimesheetService
 
     private function calcularHorasProyecto($tareas): int
     {
-        $total = 0;    
+        $total = 0;
         foreach($tareas as $tarea){
             if(!$tarea->horas->isEmpty()){
                 foreach($tarea->horas as $horas){
