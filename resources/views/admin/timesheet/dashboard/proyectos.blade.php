@@ -11,10 +11,40 @@
                     <label for="">Estatus</label>
                     <select class="form-control" id="estatus-select">
                         <option value="todos">Todos</option>
-                        <option value="proceso">En proceso</option>
-                        <option value="terminados">Terminados</option>
-                        <option value="cancelados">Cancelados</option>
+                        <option value="proceso">En proceso
+                            @php
+                                $estatus='proceso';
+                            @endphp
+                        </option>
+                        <option value="terminados">Terminados
+                            @php
+                                $estatus='terminados';
+                            @endphp
+                        </option>
+                        <option value="cancelados">Cancelados
+                            @php
+                                $estatus='cancelados';
+                            @endphp
+                        </option>
                     </select>
+                </div>
+                <div class="row">
+                    @switch($estatus)
+                    @case('todos')
+                        <h1>Todos</h1>
+                    @break
+                    @case('proceso')
+                        <h1>En proceso</h1>
+                    @break
+                    @case('terminados')
+                        <h1>Terminados</h1>
+                    @break
+                    @case('cancelados')
+                        <h1>Cancelados</h1>
+                    @break
+                    @default
+                        <h1>Default</h1>
+                @endswitch
                 </div>
                 <div class="form-group col-md-9">
                     <label for="">Proyectos</label>
@@ -261,4 +291,6 @@
             },
         });
     </script>
+
+
 @endsection
