@@ -11,42 +11,12 @@
                     <label for="">Estatus</label>
                     <select class="form-control" id="estatus-select">
                         <option value="todos">Todos</option>
-                        <option value="proceso">En proceso
-                            @php
-                                $estatus='proceso';
-                            @endphp
-                        </option>
-                        <option value="terminados">Terminados
-                            @php
-                                $estatus='terminados';
-                            @endphp
-                        </option>
-                        <option value="cancelados">Cancelados
-                            @php
-                                $estatus='cancelados';
-                            @endphp
-                        </option>
+                        <option value="proceso">En proceso </option>
+                        <option value="terminado">Terminados </option>
+                        <option value="cancelado">Cancelados</option>
                     </select>
                 </div>
-                <div class="row">
-                    @switch($estatus)
-                    @case('todos')
-                        <h1>Todos</h1>
-                    @break
-                    @case('proceso')
-                        <h1>En proceso</h1>
-                    @break
-                    @case('terminados')
-                        <h1>Terminados</h1>
-                    @break
-                    @case('cancelados')
-                        <h1>Cancelados</h1>
-                    @break
-                    @default
-                        <h1>Default</h1>
-                @endswitch
-                </div>
-                <div class="form-group col-md-9">
+                <div class="form-group col-md-9 caja-select-proyects">
                     <label for="">Proyectos</label>
                     <select class="form-control select2" id="proyectos-en-proceso">
                         <option value="" selected disabled></option>
@@ -119,16 +89,36 @@
 </div>
 @section('scripts')
     <script>
-        $(document).ready(function() {
-            $(".select2").select2({
-                theme: "bootstrap4",
-            });
+
+        function formatOption(option) {
+            if (!option.id) {
+                return option.text;
+            }
+            
+            var attribute = $(option.element).data('estatus');
+            var $option = $('<span class="' + attribute + '">' + option.text + ' </span>');
+            
+            return $option;
+        }
+            
+        $('.select2').select2({
+            theme: "bootstrap4",
+            templateResult: formatOption
         });
 
         $('#estatus-select').on('change', function() {
             var selectedOption = $(this).children("option:selected");
             var estatus = selectedOption.val();
             console.log(estatus);
+
+            //$('#proyectos-en-proceso option:not(.' + estatus + ')').attr('disabled', 'true');
+        });
+
+        $('.caja-select-proyects .select2.select2-container').click(function(){
+                let estatus = $('#estatus-select option:selected').val();
+                if(estatus != 'todos'){
+                    $('.select2-results__options li span:not(.' + estatus + ')').closest('li').remove();
+                }
         });
     </script>
     <script>
