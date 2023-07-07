@@ -16,7 +16,7 @@
                         <option value="cancelado">Cancelados</option>
                     </select>
                 </div>
-                <div class="form-group col-md-9 caja-select-proyects">
+                <div class="form-group col-md-5 caja-select-proyects">
                     <label for="">Proyectos</label>
                     <select class="form-control select2" id="proyectos-en-proceso">
                         <option value="" selected disabled></option>
@@ -33,14 +33,15 @@
                         @endif
                     </select>
                 </div>
-                {{-- <div class="form-group col-6">
-                    <label for="">Terminados</label>
-                    <select class="form-control" id="proyectos-terminados">
-                        @foreach ($proyectos['proyectos_lista']['terminados'] as $proyecto)
-                            <option value="{{ $proyecto['proyecto'] }}">{{ $proyecto['proyecto'] }}</option>
+                {{-- <div class="form-group col-4 caja-select-areasproy" >
+                    <label for="">Areas</label>
+                    <select class="form-control select" id="areas-proyecto-select">
+                        @foreach ($proyectos['areas_proyecto'] as $area)
+                            <option value="{{ $area['area'] }}" data-proy="{{ $area['proyecto_area'] }}">{{ $area['area'] }}</option>
                         @endforeach
                     </select>
-                </div>
+                </div> --}}
+                {{--
                 @if (isset($proyectos['proyectos_lista']['cancelados']))
                     <div class="form-group col-6">
                         <label for="">Cancelado</label>
@@ -94,13 +95,13 @@
             if (!option.id) {
                 return option.text;
             }
-            
+
             var attribute = $(option.element).data('estatus');
             var $option = $('<span class="' + attribute + '">' + option.text + ' </span>');
-            
+
             return $option;
         }
-            
+
         $('.select2').select2({
             theme: "bootstrap4",
             templateResult: formatOption
@@ -121,8 +122,43 @@
                 }
         });
     </script>
+
     <script>
-        console.log(proyectos)
+
+        function formatOption(option2) {
+            if (!option2.id) {
+                return option2.text;
+            }
+
+            var attribute2 = $(option2.element).data('proy');
+            var $option2 = $('<span class="' + attribute2 + '">' + option2.text + ' </span>');
+
+            return $option2;
+        }
+
+        $('.select').select({
+            theme: "bootstrap4",
+            templateResult: formatOption
+        });
+
+        $('#proyectos-en-proceso').on('change', function() {
+            var selectedOption2 = $(this).children("option:selected");
+            var proy = selectedOption2.val();
+            console.log(proy);
+
+            //$('#proyectos-en-proceso option:not(.' + estatus + ')').attr('disabled', 'true');
+        });
+
+        $('.caja-select-areasproy .select2.select2-container').click(function(){
+                let proy = $('#areas-proyecto-select:selected').val();
+                if(proy != 'todos'){
+                    $('.select2-results__options li span:not(.' + proy + ')').closest('li').remove();
+                }
+        });
+    </script>
+
+    <script>
+        console.log(proyectos.proyectos_lista.proceso)
         new Chart(document.getElementById('graf-proyectos-estatus'), {
             type: 'doughnut',
             data: {

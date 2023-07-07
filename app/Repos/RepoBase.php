@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repos;
 
@@ -30,7 +30,7 @@ abstract class RepoBase
     public function find($select = ['*'], $filter = [])
     {
         return $this->model->select($select)->filter($filter)->orderBy(
-            $this->getParamOrder(), 
+            $this->getParamOrder(),
             $this->getOrder()
             )->get();
     }
@@ -50,7 +50,7 @@ abstract class RepoBase
     public function findFirst($select = ['*'], $filter = [])
     {
         return $this->model->select($select)->filter($filter)->orderBy(
-            $this->getParamOrder(), 
+            $this->getParamOrder(),
             $this->getOrder()
             )->first();
     }
@@ -77,6 +77,11 @@ abstract class RepoBase
         return $this->model->where('id', $id)->first();
     }
 
+    public function getAreaByProyectoId($id)
+    {
+        return $this->model->with('area')->where('proyecto_id', $id)->get();
+    }
+
     /**
      * Actualiza un elemento en la base de datos
      *
@@ -94,7 +99,7 @@ abstract class RepoBase
 
     /**
      * Get the value of paramOrder
-     */ 
+     */
     public function getParamOrder()
     {
         return $this->paramOrder;
@@ -104,7 +109,7 @@ abstract class RepoBase
      * Set the value of paramOrder
      *
      * @return  self
-     */ 
+     */
     public function setParamOrder($paramOrder)
     {
         $this->paramOrder = $paramOrder;
@@ -114,7 +119,7 @@ abstract class RepoBase
 
     /**
      * Get the value of order
-     */ 
+     */
     public function getOrder()
     {
         return $this->order;
@@ -124,7 +129,7 @@ abstract class RepoBase
      * Set the value of order
      *
      * @return  self
-     */ 
+     */
     public function setOrder($order)
     {
         $this->order = $order;

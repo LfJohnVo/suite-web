@@ -7,6 +7,7 @@ use App\Repos\EmpleadoRepo;
 use App\Repos\TimesheetHorasRepo;
 use App\Repos\TimesheetProyectoRepo;
 use App\Repos\TimesheetsRepo;
+use App\Repos\TimesheetProyectoAreaRepo;
 use Carbon\Carbon;
 
 class TimesheetService
@@ -23,7 +24,9 @@ class TimesheetService
 
     private $timesheetHorasRepo;
 
-    public function __construct(TimesheetsRepo $timesheetRepo, AreaRepo $areaRepo, EmpleadoRepo $empleadoRepo, Carbon $carbon, TimesheetProyectoRepo $timesheetProyectoRepo, TimesheetHorasRepo $timesheetHorasRepo)
+    private $timesheetProyectoAreaRepo;
+
+    public function __construct(TimesheetsRepo $timesheetRepo, AreaRepo $areaRepo, EmpleadoRepo $empleadoRepo, Carbon $carbon, TimesheetProyectoRepo $timesheetProyectoRepo, TimesheetHorasRepo $timesheetHorasRepo, TimesheetProyectoAreaRepo $timesheetProyectoAreaRepo)
     {
         $this->timesheetRepo = $timesheetRepo;
         $this->areaRepo = $areaRepo;
@@ -31,6 +34,7 @@ class TimesheetService
         $this->carbon = $carbon;
         $this->timesheetProyectoRepo = $timesheetProyectoRepo;
         $this->timesheetHorasRepo = $timesheetHorasRepo;
+        $this->timesheetProyectoAreaRepo = $timesheetProyectoAreaRepo;
     }
 
     /**
@@ -190,33 +194,57 @@ class TimesheetService
                     $totales = $this->calcularHorasProyecto($proyecto->tareas);
                     $areas = $proyecto->areas;
                     $horas_totales_cancelados += $totales;
+                    $proyectos_area = $this->timesheetProyectoAreaRepo->getAreaByProyectoId($proyecto->id);
+                    $areas_proyecto = collect();
+                    foreach($proyectos_area as $key => $pasrea){
+                        $areas_proyecto->push([
+                            'area' => $pasrea->area->area,
+                        ]);
+                    }
                     $proyectos_array['cancelados'][] = [
                         'proyecto' => $proyecto->proyecto,
                         'tareas_count' => $proyecto->tareas->count(),
                         'estatus' => $proyecto->estatus,
-                        'horas_totales' => round($totales)
+                        'horas_totales' => round($totales),
+                        'areas' => $areas_proyecto,
                     ];
                     break;
                 case 'terminado':
                     $terminados++;
                     $totales = $this->calcularHorasProyecto($proyecto->tareas);
                     $horas_totales_terminados += $totales;
+                    $proyectos_area = $this->timesheetProyectoAreaRepo->getAreaByProyectoId($proyecto->id);
+                    $areas_proyecto = collect();
+                    foreach($proyectos_area as $key => $pasrea){
+                        $areas_proyecto->push([
+                            'area' => $pasrea->area->area,
+                        ]);
+                    }
                     $proyectos_array['terminados'][] = [
                         'proyecto' => $proyecto->proyecto,
                         'tareas_count' => $proyecto->tareas->count(),
                         'estatus' => $proyecto->estatus,
-                        'horas_totales' => round($totales)
+                        'horas_totales' => round($totales),
+                        'areas' => $areas_proyecto,
                     ];
                     break;
                 case 'proceso':
                     $proceso++;
                     $totales = $this->calcularHorasProyecto($proyecto->tareas);
                     $horas_totales_proceso += $totales;
+                    $proyectos_area = $this->timesheetProyectoAreaRepo->getAreaByProyectoId($proyecto->id);
+                    $areas_proyecto = collect();
+                    foreach($proyectos_area as $key => $pasrea){
+                        $areas_proyecto->push([
+                            'area' => $pasrea->area->area,
+                        ]);
+                    }
                     $proyectos_array['proceso'][] = [
                         'proyecto' => $proyecto->proyecto,
                         'tareas_count' => $proyecto->tareas->count(),
                         'estatus' => $proyecto->estatus,
-                        'horas_totales' => round($totales)
+                        'horas_totales' => round($totales),
+                        'areas' => $areas_proyecto,
                     ];
                     break;
             }
