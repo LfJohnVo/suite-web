@@ -23,6 +23,7 @@ class TimesheetProyectoEmpleadosComponent extends Component
     public $empleado_editado;
     public $horas_edit;
     public $costo_edit;
+    public $areasempleado;
 
     public function mount($proyecto_id)
     {
@@ -65,14 +66,23 @@ class TimesheetProyectoEmpleadosComponent extends Component
                 'costo_edit' => ['required'],
             ]);
         }
-        $emp_upd_proyecto = Empleado::find($this->empleado_editado);
-        $empleado_edit_proyecto = TimesheetProyectoEmpleado::find($id);
-        $empleado_edit_proyecto->update([
-            'empleado_id'=> $emp_upd_proyecto->id,
-            'area_id' => $emp_upd_proyecto->area_id,
-            'horas_asignadas' => $this->horas_edit,
-            'costo_hora' => $this->costo_edit,
-        ]);
+        if($this->empleado_editado === null){
+            $empleado_edit_proyecto = TimesheetProyectoEmpleado::find($id);
+            $empleado_edit_proyecto->update([
+                'horas_asignadas' => $this->horas_edit,
+                'costo_hora' => $this->costo_edit,
+            ]);
+        }else{
+            $emp_upd_proyecto = Empleado::find($this->empleado_editado);
+            $empleado_edit_proyecto = TimesheetProyectoEmpleado::find($id);
+            $empleado_edit_proyecto->update([
+                'empleado_id'=> $this->empleado_editado,
+                'area_id' => $emp_upd_proyecto->area_id,
+                'horas_asignadas' => $this->horas_edit,
+                'costo_hora' => $this->costo_edit,
+            ]);
+        }
+        $this->empleado_editado = null;
     }
 
     public function empleadoProyectoRemove($id)

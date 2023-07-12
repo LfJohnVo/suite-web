@@ -13,7 +13,7 @@
         <div class="row mt-4">
             <div class="form-group col-md-7">
                 <label for="">Empleado<sup>*</sup></label>
-                <select wire:model="empleado_añadido" name="" id="" class="select2" required>
+                <select wire:model.defer="empleado_añadido" name="" id="" class="select2" required>
                     <option value="" selected readonly>Seleccione un empleado</option>
                     @foreach ($empleados as $empleado)
                         @foreach ($areasempleado as $ae)
@@ -33,14 +33,14 @@
             @if($proyecto->tipo === "Externo")
             <div class="form-group col-md-4">
                 <label for="">Horas asignadas<sup>*</sup>(obligatorio)</label>
-                <input wire:model="horas_asignadas" name="horas_asignadas" id="horas_asignadas" type="number" min="1" class="form-control">
+                <input wire:model.defer="horas_asignadas" name="horas_asignadas" id="horas_asignadas" type="number" min="1" class="form-control">
             </div>
             @error('horas_asignadas')
                 <small class="text-danger"><i class="fas fa-info-circle mr-2"></i>{{ $message }}</small>
             @enderror
             <div class="form-group col-md-4">
                 <label for="">Costo por hora<sup>*</sup>(obligatorio)</label>
-                <input wire:model="costo_hora" name="costo_hora" id="costo_hora" type="number" min="1" class="form-control">
+                <input wire:model.defer="costo_hora" name="costo_hora" id="costo_hora" type="number" min="1" class="form-control">
             </div>
             @error('costo_hora')
                 <small class="text-danger"><i class="fas fa-info-circle mr-2"></i>{{ $message }}</small>
@@ -114,7 +114,7 @@
                                 <div class="row">
                                     <div class="form-group col-md-8">
                                         <label for="">Empleado<sup>*</sup>(obligatorio)</label>
-                                        <select wire:model="empleado_editado" name="" id="" class="select2" required>
+                                        <select wire:model.defer="empleado_editado" name="" id="" class="select2" required>
                                             <option value="{{ $proyect_empleado->empleado->id }}" selected>{{ $proyect_empleado->empleado->name }}</option>
                                             @foreach ($empleados as $empleado)
                                                 @foreach ($areasempleado as $ae)
@@ -129,11 +129,11 @@
                                 <div class="row">
                                     <div class="form-group col-md-6">
                                         <label for="">Horas asignadas<sup>*</sup>(obligatorio)</label>
-                                        <input wire:model="horas_edit" name="" id="" type="number" min="1" class="form-control">
+                                        <input wire:model.defer="horas_edit" name="" id="" type="number" min="1" class="form-control">
                                     </div>
                                     <div class="form-group col-md-6">
                                         <label for="">Costo por hora<sup>*</sup>(obligatorio)</label>
-                                        <input wire:model="costo_edit" name="" id="" type="number" min="1" class="form-control">
+                                        <input wire:model.defer="costo_edit" name="" id="" type="number" min="1" class="form-control">
                                     </div>
                                     <div class="mt-4 d-flex justify-content-between">
                                         <div class="form-group col-md-4" style="display: flex; align-items: flex-end;">

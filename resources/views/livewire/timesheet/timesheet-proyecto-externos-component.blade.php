@@ -12,17 +12,17 @@
         <div class="row">
             <div class="form-group col-md-8">
                 <label for="">Externo<sup>*</sup>(obligatorio)</label><br>
-                <input wire:model="externo_añadido" name="" id=""type="text" class="form-control" required>
+                <input wire:model.defer="externo_añadido" name="" id=""type="text" class="form-control" required>
             </div>
         </div>
         <div class="row">
             <div class="form-group col-md-4">
                 <label for="">Horas asignadas<sup>*</sup>(obligatorio)</label>
-                <input wire:model="horas_tercero" name="" id="" type="number" min="1" class="form-control">
+                <input wire:model.defer="horas_tercero" name="" id="" type="number" min="1" class="form-control">
             </div>
             <div class="form-group col-md-4">
                 <label for="">Costo por hora<sup>*</sup>(obligatorio)</label>
-                <input wire:model="costo_tercero" name="" id="" type="number" min="1" class="form-control">
+                <input wire:model.defer="costo_tercero" name="" id="" type="number" min="1" class="form-control">
             </div>
             <div class="form-group col-md-4" style="display: flex; align-items: flex-end;">
                 <button class="btn btn-success">Agregar</button>
@@ -115,11 +115,11 @@
                                     <div class="row">
                                         <div class="form-group col-md-6">
                                             <label for="">Horas asignadas<sup>*</sup>(obligatorio)</label>
-                                            <input wire:model="horas_tercero_edit" name="" id="" type="number" min="1" class="form-control">
+                                            <input wire:model.defer="horas_tercero_edit" name="" id="" type="number" min="1" class="form-control">
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="">Costo por hora<sup>*</sup>(obligatorio)</label>
-                                            <input wire:model="costo_tercero_edit" name="" id="" type="number" min="1" class="form-control">
+                                            <input wire:model.defer="costo_tercero_edit" name="" id="" type="number" min="1" class="form-control">
                                         </div>
                                         <div class="mt-4 d-flex justify-content-between">
                                             <div class="form-group col-md-4" style="display: flex; align-items: flex-end;">
