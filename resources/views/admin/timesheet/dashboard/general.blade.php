@@ -332,7 +332,7 @@
         data: {
             labels: areas_array.map(item => item.area),
             datasets: [{
-                label: null,
+                label: 'Áreas',
                 data: areas_array.map(item => item.times_aprobados),
                 backgroundColor: '#25A0E2',
             }]
