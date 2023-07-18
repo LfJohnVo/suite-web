@@ -1084,6 +1084,8 @@
                 </div>
             </form>
 
+            <div wire:offline.class="bg-red-300 form-inline col-sm-3 d-mobile-none"> Sin conexión de red</div>
+
             <ul class="ml-auto c-header-nav">
                 @if (count(config('panel.available_languages', [])) > 1)
                     <li class="c-header-nav-item dropdown d-md-down-none">
