@@ -256,23 +256,85 @@
 
 
     <!-- Modal -->
-    <div class="modal fade" id="modalEvaluadores" data-backdrop="static" data-keyboard="false" tabindex="-1"
-        aria-labelledby="modalEvaluadoresLabel" aria-hidden="true">
-        <div class="modal-dialog">
+    @foreach ($lista_evaluados as $evaluado)
+        <div class="modal fade" id="CambioEvaluadores{{$evaluado['id']}}" tabindex="-1" role="dialog"
+        aria-labelledby="basicModal" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalEvaluadoresLabel">Lista de evaluadores</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="evaluadoresBody"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn_cancelar" data-dismiss="modal">Cerrar</button>
+                <div class="modal-body">
+                    <h1>Cambio de Evaluadores</h1>
+                    <h2>Evaluado: {{$evaluado['name']}}</h2>
+                    <form action="{{url('admin/recursos-humanos/evaluacion-360/evaluacion/cambiarEvaluador/'. $evaluacion->id.'/'.$evaluado['id'])}}" method="POST">
+                        @csrf
+                        {{-- <input type="text" hidden readonly id="num_eva" name="num_eva" value="{{$evaluacion->id}}"> --}}
+                        @foreach ($evaluado['evaluadores'] as $evalua)
+                        @switch($evalua['tipo'])
+                            @case('0')
+                                <div class="row">
+                                    Autoevaluación:
+                                    {{$evalua->evaluador['name']}}
+                                </div>
+                            @break
+
+                            @case('1')
+                                <div class="row">
+                                    Jefe Inmediato:
+                                    <select name="cambio_jefe" id="cambio_jefe">
+                                        <option value="{{$evalua->evaluador['id']}}">{{$evalua->evaluador['name']}}</option>
+                                        @foreach ($lista_evaluadores as $evs)
+                                            @if ($evs->area_id == $evaluado['area_id'] || $evs->id == 132 || $evs->id == 193)
+                                                <option value="{{$evs->id}}">{{$evs->name}}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @break
+
+                            @case('2')
+                                <div class="row">
+                                    Misma Área:
+                                    <select name="cambio_companero" id="cambio_companero">
+                                        <option value="{{$evalua->evaluador['id']}}">{{$evalua->evaluador['name']}}</option>
+                                        @foreach ($lista_evaluadores as $evs)
+                                            @if ($evs->area_id == $evaluado['area_id'] || $evs->id == 132 || $evs->id == 193)
+                                                <option value="{{$evs->id}}">{{$evs->name}}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                            @break
+
+                            @case('3')
+                            <div class="row">
+                                Equipo a Cargo:
+                                <select name="cambio_subordinado" id="cambio_subordinado">
+                                    <option value="{{$evalua->evaluador['id']}}">{{$evalua->evaluador['name']}}</option>
+                                    @foreach ($lista_evaluadores as $evs)
+                                        @if ($evs->area_id == $evaluado['area_id'] || $evs->id == 132 || $evs->id == 193)
+                                            <option value="{{$evs->id}}">{{$evs->name}}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            @break
+
+                            @default
+
+                        @endswitch
+                        @endforeach
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-success" style="float: right;">Cambiar</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div>
-    </div>
+            </div>
+        @endforeach
+</div>
 @endsection
 
 @section('scripts')
@@ -593,6 +655,11 @@
                             let urlShow =
                                 `/admin/recursos-humanos/evaluacion-360/evaluacion/${@json($evaluacion->id)}/consulta/${data}`;
                             let html = `
+                            <span type="button" class="mt-2 mr-5" data-toggle="modal"
+                                    data-target="#CambioEvaluadores${data}">
+                                    <i class="mr-2 fas fa-file-download text-primary" style="font-size:14pt"></i>Cambiar Evaluadores
+                                </span>
+
                                 <a href="${urlShow}" class="btn btn-sm" title="Visualizar"><i class="fas fa-arrow-right"></i></a>
 
                             `;

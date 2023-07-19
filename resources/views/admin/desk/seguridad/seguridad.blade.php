@@ -1,3 +1,4 @@
+<meta name="referrer" content="no-referrer-when-downgrade" />
 <style type="text/css">
     .tarjetas_seguridad_indicadores {
         width: 100%;
@@ -241,7 +242,10 @@
             //     dtButtons.push(btnAgregar)
             if (!$.fn.dataTable.isDataTable('.tabla_incidentes_seguridad')) {
                 window.tabla_incidentes = $(".tabla_incidentes_seguridad").DataTable({
-                    ajax: '/admin/desk/seguridad',
+                    ajax: {
+                        url: '/admin/desk/seguridad',
+                        method: "GET",
+                    },
                     buttons: dtButtons,
                     columns: [
                         // {data: 'id'},
@@ -348,7 +352,7 @@
                                 return html;
                             }
                         },
-                    ],  
+                    ],
                     createdRow: (row, data, dataIndex, cells) => {
                         let fondo = "green";
                         let letras = "white";
@@ -376,7 +380,7 @@
                             $(cells[12]).css('background-color', fondo)
                             $(cells[12]).css('color', letras)
                         }
-                      
+
                     },
                         order:[
                             [0,'desc']

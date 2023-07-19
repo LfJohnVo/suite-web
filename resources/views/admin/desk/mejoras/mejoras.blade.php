@@ -1,3 +1,4 @@
+<meta name="referrer" content="no-referrer-when-downgrade" />
 <div class="row">
     <div class="col-6 col-md-2">
         <div class="tarjetas_seguridad_indicadores cdr-celeste">
@@ -198,7 +199,10 @@
             if (!$.fn.dataTable.isDataTable('.tabla_mejoras')) {
                 window.tabla_mejoras_desk = $(".tabla_mejoras").DataTable({
                     buttons: dtButtons,
-                    ajax: '/admin/desk/mejoras',
+                    ajax: {
+                        url: '/admin/desk/mejoras',
+                        method: "GET",
+                    },
                     columnDefs: [
                         {
                             "targets": [ 2,3,4,8,9,10,12,14 ],

@@ -1,3 +1,4 @@
+<meta name="referrer" content="no-referrer-when-downgrade" />
 <div class="row">
     <div class="col-6 col-md-2">
         <div class="tarjetas_seguridad_indicadores cdr-celeste">
@@ -194,7 +195,10 @@
             //     dtButtons.push(btnAgregar)
             if (!$.fn.dataTable.isDataTable('.tabla_riesgos')) {
                 window.tabla_riesgos_desk = $(".tabla_riesgos").DataTable({
-                    ajax: '/admin/desk/riesgos',
+                    ajax: {
+                        url: '/admin/desk/riesgos',
+                        method: "GET",
+                    },
                     buttons: dtButtons,
                     columns: [
                         // {data: 'id'},

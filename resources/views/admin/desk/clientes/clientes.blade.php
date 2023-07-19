@@ -6,7 +6,7 @@
 
 
 </style> --}}
-
+<meta name="referrer" content="no-referrer-when-downgrade" />
 
 <style>
     .textoCentroCard {
@@ -207,7 +207,10 @@
             //     dtButtons.push(btnAgregar)
             if (!$.fn.dataTable.isDataTable('.tabla_quejasclientes')) {
                 window.tabla_quejasclientes_desk = $(".tabla_quejasclientes").DataTable({
-                    ajax: "{{ route('admin.desk.quejasClientes-index') }}",
+                    ajax: {
+                        url: "{{ route('admin.desk.quejasClientes-index') }}",
+                        method: "GET",
+                },
                     buttons: dtButtons,
                     columnDefs: [{
                         targets: [4, 5, 6, 10, 11, 12,13],

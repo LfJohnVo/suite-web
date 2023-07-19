@@ -1,3 +1,4 @@
+<meta name="referrer" content="no-referrer-when-downgrade" />
 <div class="row">
     <div class="col-6 col-md-2">
         <div class="tarjetas_seguridad_indicadores cdr-celeste">
@@ -203,7 +204,15 @@
             //     dtButtons.push(btnAgregar)
             if (!$.fn.dataTable.isDataTable('.tabla_quejas')) {
                 window.tabla_quejas_desk = $(".tabla_quejas").DataTable({
-                    ajax: '/admin/desk/quejas',
+                    ajax: {
+                        url: '/admin/desk/quejas',
+                        method: "GET",
+                    },
+                    columnDefs: [
+                        {
+                            defaultContent: "ALGO",
+                        }
+                    ],
                     buttons: dtButtons,
                     columns: [
                         // {data: 'id'},
