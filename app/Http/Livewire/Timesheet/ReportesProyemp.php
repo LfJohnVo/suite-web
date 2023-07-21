@@ -9,6 +9,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\TimesheetProyecto;
 use App\Models\TimesheetHoras;
+use App\Services\TimesheetService;
 use Carbon\Carbon;
 
 class ReportesProyemp extends Component
@@ -37,6 +38,14 @@ class ReportesProyemp extends Component
     public $proy_id;
     public $empleados_estatus;
 
+    private $test;
+
+
+    /**
+     * Metodo de iniciacion de liveware
+     *
+     * @return void
+     */
     public function mount()
     {
         $this->estatus = null;
@@ -45,10 +54,10 @@ class ReportesProyemp extends Component
         $this->proy = TimesheetProyecto::orderBy('proyecto', 'ASC')->get();
     }
 
-    public function updatedFechaInicio($value)
+    public function updatedFechaInicio(string $value): void
     {
-        $fi = Carbon::parse($value)->format('Y-m-d');
-        $this->fecha_inicio = $fi;
+        $this->fecha_inicio = Carbon::parse($value)->format('Y-m-d');
+        //$this->fecha_inicio = $value;
         // dd($value, $this->fecha_inicio);
         // $this->times = Timesheet::whereHas('empleado', function ($query) {
         //     if ($this->area_id == 0) {
@@ -61,8 +70,7 @@ class ReportesProyemp extends Component
 
     public function updatedFechaFin($value)
     {
-        $ff = Carbon::parse($value)->format('Y-m-d');
-        $this->fecha_fin = $ff;
+        $this->fecha_fin = Carbon::parse($value)->format('Y-m-d');
         // $this->times = Timesheet::whereHas('empleado', function ($query) {
         //     if ($this->area_id == 0) {
         //         return $query;
@@ -109,7 +117,6 @@ class ReportesProyemp extends Component
 
     public function render()
     {
-        // dd($this->fecha_inicio);
         //Query para obtener los timesheet y filtrarlo
         $query = TimesheetHoras::with('proyecto', 'timesheet', 'tarea.areaData')
             ->whereHas('timesheet', function ($query) {
@@ -129,10 +136,8 @@ class ReportesProyemp extends Component
                     $query->where('proyecto_id', $this->proy_id);
                 }
             });
-
         $this->totalRegistrosMostrando = $query->count();
         $times = $query->paginate($this->perPage);
-
         // $this->totalRegistrosMostrando = $proyemp->count();
 
         //Funcion para pintar contadores en los filtros de estatus

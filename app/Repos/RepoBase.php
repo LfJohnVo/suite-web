@@ -1,8 +1,7 @@
-<?php 
+<?php
 
 namespace App\Repos;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 abstract class RepoBase
@@ -30,9 +29,9 @@ abstract class RepoBase
     public function find($select = ['*'], $filter = [])
     {
         return $this->model->select($select)->filter($filter)->orderBy(
-            $this->getParamOrder(), 
+            $this->getParamOrder(),
             $this->getOrder()
-            )->get();
+        )->get();
     }
 
     public function count($filter = [])
@@ -50,9 +49,9 @@ abstract class RepoBase
     public function findFirst($select = ['*'], $filter = [])
     {
         return $this->model->select($select)->filter($filter)->orderBy(
-            $this->getParamOrder(), 
+            $this->getParamOrder(),
             $this->getOrder()
-            )->first();
+        )->first();
     }
 
     /**
@@ -94,7 +93,7 @@ abstract class RepoBase
 
     /**
      * Get the value of paramOrder
-     */ 
+     */
     public function getParamOrder()
     {
         return $this->paramOrder;
@@ -104,7 +103,7 @@ abstract class RepoBase
      * Set the value of paramOrder
      *
      * @return  self
-     */ 
+     */
     public function setParamOrder($paramOrder)
     {
         $this->paramOrder = $paramOrder;
@@ -114,7 +113,7 @@ abstract class RepoBase
 
     /**
      * Get the value of order
-     */ 
+     */
     public function getOrder()
     {
         return $this->order;
@@ -124,7 +123,7 @@ abstract class RepoBase
      * Set the value of order
      *
      * @return  self
-     */ 
+     */
     public function setOrder($order)
     {
         $this->order = $order;

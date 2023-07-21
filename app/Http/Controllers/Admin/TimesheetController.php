@@ -2,30 +2,32 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Mail\TimesheetHorasSolicitudAprobacion;
-use App\Mail\TimesheetSolicitudAprobada;
-use App\Mail\TimesheetSolicitudRechazada;
-use App\Mail\TimesheetHorasSobrepasadas;
-use App\Models\Area;
-use App\Models\Empleado;
-use App\Models\Sede;
-use App\Models\Organizacion;
-use App\Models\Timesheet;
-use App\Models\TimesheetCliente;
-use App\Models\TimesheetHoras;
-use App\Models\TimesheetProyecto;
-use App\Models\TimesheetProyectoEmpleado;
-use App\Models\TimesheetProyectoProveedor;
-use App\Models\TimesheetProyectoArea;
-use App\Models\TimesheetTarea;
-use App\Services\DashboardService;
-use App\Services\TimesheetService;
 use Carbon\Carbon;
+use App\Models\Area;
+use App\Models\Sede;
+use App\Models\Empleado;
+use App\Models\Timesheet;
+use App\Models\Organizacion;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Models\TimesheetHoras;
+use App\Models\TimesheetTarea;
+use App\Models\TimesheetCliente;
+use App\Models\TimesheetProyecto;
+use App\Services\DashboardService;
+use App\Services\TimesheetService;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterTimesRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
+use App\Models\TimesheetProyectoArea;
+use App\Mail\TimesheetHorasSobrepasadas;
+use App\Mail\TimesheetSolicitudAprobada;
+use App\Mail\TimesheetSolicitudRechazada;
+use App\Models\TimesheetProyectoEmpleado;
+use App\Models\TimesheetProyectoProveedor;
+use App\Mail\TimesheetHorasSolicitudAprobacion;
 
 class TimesheetController extends Controller
 {
@@ -154,12 +156,16 @@ class TimesheetController extends Controller
         return view('admin.timesheet.create-copia', compact('timesheet', 'proyectos', 'tareas', 'fechasRegistradas', 'organizacion', 'horas_count'));
     }
 
+    /**
+     * Se crean las horas
+     *
+     * @param Request $request
+     * @return void
+     */
     public function store(Request $request)
     {
+        // TODO: hay que cambiar esta logica e implementar una validacion mas sencilla con requests
         abort_if(Gate::denies('timesheet_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        $organizacion_semana = Organizacion::first();
-
         $request->validate(
             [
                 'timesheet.1.proyecto' => 'required',
@@ -248,49 +254,54 @@ class TimesheetController extends Controller
                 }
             }
         }
-        // dd($organizacion_semana->dia_timesheet);
-        $timesheet_nuevo = Timesheet::create([
-            'fecha_dia' => $request->fecha_dia,
-            'dia_semana' => $organizacion_semana->dia_timesheet,
-            'inicio_semana' => $organizacion_semana->inicio_timesheet,
-            'fin_semana' => $organizacion_semana->fin_timesheet,
-            'empleado_id' => auth()->user()->empleado->id,
-            'aprobador_id' => auth()->user()->empleado->supervisor_id,
-            'estatus' => $request->estatus,
-        ]);
 
-        foreach ($request->timesheet as $index => $hora) {
-            if (array_key_exists('proyecto', $hora) && array_key_exists('tarea', $hora)) {
-                $horas_nuevas = TimesheetHoras::create([
-                    'timesheet_id' => $timesheet_nuevo->id,
-                    'proyecto_id' => array_key_exists('proyecto', $hora) ? $hora['proyecto'] : null,
-                    'tarea_id' => array_key_exists('tarea', $hora) ? $hora['tarea'] : null,
-                    'facturable' => array_key_exists('facturable', $hora) ? true : false,
-                    'horas_lunes' => $hora['lunes'],
-                    'horas_martes' => $hora['martes'],
-                    'horas_miercoles' => $hora['miercoles'],
-                    'horas_jueves' => $hora['jueves'],
-                    'horas_viernes' => $hora['viernes'],
-                    'horas_sabado' => $hora['sabado'],
-                    'horas_domingo' => $hora['domingo'],
-                    'descripcion' => $hora['descripcion'],
-                    'empleado_id' => auth()->user()->empleado->id,
-                ]);
+        try {
+            DB::beginTransaction();
+            $organizacion_semana = Organizacion::first();
+            $timesheet_nuevo = Timesheet::create([
+                'fecha_dia' => $request->fecha_dia,
+                'dia_semana' => $organizacion_semana->dia_timesheet,
+                'inicio_semana' => $organizacion_semana->inicio_timesheet,
+                'fin_semana' => $organizacion_semana->fin_timesheet,
+                'empleado_id' => auth()->user()->empleado->id,
+                'aprobador_id' => auth()->user()->empleado->supervisor_id,
+                'estatus' => $request->estatus,
+            ]);
+
+            foreach ($request->timesheet as $index => $hora) {
+                if (array_key_exists('proyecto', $hora) && array_key_exists('tarea', $hora)) {
+                    $horas_nuevas = TimesheetHoras::create([
+                        //'timesheet_id' => $timesheet_nuevo->id,
+                        'proyecto_id' => array_key_exists('proyecto', $hora) ? $hora['proyecto'] : null,
+                        'tarea_id' => array_key_exists('tarea', $hora) ? $hora['tarea'] : null,
+                        // Esta propiedad debería venir como true o false desde el front
+                        'facturable' => array_key_exists('facturable', $hora) ? true : false,
+                        'horas_lunes' => $hora['lunes'],
+                        'horas_martes' => $hora['martes'],
+                        'horas_miercoles' => $hora['miercoles'],
+                        'horas_jueves' => $hora['jueves'],
+                        'horas_viernes' => $hora['viernes'],
+                        'horas_sabado' => $hora['sabado'],
+                        'horas_domingo' => $hora['domingo'],
+                        'descripcion' => $hora['descripcion'],
+                        'empleado_id' => auth()->user()->empleado->id,
+                    ]);
+                }
             }
+            // TODO: hay que escalar para dejar encolados los correos que se van a enviar
+            if ($timesheet_nuevo->estatus == 'pendiente') {
+                $aprobador = Empleado::select('id', 'name', 'email', 'foto')->find(auth()->user()->empleado->supervisor_id);
+                $solicitante = Empleado::select('id', 'name', 'email', 'foto')->find(auth()->user()->empleado->id);
+                Mail::to($aprobador->email)->send(new TimesheetHorasSolicitudAprobacion($aprobador, $timesheet_nuevo, $solicitante));
+            }
+            //
+            $this->notificacionhorassobrepasadas(auth()->user()->empleado->id);
+            DB::commit();
+            return response()->json(['status' => 200]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(['status' => 409], 422);
         }
-
-        if ($timesheet_nuevo->estatus == 'pendiente') {
-            $aprobador = Empleado::select('id', 'name', 'email', 'foto')->find(auth()->user()->empleado->supervisor_id);
-
-            $solicitante = Empleado::select('id', 'name', 'email', 'foto')->find(auth()->user()->empleado->id);
-
-            Mail::to($aprobador->email)->send(new TimesheetHorasSolicitudAprobacion($aprobador, $timesheet_nuevo, $solicitante));
-        }
-
-        $this->notificacionhorassobrepasadas(auth()->user()->empleado->id);
-
-        return response()->json(['status' => 200]);
-        // return redirect()->route('admin.timesheet')->with('success', 'Registro Enviado');
     }
 
     /**
@@ -358,9 +369,6 @@ class TimesheetController extends Controller
     public function update(Request $request, $id)
     {
         abort_if(Gate::denies('timesheet_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        $organizacion_semana = Organizacion::first();
-
         $request->validate(
             [
                 'timesheet.1.proyecto' => 'required',
@@ -389,7 +397,6 @@ class TimesheetController extends Controller
                 ]
             );
         }
-
         foreach ($request->timesheet as $index => $hora) {
             if ($index > 1) {
                 if (array_key_exists('proyecto', $hora) || array_key_exists('tarea', $hora)) {
@@ -403,7 +410,6 @@ class TimesheetController extends Controller
                             "timesheet.{$index}.tarea.required" => 'Seleccionar tarea',
                         ],
                     );
-
                     if (
                         $hora['lunes'] == null &&
                         $hora['martes'] == null &&
@@ -423,7 +429,6 @@ class TimesheetController extends Controller
                         );
                     }
                 } else {
-                    // dd($hora);
                     if (
                         $hora['lunes'] != null ||
                         $hora['martes'] != null ||
@@ -447,91 +452,76 @@ class TimesheetController extends Controller
                 }
             }
         }
-
-        $timesheet_edit = Timesheet::find($id);
-
-        $timesheet_edit->update([
-            'empleado_id' => auth()->user()->empleado->id,
-            'aprobador_id' => auth()->user()->empleado->supervisor_id,
-            'estatus' => $request->estatus,
-        ]);
-
-        foreach ($request->timesheet as $index => $hora) {
-            if (array_key_exists('proyecto', $hora) && array_key_exists('tarea', $hora)) {
-                $horas_nuevas = TimesheetHoras::find($hora['id_hora']);
-
-                if ($horas_nuevas != null) {
-                    $horas_nuevas->update([
-                        'timesheet_id' => $timesheet_edit->id,
-                        'proyecto_id' => array_key_exists('proyecto', $hora) ? $hora['proyecto'] : null,
-                        'tarea_id' => array_key_exists('tarea', $hora) ? $hora['tarea'] : null,
-                        'facturable' => array_key_exists('facturable', $hora) ? true : false,
-                        'horas_lunes' => $hora['lunes'],
-                        'horas_martes' => $hora['martes'],
-                        'horas_miercoles' => $hora['miercoles'],
-                        'horas_jueves' => $hora['jueves'],
-                        'horas_viernes' => $hora['viernes'],
-                        'horas_sabado' => $hora['sabado'],
-                        'horas_domingo' => $hora['domingo'],
-                        'descripcion' => $hora['descripcion'],
-                        'empleado_id' => auth()->user()->empleado->id,
-                    ]);
-                } else {
-                    TimesheetHoras::create([
-                        'timesheet_id' => $timesheet_edit->id,
-                        'proyecto_id' => array_key_exists('proyecto', $hora) ? $hora['proyecto'] : null,
-                        'tarea_id' => array_key_exists('tarea', $hora) ? $hora['tarea'] : null,
-                        'facturable' => $hora['facturable'],
-                        'horas_lunes' => $hora['lunes'],
-                        'horas_martes' => $hora['martes'],
-                        'horas_miercoles' => $hora['miercoles'],
-                        'horas_jueves' => $hora['jueves'],
-                        'horas_viernes' => $hora['viernes'],
-                        'horas_sabado' => $hora['sabado'],
-                        'horas_domingo' => $hora['domingo'],
-                        'descripcion' => $hora['descripcion'],
-                        'empleado_id' => auth()->user()->empleado->id,
-                    ]);
+        try {
+            DB::beginTransaction();
+            $timesheet_edit = Timesheet::find($id);
+            $timesheet_edit->update([
+                'empleado_id' => auth()->user()->empleado->id,
+                'aprobador_id' => auth()->user()->empleado->supervisor_id,
+                'estatus' => $request->estatus,
+            ]);
+            foreach ($request->timesheet as $index => $hora) {
+                if (array_key_exists('proyecto', $hora) && array_key_exists('tarea', $hora)) {
+                    $horas_nuevas = TimesheetHoras::find($hora['id_hora']);
+                    if ($horas_nuevas != null) {
+                        $horas_nuevas->update([
+                            'timesheet_id' => $timesheet_edit->id,
+                            'proyecto_id' => array_key_exists('proyecto', $hora) ? $hora['proyecto'] : null,
+                            'tarea_id' => array_key_exists('tarea', $hora) ? $hora['tarea'] : null,
+                            'facturable' => array_key_exists('facturable', $hora) ? true : false,
+                            'horas_lunes' => $hora['lunes'],
+                            'horas_martes' => $hora['martes'],
+                            'horas_miercoles' => $hora['miercoles'],
+                            'horas_jueves' => $hora['jueves'],
+                            'horas_viernes' => $hora['viernes'],
+                            'horas_sabado' => $hora['sabado'],
+                            'horas_domingo' => $hora['domingo'],
+                            'descripcion' => $hora['descripcion'],
+                            'empleado_id' => auth()->user()->empleado->id,
+                        ]);
+                    } else {
+                        TimesheetHoras::create([
+                            'timesheet_id' => $timesheet_edit->id,
+                            'proyecto_id' => array_key_exists('proyecto', $hora) ? $hora['proyecto'] : null,
+                            'tarea_id' => array_key_exists('tarea', $hora) ? $hora['tarea'] : null,
+                            'facturable' => $hora['facturable'],
+                            'horas_lunes' => $hora['lunes'],
+                            'horas_martes' => $hora['martes'],
+                            'horas_miercoles' => $hora['miercoles'],
+                            'horas_jueves' => $hora['jueves'],
+                            'horas_viernes' => $hora['viernes'],
+                            'horas_sabado' => $hora['sabado'],
+                            'horas_domingo' => $hora['domingo'],
+                            'descripcion' => $hora['descripcion'],
+                            'empleado_id' => auth()->user()->empleado->id,
+                        ]);
+                    }
                 }
             }
+            if ($timesheet_edit->estatus == 'pendiente') {
+                $aprobador = Empleado::select('id', 'name', 'email', 'foto')->find(auth()->user()->empleado->supervisor_id);
+                $solicitante = Empleado::select('id', 'name', 'email', 'foto')->find(auth()->user()->empleado->id);
+                Mail::to($aprobador->email)->send(new TimesheetHorasSolicitudAprobacion($aprobador, $timesheet_edit, $solicitante));
+            }
+            $this->notificacionhorassobrepasadas(auth()->user()->empleado->id);
+            DB::commit();
+            return response()->json(['status' => 200]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(['status' => 409], 422);
         }
-
-        if ($timesheet_edit->estatus == 'pendiente') {
-            $aprobador = Empleado::select('id', 'name', 'email', 'foto')->find(auth()->user()->empleado->supervisor_id);
-
-            $solicitante = Empleado::select('id', 'name', 'email', 'foto')->find(auth()->user()->empleado->id);
-
-            Mail::to($aprobador->email)->send(new TimesheetHorasSolicitudAprobacion($aprobador, $timesheet_edit, $solicitante));
-        }
-
-        $this->notificacionhorassobrepasadas(auth()->user()->empleado->id);
-
-        return response()->json(['status' => 200]);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
     }
 
     public function eliminar($id)
     {
         $timesheet_eliminar = Timesheet::find($id);
-
         $timesheet_eliminar->delete();
-
         return redirect()->back()->with('success', 'Eliminado con éxito');
     }
 
     public function proyectos()
     {
         $clientes = TimesheetCliente::getAll();
-
         $organizacion_actual = Organizacion::select('empresa', 'logotipo')->first();
         if (is_null($organizacion_actual)) {
             $organizacion_actual = new Organizacion();
@@ -942,6 +932,7 @@ class TimesheetController extends Controller
 
     public function reportes()
     {
+        //$this->timesheetService->dataReports();
         $clientes = TimesheetCliente::getAll();
 
         $proyectos = TimesheetProyecto::getAll();
@@ -949,14 +940,14 @@ class TimesheetController extends Controller
         $tareas = TimesheetTarea::getAll();
 
         $organizacion_actual = Organizacion::select('empresa', 'logotipo')->first();
-        if (is_null($organizacion_actual)) {
-            $organizacion_actual = new Organizacion();
-            $organizacion_actual->logotipo = asset('img/logo.png');
-            $organizacion_actual->empresa = 'Silent4Business';
-        }
-        $logo_actual = $organizacion_actual->logotipo;
-        $empresa_actual = $organizacion_actual->empresa;
+        $logo_actual = asset('img/logo.png');
+        $empresa_actual = 'Silent4Business';
 
+        //dd($organizacion_actual, 'proyectos');
+        if (!is_null($organizacion_actual)) {
+            $logo_actual = $organizacion_actual->logotipo;
+            $empresa_actual = $organizacion_actual->empresa;
+        }
         return view('admin.timesheet.reportes', compact('clientes', 'proyectos', 'tareas', 'logo_actual', 'empresa_actual'));
     }
 

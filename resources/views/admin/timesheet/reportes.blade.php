@@ -61,7 +61,6 @@
                 </a>
             </div>
         </nav>
-
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane mb-4 fade p-4 show active" id="nav-registros" role="tabpanel"
                 aria-labelledby="nav-registros-tab">
@@ -78,6 +77,7 @@
             </div>
         </div>
     </div>
+    
 @endsection
 
 

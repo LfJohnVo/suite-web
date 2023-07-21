@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use EloquentFilter\Filterable;
 
 class TimesheetCliente extends Model
 {
     use HasFactory;
+    use Filterable;
 
     protected $table = 'timesheet_clientes';
 
