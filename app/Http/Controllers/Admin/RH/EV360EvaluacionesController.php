@@ -406,6 +406,33 @@ class EV360EvaluacionesController extends Controller
             }
         }
 
+        $lista_evaluadores = Empleado::alta()->get();
+
+        $lista_evaluados = [];
+        $evaluados_evaluacion = Evaluacion::with(['evaluados' => function ($q) use ($evaluacion) {
+            return $q->with(['area', 'evaluadores' => function ($qry) use ($evaluacion) {
+                $qry->where('evaluacion_id', $evaluacion->id);
+            }]);
+        }])->where('id', intval($evaluacion->id))->first();
+        if ($evaluados_evaluacion->evaluados) {
+            $evaluados = $evaluados_evaluacion->evaluados;
+            foreach ($evaluados as $evaluado) {
+                $evaluadores = EvaluadoEvaluador::with('evaluador')->where('evaluado_id', $evaluado->id)->where('evaluacion_id', $evaluacion->id)->get();
+
+                array_push($lista_evaluados, [[
+                    'id' => $evaluado->id,
+                    'name' => $evaluado->name,
+                    'area' => $evaluado->area->area,
+                    'area_id' => $evaluado->area->id,
+                    'evaluadores' => $evaluadores,
+                    'evaluacion' => intval($evaluacion->id),
+                ]][0]);
+            }
+
+        } else {
+            $evaluados = [];
+        }
+
         $competencias = Competencia::select('id', 'nombre')->get();
         $objetivos = Objetivo::select('id', 'nombre')->get();
         $competencias_seleccionadas = EvaluacionCompetencia::where('evaluacion_id', $evaluacion->id)->pluck('competencia_id')->toArray();
@@ -420,7 +447,9 @@ class EV360EvaluacionesController extends Controller
         $contestadas = EvaluadoEvaluador::where('evaluacion_id', $evaluacion->id)->where('evaluado', true)->count();
         $progreso = floatval(number_format((($contestadas / $total_evaluaciones) * 100), 2));
 
-        return view('admin.recursos-humanos.evaluacion-360.evaluaciones.evaluacion', compact('evaluacion', 'competencias', 'competencias_seleccionadas', 'competencias_seleccionadas_text', 'total_evaluaciones', 'contestadas', 'progreso', 'objetivos', 'objetivos_seleccionados', 'objetivos_seleccionados_text'));
+        return view('admin.recursos-humanos.evaluacion-360.evaluaciones.evaluacion', compact('evaluacion', 'competencias',
+        'competencias_seleccionadas', 'competencias_seleccionadas_text', 'total_evaluaciones', 'contestadas', 'progreso', 'objetivos',
+        'objetivos_seleccionados', 'objetivos_seleccionados_text', 'lista_evaluadores', 'lista_evaluados'));
     }
 
     public function getParticipantes(Request $request, $evaluacion)
@@ -862,6 +891,80 @@ class EV360EvaluacionesController extends Controller
             'metaObjetivos',
             'calificacionObjetivos'
         ));
+    }
+
+    public function cambiarEvaluador(Request $request, $evaluacion, $evaluado)
+    {
+        //validacion
+        $request->validate([
+            'cambio_jefe' => 'required',
+            'cambio_companero' => 'required',
+            'cambio_subordinado' => 'required',
+        ]);
+        // dd("Ya llega aqui validado", $request->all(), $evaluacion, $evaluado);
+        //encontrar registros de cambios
+        $cambiosjefe = EvaluadoEvaluador::where('evaluacion_id', '=', $evaluacion)
+            ->where('evaluado_id', '=', $evaluado)->whereNot('evaluador_id', '=', $evaluado)->where('tipo', '=', '1')->first();
+
+        $cambioscompanero = EvaluadoEvaluador::where('evaluacion_id', '=', $evaluacion)
+            ->where('evaluado_id', '=', $evaluado)->whereNot('evaluador_id', '=', $evaluado)->where('tipo', '=', '2')->first();
+
+        $cambiossubordinado = EvaluadoEvaluador::where('evaluacion_id', '=', $evaluacion)
+            ->where('evaluado_id', '=', $evaluado)->whereNot('evaluador_id', '=', $evaluado)->where('tipo', '=', '3')->first();
+
+        $cambios_objetivos = ObjetivoCalificacion::where('evaluacion_id', '=', $evaluacion)
+        ->where('evaluado_id', '=', $evaluado)->whereNot('evaluador_id', '=', $evaluado);
+
+        $cambios_competencias = EvaluacionRepuesta::where('evaluacion_id', '=', $evaluacion)
+        ->where('evaluado_id', '=', $evaluado)->whereNot('evaluador_id', '=', $evaluado)->get();
+
+        foreach($cambios_competencias as $cc){
+            if($cc->evaluador_id == $cambiosjefe->evaluador_id){
+                $cc->update([
+                    'evaluador_id' => $request->cambio_jefe,
+                ]);
+            }elseif($cc->evaluador_id == $cambioscompanero->evaluador_id){
+                $cc->update([
+                    'evaluador_id' => $request->cambio_companero,
+                ]);
+            }elseif($cc->evaluador_id == $cambiossubordinado->evaluador_id){
+                $cc->update([
+                    'evaluador_id' => $request->cambio_subordinado,
+                ]);
+            }
+        }
+
+        //dd(
+        //$cambios,
+        //$cambios_objetivos,
+        // $cambios_competencias);
+        if($cambiosjefe->evaluador_id != $request->cambio_jefe){
+            $cambiosjefe->update([
+                'evaluador_id' => $request->cambio_jefe,
+                'firma_evaluador' => null,
+            ]);
+
+            $cambios_objetivos->update([
+                'evaluador_id' => $request->cambio_jefe,
+            ]);
+        }
+
+        if($cambioscompanero->evaluador_id != $request->cambio_companero){
+            $cambioscompanero->update([
+                'evaluador_id' => $request->cambio_companero,
+                'firma_evaluador' => null,
+            ]);
+        }
+
+        if($cambiossubordinado->evaluador_id != $request->cambio_subordinado){
+            $cambiossubordinado->update([
+                'evaluador_id' => $request->cambio_subordinado,
+                'firma_evaluador' => null,
+            ]);
+        }
+
+        return redirect()->back();
+
     }
 
     // public function reactivarPorEvaluado($evaluacion, $evaluado)

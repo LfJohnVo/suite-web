@@ -341,7 +341,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
             'edit' => 'ev360-evaluaciones.edit',
             'update' => 'ev360-evaluaciones.update',
         ]);
-
+        Route::post('recursos-humanos/evaluacion-360/evaluacion/cambiarEvaluador/{evaluacion}/{evaluado}', 'RH\EV360EvaluacionesController@cambiarEvaluador')->name('ev360-evaluaciones.cambiarEvaluador');
         Route::get('recursos-humanos/evaluacion-360/evaluacion/objetivostmp', 'RH\EV360EvaluacionesController@objetivostemporal')->name('ev360-evaluaciones.objetivostmp');
 
         Route::post('recursos-humanos/evaluacion-360/evaluaciones/evaluado-evaluador/remover', 'RH\EvaluadoEvaluadorController@remover')->name('ev360-evaluaciones.evaluadores.remover');
