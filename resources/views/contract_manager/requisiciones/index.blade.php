@@ -126,7 +126,7 @@
 
                 let btnArchivar = {
                     text: '<i class="fa-solid fa-box-archive"></i> Archivados',
-                    titleAttr: 'Archivar producto',
+                    titleAttr: 'Archivar requisicion',
                     url: "{{ route('contract_manager.requisiciones.archivo') }}",
                     className: "btn-xs btn-outline-success rounded ml-2 pr-3",
                     action: function(e, dt, node, config) {
