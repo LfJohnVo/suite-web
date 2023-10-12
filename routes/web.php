@@ -874,6 +874,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
         Route::delete('riesgosoportunidades/destroy', 'RiesgosoportunidadesController@massDestroy')->name('riesgosoportunidades.massDestroy');
         Route::resource('riesgosoportunidades', 'RiesgosoportunidadesController');
 
+        Route::get('evaluacion-organizacion/create', 'EvaluacionOrganizacionController@create')->name('evaluacion-organizacion.create');
+
+
         // Objetivosseguridads
         Route::delete('objetivosseguridads/destroy', 'ObjetivosseguridadController@massDestroy')->name('objetivosseguridads.massDestroy');
         Route::resource('objetivosseguridads', 'ObjetivosseguridadController');
