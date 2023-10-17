@@ -25,6 +25,19 @@ class EvaluacionesStepsOrganizacion extends Component
 {
     public $paso = 1;
 
+    public $inputs = [];
+
+    public function addInput()
+    {
+        $this->inputs[] = '';
+    }
+
+    public function removeInput($index)
+    {
+        unset($this->inputs[$index]);
+        $this->inputs = array_values($this->inputs);
+    }
+
     public function mount()
     {
         $this->paso = 1;
@@ -42,7 +55,16 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public function formpaso1($form1)
     {
-        dd('Si llega', $form1);
         $this->paso = 2;
+    }
+
+    public function formpaso2($form2)
+    {
+        $this->paso = 3;
+    }
+
+    public function formpaso3($form3)
+    {
+        $this->paso = 4;
     }
 }
