@@ -231,8 +231,9 @@ class MatrizHeatmap extends Component
         }
 
         //$matriz_riesgos = MatrizRiesgo::select('id', 'descripcionriesgo', 'probabilidad', 'impacto', 'nivelriesgo')->where('id_analisis', '=', $this->id_analisis)->where('nivelriesgo', '=', '0');
-
-        foreach ($matriz_query->get() as $key => $value) {
+        $Matriz_query_execute = $matriz_query->get();
+        $Matriz_query_execute_r = $matriz_query_r->get();
+        foreach ($Matriz_query_execute as $key => $value) {
             switch ($value->probabilidad) {
                 case 0:
                     switch ($value->impacto) {
@@ -301,7 +302,7 @@ class MatrizHeatmap extends Component
             }
         }
 
-        foreach ($matriz_query_r->get() as $key => $value_r) {
+        foreach ($Matriz_query_execute_r as $key => $value_r) {
             switch ($value_r->probabilidad_residual) {
                 case 0:
                     switch ($value_r->impacto_residual) {
