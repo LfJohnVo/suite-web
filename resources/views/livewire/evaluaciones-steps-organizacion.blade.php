@@ -212,27 +212,39 @@
     @endif
 
     @if ($paso == 3)
-        <div class="row g-2">
-            @foreach ($inputs as $key => $input)
-                <div class="row">
-                    <div class="col-md">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="inputs.{{ $key }}"
-                                name="inputs.{{ $key }}" placeholder="Clasificación"
-                                wire:model="inputs.{{ $key }}">
-                            <label for="inputs.{{ $key }}">Clasificación</label>
+        <form wire:submit.prevent="formpaso3(Object.fromEntries(new FormData($event.target)))">
+            <div class="row g-2">
+                @foreach ($inputs as $key => $input)
+                    <div class="row">
+                        <div class="col-md">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="inputs.{{ $key }}"
+                                    name="inputs.{{ $key }}" placeholder="Clasificación"
+                                    wire:model="inputs.{{ $key }}">
+                                <label for="inputs.{{ $key }}">Clasificación</label>
+                            </div>
+                        </div>
+                        <div class="col-md d-flex align-items-center">
+                            <a role="button" wire:click="removeInput({{ $key }})"><i
+                                    class="bi bi-trash"></i></a>
                         </div>
                     </div>
-                    <div class="col-md">
-                        <button wire:click="removeInput({{ $key }})"><i class="bi bi-trash"></i></button>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-        <div class="row g-1">
-            <div class="form-floating mb-3">
-                <button class="btn btn-link" wire:click="addInput">Add Input</button>
+                @endforeach
             </div>
-        </div>
+            <div class="row g-1">
+                <div class="form-floating mb-3">
+                    <a role="button" class="btn btn-link" wire:click="addInput">Add Input</a>
+                </div>
+            </div>
+            <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
+                <div class="col s12 right-align btn-grd distancia">
+                    <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </div>
+        </form>
+    @endif
+    @if ($paso == 4)
+        <h3>Público</h3>
     @endif
 </div>

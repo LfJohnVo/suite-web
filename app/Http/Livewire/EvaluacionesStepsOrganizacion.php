@@ -15,6 +15,7 @@ use App\Models\RH\GruposEvaluado;
 use App\Models\RH\Objetivo;
 use App\Models\RH\ObjetivoRespuesta;
 use App\Models\RH\TipoCompetencia;
+use App\Models\RH\TipoObjetivo;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -40,11 +41,18 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public function mount()
     {
+        $clasificaciones = TipoObjetivo::select('id', 'nombre')->get();
+
+        foreach ($clasificaciones as $clasif) {
+            $this->inputs[] = $clasif->nombre;
+        }
+        // dd($Clasificaciones);
         $this->paso = 1;
     }
 
     public function render()
     {
+        // dd($clasificaciones);
         return view('livewire.evaluaciones-steps-organizacion');
     }
 
@@ -65,6 +73,13 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public function formpaso3($form3)
     {
+        // dd($form3);
         $this->paso = 4;
+    }
+
+    public function formpaso4($form4)
+    {
+        // dd($form4);
+        $this->paso = 5;
     }
 }
