@@ -28,6 +28,21 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public $inputs = [];
 
+    public $publico = "";
+
+    public $evaluados = null;
+
+    // YourLivewireComponent.php
+
+    public function updatedPublico($value)
+    {
+        $this->publico = $value;
+        // This method will be called whenever the "publico" property is updated
+        // $value will contain the new value of "publico"
+        // Add your logic here
+    }
+
+
     public function addInput()
     {
         $this->inputs[] = '';
@@ -53,6 +68,18 @@ class EvaluacionesStepsOrganizacion extends Component
     public function render()
     {
         // dd($clasificaciones);
+        switch ($this->publico) {
+                // case 'total':
+                //     $this->evaluados = Empleado::getAltaEmpleados();
+                //     break;
+            case 'area':
+                $this->evaluados = Area::getAll();
+                break;
+            case 'manual':
+                $this->evaluados = Empleado::getAltaEmpleados();
+                break;
+        }
+        // dd($this->evaluados);
         return view('livewire.evaluaciones-steps-organizacion');
     }
 
@@ -77,9 +104,9 @@ class EvaluacionesStepsOrganizacion extends Component
         $this->paso = 4;
     }
 
-    public function formpaso4($form4)
+    public function formpaso4()
     {
-        // dd($form4);
+        // dd($this->publico);
         $this->paso = 5;
     }
 }

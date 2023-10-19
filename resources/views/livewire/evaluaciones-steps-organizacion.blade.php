@@ -246,5 +246,45 @@
     @endif
     @if ($paso == 4)
         <h3>Público</h3>
+        <form wire:submit.prevent="formpaso4(Object.fromEntries(new FormData($event.target)))">
+            <!-- your_component_view.blade.php -->
+            <div class="row">
+                <div class="form-floating">
+                    <select class="form-select" name="publico" id="publico" wire:model="publico"
+                        aria-label="Floating label select example">
+                        <option value="total">Toda la empresa</option>
+                        <option value="area">Por área</option>
+                        <option value="manual">Manualmente</option>
+                    </select>
+                    <label for="publico">Publico Objetivo</label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-floating">
+                    <!-- your_component_view.blade.php -->
+                    @if ($this->evaluados != null)
+                        <select class="form-select" name="evaluados" id="evaluados" wire:model="evaluados"
+                            aria-label="Floating label select example">
+                            @foreach ($this->evaluados as $evaluado)
+                                <option value="{{ $evaluado->id }}">{{ $evaluado->name ?? $evaluado->area }}</option>
+                            @endforeach
+                        </select>
+                        <label for="publico">Publico Objetivo</label>
+                    @else
+                        <select name="" id="" class="form-select" disabled></select>
+                    @endif
+                    <label for="evaluados">Publico Objetivo</label>
+                </div>
+            </div>
+            <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
+                <div class="col s12 right-align btn-grd distancia">
+                    <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </div>
+        </form>
     @endif
 </div>
+
+@livewireScripts
