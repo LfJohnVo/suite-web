@@ -262,21 +262,23 @@
 
             <div class="row">
                 <div class="form-floating">
-                    <!-- your_component_view.blade.php -->
                     @if ($this->evaluados != null)
-                        <select class="form-select" name="evaluados" id="evaluados" wire:model="evaluados"
-                            aria-label="Floating label select example">
-                            @foreach ($this->evaluados as $evaluado)
-                                <option value="{{ $evaluado->id }}">{{ $evaluado->name ?? $evaluado->area }}</option>
+                        <select class="form-select form-control" name="evaluados" id="evaluados">
+                            @foreach ($this->evaluados as $index => $evaluado)
+                                <option> {{ $evaluado->name ?? $evaluado->area }}
+                                </option>
+                                <input type="checkbox" wire:model="selectedItems.{{ $index }}"
+                                    value="{{ $evaluado->id }}">
                             @endforeach
                         </select>
-                        <label for="publico">Publico Objetivo</label>
-                    @else
+                        <label for="evaluados">Seleccione</label>
+                    @elseif ($this->evaluados == null or $this->publico == 'total')
                         <select name="" id="" class="form-select" disabled></select>
+                        <label for="evaluados">Seleccione</label>
                     @endif
-                    <label for="evaluados">Publico Objetivo</label>
                 </div>
             </div>
+
             <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
                 <div class="col s12 right-align btn-grd distancia">
                     <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
@@ -285,6 +287,37 @@
             </div>
         </form>
     @endif
+
+    @if ($paso == 5)
+        <h3>Reglas</h3>
+        <div class="row g-2">
+            <div class="col-md">
+                <div class="form-floating mb-3">
+                    <input type="numeric" class="form-control" id="rango_minimo" name="rango_minimo"
+                        placeholder="Rango Minimo" required>
+                    <label for="nombre">Rango Minimo<sup>*</sup></label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating mb-3">
+                    <input type="numeric" class="form-control" id="rango_maximo" name="rango_maximo"
+                        placeholder="Rango Maximo" required>
+                    <label for="nombre">Rango Maximo<sup>*</sup></label>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 
 @livewireScripts
+
+<script>
+    document.addEventListener('livewire:load', function() {
+        Livewire.hook('element.updating', (fromEl, toEl, component) => {
+            if (fromEl.tagName === 'INPUT' && fromEl.type === 'checkbox' && !fromEl.checked) {
+                let index = fromEl.getAttribute('wire:model').split('.').pop();
+                @this.call('uncheckItem', index);
+            }
+        });
+    });
+</script>
