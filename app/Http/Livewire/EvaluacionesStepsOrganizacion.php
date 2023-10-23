@@ -34,6 +34,48 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public $selectedItems = [];
 
+    public $minValue;
+    public $maxValue;
+
+    public $fields = [];
+
+    public $evaluadores;
+
+    public $evaluadoresselects = [];
+
+    public $selectedEvaluadorIndex = null;
+
+    public function addEvaluador()
+    {
+        if ($this->selectedEvaluadorIndex !== null) {
+            array_splice($this->evaluadoresselects, $this->selectedEvaluadorIndex + 1, 0, [null]);
+        } else {
+            $this->evaluadoresselects[] = null;
+        }
+    }
+
+    public function setSelectedEvaluadorIndex($index)
+    {
+        $this->selectedEvaluadorIndex = $index;
+    }
+
+    public function removeEvaluador($index)
+    {
+        unset($this->evaluadoresselects[$index]);
+        $this->evaluadoresselects = array_values($this->evaluadoresselects);
+    }
+
+    public function addField()
+    {
+        $this->fields[] = ['nombre' => '', 'regla' => ''];
+    }
+
+    public function removeField($index)
+    {
+        unset($this->fields[$index]);
+        $this->fields = array_values($this->fields);
+    }
+
     public function uncheckItem($index)
     {
         unset($this->selectedItems[$index]);
@@ -47,11 +89,16 @@ class EvaluacionesStepsOrganizacion extends Component
         // Add your logic here
     }
 
-
     public function addInput()
     {
         $this->inputs[] = '';
     }
+
+    // public function getRangeProperty()
+    // {
+    //     return range($this->minValue, $this->maxValue);
+    // }
+
 
     public function removeInput($index)
     {
@@ -74,9 +121,9 @@ class EvaluacionesStepsOrganizacion extends Component
     {
         // dd($clasificaciones);
         switch ($this->publico) {
-                // case 'total':
-                //     $this->evaluados = Empleado::getAltaEmpleados();
-                //     break;
+            case 'total':
+                $this->evaluados = Empleado::getAltaEmpleados();
+                break;
             case 'area':
                 $this->evaluados = Area::getAll();
                 break;
@@ -91,7 +138,7 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public function retroceso()
     {
-        $this->paso = 1;
+        $this->paso = $this->paso - 1;
     }
 
     public function formpaso1($form1)
@@ -115,5 +162,20 @@ class EvaluacionesStepsOrganizacion extends Component
         // dd($form4, $this->selectedItems);
         // dd($this->publico);
         $this->paso = 5;
+    }
+
+    public function formpaso5($form5)
+    {
+        // dd($form5);
+        // dd($this->evaluados);
+        $this->evaluadores = Empleado::getAltaEmpleados();
+        $this->paso = 6;
+    }
+
+    public function formpaso6($form6)
+    {
+        // dd($form5);
+        dd($form6);
+        $this->paso = 6;
     }
 }
