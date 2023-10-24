@@ -45,24 +45,29 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public $selectedEvaluadorIndex = null;
 
-    public function addEvaluador()
+    // protected $rules = [
+    //     'evaluadores.*.evaluador' => 'numeric', // Add other validation rules as needed
+    //     'evaluadores.*.*.evaluador' => 'numeric', // Add other validation rules as needed
+    // ];
+
+
+    public function addOrInsertEvaluador($index = null)
     {
         if ($this->selectedEvaluadorIndex !== null) {
-            array_splice($this->evaluadoresselects, $this->selectedEvaluadorIndex + 1, 0, [null]);
+            if (!isset($this->evaluadoresselects[$this->selectedEvaluadorIndex])) {
+                $this->evaluadoresselects[$this->selectedEvaluadorIndex] = [];
+            }
+            array_splice($this->evaluadoresselects[$this->selectedEvaluadorIndex], $index + 1, 0, [null]);
         } else {
-            $this->evaluadoresselects[] = null;
+            $this->evaluadoresselects[$index][] = null;
         }
     }
 
-    public function setSelectedEvaluadorIndex($index)
+    public function removeEvaluador($evaluadoIndex, $evaluadorIndex)
     {
-        $this->selectedEvaluadorIndex = $index;
-    }
-
-    public function removeEvaluador($index)
-    {
-        unset($this->evaluadoresselects[$index]);
-        $this->evaluadoresselects = array_values($this->evaluadoresselects);
+        if (isset($this->evaluadoresselects[$evaluadoIndex])) {
+            unset($this->evaluadoresselects[$evaluadoIndex][$evaluadorIndex]);
+        }
     }
 
     public function addField()

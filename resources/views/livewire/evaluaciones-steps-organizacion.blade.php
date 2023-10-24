@@ -420,32 +420,37 @@
                                 max="100" value="100">
                         </div>
                     </div>
-
-                    <div class="m-3 row">
-                        @foreach ($evaluadoresselects as $idx => $evaluador)
+                    <!-- Add a loop for additional evaluadores here -->
+                    @foreach ($evaluadoresselects[$index] ?? [] as $idx => $evaluador)
+                        <div class="m-3 row">
                             <div class="col-md-6">
                                 <label for="evaluador_{{ $index }}_{{ $idx }}">Evaluador</label>
                                 <select class="form-control"
-                                    wire:model="evaluadores.{{ $index }}.{{ $idx }}" required>
+                                    name="evaluador_{{ $index }}_{{ $idx }}">
                                     @foreach ($evaluadores as $evdrs)
                                         <option value="{{ $evdrs->id }}">{{ $evdrs->name }}</option>
                                     @endforeach
                                 </select>
-                                <button wire:click.prevent="removeEvaluador({{ $index }})"
-                                    class="btn btn-danger mt-2">Eliminar</button>
                             </div>
-                        @endforeach
-                    </div>
-
-
+                            <div class="col-md-3">
+                                <label for="peso_evaluador_{{ $index }}_{{ $idx }}">Peso de
+                                    evaluación</label>
+                                <input class="form-control"
+                                    id="peso_evaluador_{{ $index }}_{{ $idx }}"
+                                    name="peso_evaluador_{{ $index }}_{{ $idx }}" type="number"
+                                    min="1" max="100" value="100">
+                                <button
+                                    wire:click.prevent="removeEvaluador({{ $index }}, {{ $idx }})"
+                                    class="btn btn-danger mt-2">Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
                     <div class="m-3 row">
                         <div class="col-md-4">
-                            <a wire:click="setSelectedEvaluadorIndex({{ $index }})"
-                                class="btn btn-primary mt-2">Agregar Evaluador</a>
-                        </div>
-                        <div class="col-md-4">
-                            <a wire:click.prevent="addEvaluador" class="btn btn-primary">Agregar
-                                Evaluador</a>
+                            <button type="button" wire:click="addOrInsertEvaluador({{ $index }})"
+                                class="btn btn-link mt-2">Agregar Evaluador
+                            </button>
                         </div>
                     </div>
                 </div>
