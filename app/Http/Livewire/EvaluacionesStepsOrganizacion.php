@@ -2,29 +2,32 @@
 
 namespace App\Http\Livewire;
 
-use App\Mail\RH\Evaluaciones\NotificacionEvaluador;
+// use App\Mail\RH\Evaluaciones\NotificacionEvaluador;
 use App\Models\Area;
 use App\Models\Empleado;
-use App\Models\RH\Competencia;
-use App\Models\RH\Evaluacion;
-use App\Models\RH\EvaluacionCompetencia;
-use App\Models\RH\EvaluacionObjetivo;
-use App\Models\RH\EvaluacionRepuesta;
-use App\Models\RH\EvaluadoEvaluador;
-use App\Models\RH\GruposEvaluado;
-use App\Models\RH\Objetivo;
-use App\Models\RH\ObjetivoRespuesta;
-use App\Models\RH\TipoCompetencia;
+use App\Models\EvaluacionOrganizacion;
+// use App\Models\RH\Competencia;
+// use App\Models\RH\Evaluacion;
+// use App\Models\RH\EvaluacionCompetencia;
+// use App\Models\RH\EvaluacionObjetivo;
+// use App\Models\RH\EvaluacionRepuesta;
+// use App\Models\RH\EvaluadoEvaluador;
+// use App\Models\RH\GruposEvaluado;
+// use App\Models\RH\Objetivo;
+// use App\Models\RH\ObjetivoRespuesta;
+// use App\Models\RH\TipoCompetencia;
 use App\Models\RH\TipoObjetivo;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class EvaluacionesStepsOrganizacion extends Component
 {
-    public $paso = 1;
+    public $paso = "crear-evaluacion";
 
     public $inputs = [];
 
@@ -45,10 +48,11 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public $selectedEvaluadorIndex = null;
 
-    // protected $rules = [
-    //     'evaluadores.*.evaluador' => 'numeric', // Add other validation rules as needed
-    //     'evaluadores.*.*.evaluador' => 'numeric', // Add other validation rules as needed
-    // ];
+    public $o_c = false;
+
+    public $o = false;
+
+    public $c = false;
 
 
     public function addOrInsertEvaluador($index = null)
@@ -119,7 +123,7 @@ class EvaluacionesStepsOrganizacion extends Component
             $this->inputs[] = $clasif->nombre;
         }
         // dd($Clasificaciones);
-        $this->paso = 1;
+        $this->paso = "crear-evaluacion";
     }
 
     public function render()
@@ -146,8 +150,54 @@ class EvaluacionesStepsOrganizacion extends Component
         $this->paso = $this->paso - 1;
     }
 
-    public function formpaso1($form1)
+    public function crearevaluacion($form1)
     {
+        $data = collect($form1);
+
+        // $validator = Validator::make($data->all(), [
+        //     'form1.nombre' => 'required|regex:/\S/', // Requires at least one non-whitespace character
+        //     'form1.descripcion' => 'required|regex:/\S/',
+        //     'form1.objetivos' => 'nullable',
+        //     'form1.valor_objetivos' => 'required',
+        //     'form1.competencias' => 'nullable',
+        //     'form1.valor_competencias' => 'required',
+        //     // Add other validation rules as needed
+        // ]);
+        // dd($data->all());
+
+        if (array_key_exists("objetivos", $form1) && array_key_exists("competencias", $form1)) {
+            $total = $form1['porcentaje_objetivos'] + $form1['porcentaje_competencias'];
+            if ($total != 100) {
+                return false;
+            }
+            $this->o_c = true;
+        } elseif (array_key_exists("objetivos", $form1) && $form1['porcentaje_objetivos'] == 100) {
+            $form1['competencias'] = false;
+            $form1['porcentaje_competencias'] = 0;
+            // dd('tiene objetivos');
+            $this->c = true;
+        } elseif (array_key_exists("competencias", $form1) && $form1['porcentaje_competencias'] == 100) {
+            $form1['objetivos'] = false;
+            $form1['porcentaje_objetivos'] = 0;
+            $this->o = true;
+            // dd('tiene competencias');
+        } else {
+            dd('no cumple');
+        };
+
+        $creacion_evaluacion = EvaluacionOrganizacion::create([
+            'nombre_evaluacion' => $form1['nombre'],
+            'descripcion' => $form1['descripcion'],
+            'objetivos' => $form1['objetivos'],
+            'valor_objetivos' => $form1['porcentaje_objetivos'],
+            'competencias' => $form1['competencias'],
+            'valor_competencias' => $form1['porcentaje_competencias'],
+            'estado' => 'Borrador'
+        ]);
+
+
+
+
         $this->paso = 2;
     }
 

@@ -1,14 +1,13 @@
 <div class="card card-body">
-    @if ($paso == 1)
-        <form wire:submit.prevent="formpaso1(Object.fromEntries(new FormData($event.target)))">
+    @if ($paso == 'crear-evaluacion')
+        <form wire:submit.prevent="crearevaluacion(Object.fromEntries(new FormData($event.target)))">
             <div class="row
             g-2">
                 <div class="col-md">
                     <div class="row g-2">
                         <div class="col-md">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="obj" id="objetivos"
-                                    name="objetivos">
+                                <input class="form-check-input" type="checkbox" id="objetivos" name="objetivos" checked>
                                 <label class="form-check-label" for="objetivos">
                                     Objetivos
                                 </label>
@@ -16,7 +15,7 @@
                         </div>
                         <div class="col-md">
                             <div class="form-floating mb-3">
-                                <input class="form-input" type="number" min="0" max="100" maxlength="3"
+                                <input class="form-input" type="number" min="0" max="100" value="50"
                                     id="porcentaje_objetivos" name="porcentaje_objetivos">
                             </div>
                         </div>
@@ -26,8 +25,8 @@
                     <div class="row g-2">
                         <div class="col-md">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="comp" id="competencias"
-                                    name="competencias">
+                                <input class="form-check-input" type="checkbox" id="competencias" name="competencias"
+                                    checked>
                                 <label class="form-check-label" for="competencias">
                                     Competencias
                                 </label>
@@ -35,7 +34,7 @@
                         </div>
                         <div class="col-md">
                             <div class="form-floating mb-3">
-                                <input class="form-input" type="number" min="0" max="100" maxlength="3"
+                                <input class="form-input" type="number" min="0" max="100" value="50"
                                     id="porcentaje_competencias" name="porcentaje_competencias">
                             </div>
                         </div>
@@ -120,7 +119,7 @@
                 <div class="col-md">
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="nombreperiodo1" placeholder="Q1">
-                        <label for="nombreperiodo1">Q1</label>
+                        <label for="nombreperiodo1">Nombre</label>
                     </div>
                     <div class="row g-2">
                         <div class="col-md">
@@ -140,7 +139,7 @@
                 <div class="col-md">
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="nombreperiodo2" placeholder="Q2">
-                        <label for="nombreperiodo2">Q2</label>
+                        <label for="nombreperiodo2">Nombre</label>
                     </div>
                     <div class="row g-2">
                         <div class="col-md">
@@ -163,7 +162,7 @@
                 <div class="col-md">
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="nombreperiodo3" placeholder="Q3">
-                        <label for="nombreperiodo3">Q3</label>
+                        <label for="nombreperiodo3">Nombre</label>
                     </div>
                     <div class="row g-2">
                         <div class="col-md">
@@ -183,7 +182,7 @@
                 <div class="col-md">
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="nombreperiodo4" placeholder="Q4">
-                        <label for="nombreperiodo4">Q4</label>
+                        <label for="nombreperiodo4">Nombre</label>
                     </div>
                     <div class="row g-2">
                         <div class="col-md">
@@ -313,7 +312,7 @@
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="nombre_regla_1" name="nombre_regla_1"
                             placeholder="Nombre del valor" maxlength="150" required>
-                        <label for="nombre">Nombre del valor<sup>*</sup></label>
+                        <label for="nombre_regla_1">Nombre del valor<sup>*</sup></label>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -321,7 +320,7 @@
                         <input type="number" class="form-control" id="regla_1" name="regla_1"
                             placeholder="Valor Numerico" min="{{ $this->minValue }}" max="{{ $this->maxValue }}"
                             required>
-                        <label for="nombre">Valor Numerico<sup>*</sup></label>
+                        <label for="regla_1">Valor Numerico<sup>*</sup></label>
                     </div>
                 </div>
             </div>
@@ -330,7 +329,7 @@
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="nombre_regla_2" name="nombre_regla_2"
                             placeholder="Nombre del valor" maxlength="150" required>
-                        <label for="nombre">Nombre del valor<sup>*</sup></label>
+                        <label for="nombre_regla_2">Nombre del valor<sup>*</sup></label>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -338,7 +337,7 @@
                         <input type="number" class="form-control" id="regla_2" name="regla_2"
                             placeholder="Valor Numerico" min="{{ $this->minValue }}" max="{{ $this->maxValue }}"
                             required>
-                        <label for="nombre">Valor Numerico<sup>*</sup></label>
+                        <label for="regla_2">Valor Numerico<sup>*</sup></label>
                     </div>
                 </div>
             </div>

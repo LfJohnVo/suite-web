@@ -13,7 +13,15 @@ return new class extends Migration
     {
         Schema::create('evaluacion_organizacions', function (Blueprint $table) {
             $table->id();
+            $table->string('nombre_evaluacion');
+            $table->longText('descripcion')->nullable();
+            $table->boolean('objetivos')->default(false)->nullable();
+            $table->float('valor_objetivos')->default(0)->nullable();
+            $table->boolean('competencias')->default(false)->nullable();
+            $table->float('valor_competencias')->default(0)->nullable();
+            $table->string('estado');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
