@@ -9,10 +9,16 @@ use App\Models\TimesheetProyectoArea;
 use App\Models\TimesheetProyectoEmpleado;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class TimesheetProyectoEmpleadosComponent extends Component
 {
+    use WithPagination;
     use LivewireAlert;
+
+    protected $listeners = ['refreshComponent' => 'render'];
+
+    protected $paginationTheme = 'bootstrap';
 
     public $proyecto;
 
@@ -22,7 +28,7 @@ class TimesheetProyectoEmpleadosComponent extends Component
 
     public $proyecto_id;
 
-    public $empleado_añadido;
+    public $empleado_anadido;
 
     public $horas_asignadas;
 
@@ -30,9 +36,12 @@ class TimesheetProyectoEmpleadosComponent extends Component
 
     public $areasempleado;
 
-    // public $empleado_editado;
-    // public $horas_edit;
-    // public $costo_edit;
+    // public $perPage = 5;
+
+    // public function updatedPerPage($value)
+    // {
+    //     $this->perPage = $value;
+    // }
 
     public function mount($proyecto_id)
     {
@@ -43,62 +52,65 @@ class TimesheetProyectoEmpleadosComponent extends Component
 
     public function render()
     {
+        // $emp_proy = TimesheetProyectoEmpleado::where('proyecto_id', $this->proyecto->id)->orderBy('id')->fastPaginate($this->perPage);
         $emp_proy = TimesheetProyectoEmpleado::where('proyecto_id', $this->proyecto->id)->orderBy('id')->get();
+        // dd($emp_proy);
+        if ($this->proyecto->tipo === 'Externo') {
+            foreach ($emp_proy as $ep) {
+                $times = TimesheetHoras::getData()->where('proyecto_id', '=', $ep->proyecto_id)
+                    ->where('empleado_id', '=', $ep->empleado_id);
 
-        foreach ($emp_proy as $ep) {
-            $times = TimesheetHoras::getData()->where('proyecto_id', '=', $ep->proyecto_id)
-                ->where('empleado_id', '=', $ep->empleado_id);
+                $tot_horas_proyecto = 0;
 
-            $tot_horas_proyecto = 0;
+                $sumalun = 0;
+                $sumamar = 0;
+                $sumamie = 0;
+                $sumajue = 0;
+                $sumavie = 0;
+                $sumasab = 0;
+                $sumadom = 0;
 
-            $sumalun = 0;
-            $sumamar = 0;
-            $sumamie = 0;
-            $sumajue = 0;
-            $sumavie = 0;
-            $sumasab = 0;
-            $sumadom = 0;
+                foreach ($times as $time) {
+                    $sumalun += floatval($time->horas_lunes);
+                    $sumamar += floatval($time->horas_martes);
+                    $sumamie += floatval($time->horas_miercoles);
+                    $sumajue += floatval($time->horas_jueves);
+                    $sumavie += floatval($time->horas_viernes);
+                    $sumasab += floatval($time->horas_sabado);
+                    $sumadom += floatval($time->horas_domingo);
+                }
 
-            foreach ($times as $time) {
-                $sumalun += floatval($time->horas_lunes);
-                $sumamar += floatval($time->horas_martes);
-                $sumamie += floatval($time->horas_miercoles);
-                $sumajue += floatval($time->horas_jueves);
-                $sumavie += floatval($time->horas_viernes);
-                $sumasab += floatval($time->horas_sabado);
-                $sumadom += floatval($time->horas_domingo);
+                $tot_horas_proyecto = $sumalun + $sumamar + $sumamie + $sumajue + $sumavie + $sumasab + $sumadom;
+
+                $resta = $tot_horas_proyecto - $ep->horas_asignadas;
+
+                if ($resta > 0) {
+                    $sobre = $resta;
+                } else {
+                    $sobre = 'No se han excedido';
+                }
+
+                $ep->totales = $tot_horas_proyecto;
+                $ep->sobrepasadas = $sobre;
             }
-
-            $tot_horas_proyecto = $sumalun + $sumamar + $sumamie + $sumajue + $sumavie + $sumasab + $sumadom;
-
-            $resta = $tot_horas_proyecto - $ep->horas_asignadas;
-
-            if ($resta > 0) {
-                $sobre = $resta;
-            } else {
-                $sobre = 'No se han excedido';
-            }
-
-            $ep->totales = $tot_horas_proyecto;
-            $ep->sobrepasadas = $sobre;
         }
-        $this->proyecto_empleados = $emp_proy;
-        // dd($this->proyecto_empleados);
+
         $this->emit('scriptTabla');
 
-        return view('livewire.timesheet.timesheet-proyecto-empleados-component');
+        return view('livewire.timesheet.timesheet-proyecto-empleados-component', compact('emp_proy'));
     }
 
     private function resetInput()
     {
-        // $this->empleado_añadido = null;
+        // $this->empleado_anadido = null;
         $this->horas_asignadas = null;
         $this->costo_hora = null;
     }
 
     public function addEmpleado()
     {
-        $empleado_add_proyecto = Empleado::select('id', 'area_id')->find($this->empleado_añadido);
+        // dd($this->empleado_anadido);
+        $empleado_add_proyecto = Empleado::select('id', 'area_id')->find($this->empleado_anadido);
         // dd($empleado_add_proyecto);
 
         if ($this->proyecto->tipo === 'Externo') {
@@ -131,6 +143,9 @@ class TimesheetProyectoEmpleadosComponent extends Component
             'toast' => true,
             'timerProgressBar' => true,
         ]);
+
+        // Emit an event
+        $this->emit('refreshComponent');
     }
 
     public function editEmpleado($id, $datos)

@@ -13,12 +13,13 @@
             <a href="{{ route('admin.timesheet-proyectos') }}" class="btn btn-info">Pagina Principal de Proyectos</a>
         </div>
     </div>
+
     <form wire:submit.prevent="addEmpleado" wire:ignore>
-        {{-- <x-loading-indicator /> --}}
+        <x-loading-indicator />
         <div class="row mt-4">
             <div class="form-group col-md-7">
                 <label for="">Empleado<sup>*</sup></label>
-                <select wire:model.defer="empleado_añadido" name="" id="" class="select2" required>
+                <select wire:model.defer="empleado_anadido" name="" id="" class="form-control" required>
                     <option value="" selected readonly>Seleccione un empleado</option>
                     @foreach ($empleados as $empleado)
                         @foreach ($areasempleado as $ae)
@@ -29,11 +30,8 @@
                     @endforeach
                 </select>
             </div>
-            {{-- <div class="form-group col-md-5">
-                <label for="">Área</label>
-                <div class="form-control">Área de emp</div>
-            </div> --}}
         </div>
+
         <div class="row">
             @if ($proyecto->tipo === 'Externo')
                 <div class="form-group col-md-4">
@@ -54,12 +52,41 @@
                 @enderror
             @endif
             <div class="form-group col-md-4" style="display: flex; align-items: flex-end;">
-                <button class="btn btn-success">Agregar</button>
+                <button class="btn btn-success" wire:loading.remove>Agregar</button>
             </div>
         </div>
     </form>
+
+    {{-- <div class="row w-100 mt-4" style="align-items: end">
+        <div class="col-6">
+            <div class="row">
+                <div class="col-6">
+                    <div class="row" style="justify-content: center">
+                        <div class="col-3 p-0" style="font-size: 11px;align-self: center">
+                            <p class="m-0">Mostrando</p>
+                        </div>
+                        <div class="col-4 p-0">
+                            <select name="" id="" class="form-control" wire:model="perPage">
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="-1">Todos</option>
+                            </select>
+                        </div>
+                        <div class="col-5 p-0" style="font-size: 11px;align-self: center;text-align: end">
+                            <p class="m-0"> proyectos por página</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> --}}
+
     <div class="datatable-fix w-100 mt-5">
-        <table id="tabla_time_poyect_empleados" class="table w-100 tabla-animada">
+        <table wire:ignore id="tabla_time_poyect_empleados"
+            class="table w-100 tabla-animada tabla_time_poyect_empleados">
             <thead class="w-100">
                 <tr>
                     <th>Nombre </th>
@@ -77,17 +104,18 @@
             </thead>
 
             <tbody style="position:relative;">
-                @foreach ($proyecto_empleados as $proyect_empleado)
+                @foreach ($emp_proy as $proyect_empleado)
                     <tr>
-                        <td>{{ $proyect_empleado->empleado->name }} </td>
-                        <td>{{ $proyect_empleado->empleado->area->area }} </td>
-                        <td>{{ $proyect_empleado->empleado->puesto }} </td>
+                        <td>{{ $proyect_empleado->empleado->name ?? '' }} </td>
+                        <td>{{ $proyect_empleado->empleado->area->area ?? '' }} </td>
+                        <td>{{ $proyect_empleado->empleado->puesto ?? '' }} </td>
                         @if ($proyecto->tipo === 'Externo')
                             <td>{{ $proyect_empleado->horas_asignadas ?? '0' }} </td>
                             <td>{{ $proyect_empleado->totales ?? '0' }} </td>
                             <td>{{ $proyect_empleado->sobrepasadas ?? '0' }} </td>
                             <td>{{ $proyect_empleado->costo_hora ?? '0' }} </td>
-                            <td>{{ $proyect_empleado->horas_asignadas * $proyect_empleado->costo_hora ?? '0' }}</td>
+                            <td>{{ ($proyect_empleado->horas_asignadas ?? '0') * ($proyect_empleado->costo_hora ?? '0') }}
+                            </td>
                         @endif
                         <td>
                             <button class="btn" data-toggle="modal"
@@ -113,7 +141,11 @@
         </table>
     </div>
 
-    @foreach ($proyecto_empleados as $proyect_empleado)
+    {{-- <div class="col-6 p-0" style="display: flex;justify-content: end">
+        {{ $emp_proy->links('livewire::simple-tailwind') }}
+    </div> --}}
+
+    @foreach ($emp_proy as $proyect_empleado)
         <div class="modal fade" id="modal_proyecto_empleado_editar_{{ $proyect_empleado->id }}" tabindex="-1"
             role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" wire:ignore>
             <x-loading-indicator />
@@ -189,7 +221,7 @@
         </div>
     @endforeach
 
-    @foreach ($proyecto_empleados as $proyect_empleado)
+    @foreach ($emp_proy as $proyect_empleado)
         <div class="modal fade" id="modal_proyecto_empleado_eliminar_{{ $proyect_empleado->id }}" tabindex="-1"
             role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -224,6 +256,8 @@
         </div>
     @endforeach
 
+    @livewireScripts()
+
     @section('js')
         <script>
             window.addEventListener('closeModal', event => {
@@ -244,38 +278,18 @@
                 Livewire.on('scriptTabla', () => {
                     tablaLivewire('tabla_time_poyect_empleados');
 
-                    $('.select2').select2().on('change', function(e) {
-                        var data = $(this).select2("val");
-                        @this.set('empleado_añadido', data);
-                    });
+                    // $('.select2').select2().on('change', function(e) {
+                    //     var data = $(this).select2("val");
+                    //     @this.set('empleado_anadido', data);
+                    // });
                 });
 
-                $('.select2').select2().on('change', function(e) {
-                    var data = $(this).select2("val");
-                    @this.set('empleado_añadido', data);
-                });
+                // $('.select2').select2().on('change', function(e) {
+                //     var data = $(this).select2("val");
+                //     @this.set('empleado_anadido', data);
+                // });
             });
         </script>
 
-
-
-        {{-- <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => {
-
-            Livewire.on('scriptTabla', () => {
-                tablaLivewire('tabla_time_poyect_empleados');
-
-                $('.select2').select2().on('change', function (e) {
-                    var data = $(this).select2("val");
-                    @this.set('empleado_editado', data);
-                });
-            });
-
-            $('.select2').select2().on('change', function (e) {
-                var data = $(this).select2("val");
-                @this.set('empleado_editado', data);
-            });
-        });
-    </script> --}}
     @endsection
 </div>
