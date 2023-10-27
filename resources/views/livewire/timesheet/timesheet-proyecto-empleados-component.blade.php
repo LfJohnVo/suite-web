@@ -1,7 +1,7 @@
 <div class="w-100">
     <h5 class="d-flex justify-content-between">Asignar Empleado a Proyecto</h5>
     <div class="row">
-        <div class="form-group col-12 text-right">
+        <div class="form-group col-12 text-right" wire:loading.remove>
             <a href="{{ route('admin.timesheet-proyectos-edit', $proyecto->id) }}" class="btn btn_cancelar">Editar
                 Proyecto</a>
             @can('asignar_externos')
@@ -49,11 +49,23 @@
                     <small class="text-danger"><i class="fas fa-info-circle mr-2"></i>{{ $message }}</small>
                 @enderror
             @endif
+        </div>
+        <div class="row">
             <div class="form-group col-md-4" style="display: flex; align-items: flex-end;">
-                <button class="btn btn-success">Agregar</button>
+                <button class="btn btn-success" wire:loading.remove>Agregar</button>
             </div>
         </div>
     </form>
+
+    {{-- <div class="row">
+        <div wire:loading wire:target="addEmpleado">
+            <div class="d-flex align-items-center">
+                <strong>Agregando empleado, espere un momento...</strong>
+                <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
+            </div>
+        </div>
+    </div> --}}
+
     <div class="datatable-fix w-100 mt-5">
         <table id="tabla_time_poyect_empleados" class="table w-100 tabla-animada">
             <thead class="w-100">
@@ -117,7 +129,6 @@
         @foreach ($emp_proy as $proyect_empleado)
             <div class="modal fade" id="modal_proyecto_empleado_editar_{{ $proyect_empleado->id }}" tabindex="-1"
                 role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" wire:ignore>
-                <x-loading-indicator />
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-body">
@@ -135,8 +146,9 @@
                                     wire:submit.prevent="editEmpleado({{ $proyect_empleado->id }}, Object.fromEntries(new FormData($event.target)))">
                                     <div class="row">
                                         <div class="form-group col-md-8">
-                                            <label for="">Empleado<sup>*</sup>(obligatorio)</label>
-                                            <select name="empleado_editado" id="" class="select2" required>
+                                            <label for="empleado_editado">Empleado<sup>*</sup>(obligatorio)</label>
+                                            <select name="empleado_editado" id="empleado_editado" class="form-control"
+                                                required>
                                                 <option value="{{ $proyect_empleado->empleado->id }}" selected>
                                                     {{ $proyect_empleado->empleado->name }}</option>
                                                 @foreach ($empleados as $empleado)
@@ -156,13 +168,13 @@
                                                 <label for="">Horas asignadas<sup>*</sup>(obligatorio)</label>
                                                 <input
                                                     value="{{ old('horas_edit', $proyect_empleado->horas_asignadas ?? '0') }}"
-                                                    name="horas_edit" id="" type="number" step="0.01"
+                                                    name="horas_edit" id="horas_edit" type="number" step="0.01"
                                                     min="0.01" class="form-control">
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="">Costo por hora<sup>*</sup>(obligatorio)</label>
                                                 <input value="{{ old('horas_edit', $proyect_empleado->costo_hora) }}"
-                                                    name="costo_edit" id="" type="number" step="0.01"
+                                                    name="costo_edit" id="horas_edit" type="number" step="0.01"
                                                     min="0.01" value="{{ $proyect_empleado->costo_hora ?? '0' }}"
                                                     class="form-control">
                                             </div>

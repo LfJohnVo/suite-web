@@ -28,6 +28,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class TimesheetController extends Controller
@@ -250,15 +251,22 @@ class TimesheetController extends Controller
         }
         // dd($organizacion_semana->dia_timesheet);
         $usuario = User::getCurrentUser();
-        $timesheet_nuevo = Timesheet::create([
-            'fecha_dia' => $request->fecha_dia,
-            'dia_semana' => $organizacion_semana->dia_timesheet,
-            'inicio_semana' => $organizacion_semana->inicio_timesheet,
-            'fin_semana' => $organizacion_semana->fin_timesheet,
-            'empleado_id' => $usuario->empleado->id,
-            'aprobador_id' => $usuario->empleado->supervisor_id,
-            'estatus' => $request->estatus,
-        ]);
+        DB::beginTransaction();
+        try {
+            $timesheet_nuevo = Timesheet::create([
+                'fecha_dia' => $request->fecha_dia,
+                'dia_semana' => $organizacion_semana->dia_timesheet,
+                'inicio_semana' => $organizacion_semana->inicio_timesheet,
+                'fin_semana' => $organizacion_semana->fin_timesheet,
+                'empleado_id' => $usuario->empleado->id,
+                'aprobador_id' => $usuario->empleado->supervisor_id,
+                'estatus' => $request->estatus,
+            ]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            return $e->getMessage('Ha ocurrido un error al intentar registrar las horas');
+        }
 
         foreach ($request->timesheet as $index => $hora) {
             if (array_key_exists('proyecto', $hora) && array_key_exists('tarea', $hora)) {
@@ -334,31 +342,43 @@ class TimesheetController extends Controller
      */
     public function edit($id)
     {
-        $empleado = Empleado::getAll()->find(User::getCurrentUser()->empleado->id);
+        $empleado = Empleado::getAltaEmpleados()->find(User::getCurrentUser()->empleado->id);
+        // dd('algo');
 
         // areas proyectos
         $proyectos_array = collect();
-        $proyectos_totales = TimesheetProyecto::getAll();
-        foreach ($proyectos_totales as $key => $proyecto) {
-            if ($proyecto->estatus == 'proceso') {
-                foreach ($proyecto->areas as $key => $area) {
-                    if ($area['id'] == $empleado->area_id) {
-                        $proyectos_array->push([
-                            'id' => $proyecto->id,
-                            'identificador' => $proyecto->identificador,
-                            'proyecto' => $proyecto->proyecto,
-                        ]);
-                    }
-                }
-            }
+
+        $proyectos_totales = TimesheetProyectoArea::withwhereHas('proyecto', function ($query) {
+            return $query->where('estatus', '=', 'proceso');
+        })->where('area_id', $empleado->area_id)->get();
+
+        foreach ($proyectos_totales as $pa) {
+            $proyectos_array->push(
+                $pa->proyecto
+            );
         }
+
+        // foreach ($proyectos_totales as $key => $proyecto) {
+        //     if ($proyecto->estatus == 'proceso') {
+        //         foreach ($proyecto->areas as $key => $area) {
+        //             if ($area['id'] == $empleado->area_id) {
+        //                 $proyectos_array->push([
+        //                     'id' => $proyecto->id,
+        //                     'identificador' => $proyecto->identificador,
+        //                     'proyecto' => $proyecto->proyecto,
+        //                 ]);
+        //             }
+        //         }
+        //     }
+        // }
+        // dd('algo');
         $proyectos = $proyectos_array->unique();
 
         $tareas = TimesheetTarea::getAll();
         $timesheet = Timesheet::find($id);
         $fechasRegistradas = Timesheet::getPersonalTimesheet()->pluck('fecha_dia')->toArray();
         $organizacion = Organizacion::getFirst();
-        $horas_count = TimesheetHoras::getData()->where('timesheet_id', $id)->count();
+        $horas_count = TimesheetHoras::where('timesheet_id', $id)->count();
 
         return view('admin.timesheet.edit', compact('timesheet', 'proyectos', 'tareas', 'fechasRegistradas', 'organizacion', 'horas_count'));
     }
@@ -464,48 +484,69 @@ class TimesheetController extends Controller
 
         $timesheet_edit = Timesheet::find($id);
         $usuario = User::getCurrentUser();
-        $timesheet_edit->update([
-            'empleado_id' => $usuario->empleado->id,
-            'aprobador_id' => $usuario->empleado->supervisor_id,
-            'estatus' => $request->estatus,
-        ]);
+        DB::beginTransaction();
+        try {
+            $timesheet_edit->update([
+                'empleado_id' => $usuario->empleado->id,
+                'aprobador_id' => $usuario->empleado->supervisor_id,
+                'estatus' => $request->estatus,
+            ]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            return $e->getMessage('Ha ocurrido un error al intentar registrar las horas');
+        }
+
 
         foreach ($request->timesheet as $index => $hora) {
             if (array_key_exists('proyecto', $hora) && array_key_exists('tarea', $hora)) {
                 $horas_nuevas = TimesheetHoras::find($hora['id_hora']);
 
                 if ($horas_nuevas != null) {
-                    $horas_nuevas->update([
-                        'timesheet_id' => $timesheet_edit->id,
-                        'proyecto_id' => array_key_exists('proyecto', $hora) ? $hora['proyecto'] : null,
-                        'tarea_id' => array_key_exists('tarea', $hora) ? $hora['tarea'] : null,
-                        'facturable' => array_key_exists('facturable', $hora) ? true : false,
-                        'horas_lunes' => $hora['lunes'],
-                        'horas_martes' => $hora['martes'],
-                        'horas_miercoles' => $hora['miercoles'],
-                        'horas_jueves' => $hora['jueves'],
-                        'horas_viernes' => $hora['viernes'],
-                        'horas_sabado' => $hora['sabado'],
-                        'horas_domingo' => $hora['domingo'],
-                        'descripcion' => $hora['descripcion'],
-                        'empleado_id' => $usuario->empleado->id,
-                    ]);
+                    DB::beginTransaction();
+                    try {
+                        $horas_nuevas->update([
+                            'timesheet_id' => $timesheet_edit->id,
+                            'proyecto_id' => array_key_exists('proyecto', $hora) ? $hora['proyecto'] : null,
+                            'tarea_id' => array_key_exists('tarea', $hora) ? $hora['tarea'] : null,
+                            'facturable' => array_key_exists('facturable', $hora) ? true : false,
+                            'horas_lunes' => $hora['lunes'],
+                            'horas_martes' => $hora['martes'],
+                            'horas_miercoles' => $hora['miercoles'],
+                            'horas_jueves' => $hora['jueves'],
+                            'horas_viernes' => $hora['viernes'],
+                            'horas_sabado' => $hora['sabado'],
+                            'horas_domingo' => $hora['domingo'],
+                            'descripcion' => $hora['descripcion'],
+                            'empleado_id' => $usuario->empleado->id,
+                        ]);
+                        DB::commit();
+                    } catch (\Exception $e) {
+                        DB::rollback();
+                        return $e->getMessage('Ha ocurrido un error al intentar registrar las horas');
+                    }
                 } else {
-                    TimesheetHoras::create([
-                        'timesheet_id' => $timesheet_edit->id,
-                        'proyecto_id' => array_key_exists('proyecto', $hora) ? $hora['proyecto'] : null,
-                        'tarea_id' => array_key_exists('tarea', $hora) ? $hora['tarea'] : null,
-                        'facturable' => $hora['facturable'],
-                        'horas_lunes' => $hora['lunes'],
-                        'horas_martes' => $hora['martes'],
-                        'horas_miercoles' => $hora['miercoles'],
-                        'horas_jueves' => $hora['jueves'],
-                        'horas_viernes' => $hora['viernes'],
-                        'horas_sabado' => $hora['sabado'],
-                        'horas_domingo' => $hora['domingo'],
-                        'descripcion' => $hora['descripcion'],
-                        'empleado_id' => $usuario->empleado->id,
-                    ]);
+                    try {
+                        TimesheetHoras::create([
+                            'timesheet_id' => $timesheet_edit->id,
+                            'proyecto_id' => array_key_exists('proyecto', $hora) ? $hora['proyecto'] : null,
+                            'tarea_id' => array_key_exists('tarea', $hora) ? $hora['tarea'] : null,
+                            'facturable' => $hora['facturable'],
+                            'horas_lunes' => $hora['lunes'],
+                            'horas_martes' => $hora['martes'],
+                            'horas_miercoles' => $hora['miercoles'],
+                            'horas_jueves' => $hora['jueves'],
+                            'horas_viernes' => $hora['viernes'],
+                            'horas_sabado' => $hora['sabado'],
+                            'horas_domingo' => $hora['domingo'],
+                            'descripcion' => $hora['descripcion'],
+                            'empleado_id' => $usuario->empleado->id,
+                        ]);
+                        DB::commit();
+                    } catch (\Exception $e) {
+                        DB::rollback();
+                        return $e->getMessage('Ha ocurrido un error al intentar registrar las horas');
+                    }
                 }
             }
         }

@@ -122,7 +122,7 @@ class TimesheetProyectoEmpleadosComponent extends Component
         $empleado_add_proyecto = Empleado::select('id', 'area_id')->find($agregado['empleado_anadido']);
 
         if ($this->proyecto->tipo === 'Externo') {
-            if (empty($datos['horas_asignadas']) || empty($datos['costo_hora'])) {
+            if (empty($agregado['horas_asignadas']) || empty($agregado['costo_hora'])) {
 
                 $this->alert('error', 'No debe contener datos vacios', [
                     'position' => 'top-end',
@@ -132,7 +132,7 @@ class TimesheetProyectoEmpleadosComponent extends Component
                 ]);
 
                 return null;
-            } else
+            } else {
                 $time_proyect_empleado = TimesheetProyectoEmpleado::firstOrCreate([
                     'proyecto_id' => $this->proyecto->id,
                     'empleado_id' => $empleado_add_proyecto->id,
@@ -140,7 +140,8 @@ class TimesheetProyectoEmpleadosComponent extends Component
                     'horas_asignadas' => $agregado['horas_asignadas'],
                     'costo_hora' => $agregado['costo_hora'],
                 ]);
-            $this->resetInput();
+                $this->resetInput();
+            }
         } else {
             $time_proyect_empleado = TimesheetProyectoEmpleado::firstOrCreate([
                 'proyecto_id' => $this->proyecto->id,

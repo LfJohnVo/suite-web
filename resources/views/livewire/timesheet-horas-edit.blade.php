@@ -238,7 +238,7 @@
                         </tr>
                     @endfor
                     <tr wire:ignore.self>
-                        <td colspan="3">Toral horas facturables</td>
+                        <td colspan="3">Total horas facturables</td>
                         <td><label id="suma_dia_lunes"></label></td>
                         <td><label id="suma_dia_martes"></label></td>
                         <td><label id="suma_dia_miercoles"></label></td>
@@ -251,7 +251,7 @@
                         <td><label id="total_horas_filas"></label></td>
                     </tr>
                     <tr wire:ignore.self>
-                        <td colspan="3">Toral horas no facturables</td>
+                        <td colspan="3">Total horas no facturables</td>
                         <td><label id="suma_dia_lunes_no_fact"></label></td>
                         <td><label id="suma_dia_martes_no_fact"></label></td>
                         <td><label id="suma_dia_miercoles_no_fact"></label></td>
@@ -269,7 +269,7 @@
 
 
 
-        <div class="mt-4" style="display:flex; justify-content:space-between;">
+        <div class="mt-4" style="display:flex; justify-content:space-between;" wire:loading.remove>
             <button class="btn btn-secundario" wire:click.prevent="$set('contador', {{ $contador + 1 }})">Agregar
                 fila</button>
             <div>
