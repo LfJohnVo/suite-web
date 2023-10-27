@@ -221,7 +221,7 @@
                                 <p class="parrafo">¿Está seguro que desea enviar a aprobación este registro?</p>
                             </div>
 
-                            <div class="mt-4">
+                            <div class="mt-4" wire:loading.remove>
                                 <div class="col-12 text-center">
                                     <div title="Rechazar" class="btn btn_cancelar" data-dismiss="modal">
                                         Cancelar
