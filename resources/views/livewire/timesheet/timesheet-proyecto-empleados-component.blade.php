@@ -13,13 +13,13 @@
             <a href="{{ route('admin.timesheet-proyectos') }}" class="btn btn-info">Pagina Principal de Proyectos</a>
         </div>
     </div>
-    <form wire:submit.prevent="addEmpleado" wire:ignore>
-        {{-- <x-loading-indicator /> --}}
+    <form wire:submit.prevent="addEmpleado( Object.fromEntries(new FormData($event.target)))">
+        <x-loading-indicator />
         <div class="row mt-4">
             <div class="form-group col-md-7">
                 <label for="">Empleado<sup>*</sup></label>
-                <select wire:model="empleado_anadido" name="empleado_anadido" id="" class="select2">
-                    <option value="" selected readonly>Seleccione un empleado</option>
+                <select name="empleado_anadido" id="" class="form-control">
+                    <option value="nulo" selected>Seleccione un empleado</option>
                     @foreach ($empleados as $empleado)
                         @foreach ($areasempleado as $ae)
                             @if ($empleado->area_id === $ae->area_id)
@@ -29,14 +29,10 @@
                     @endforeach
                 </select>
             </div>
-            {{-- <div class="form-group col-md-5">
-                <label for="">Área</label>
-                <div class="form-control">Área de emp</div>
-            </div> --}}
         </div>
         <div class="row">
             @if ($proyecto->tipo === 'Externo')
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-4" wire:ignore>
                     <label for="">Horas asignadas<sup>*</sup>(obligatorio)</label>
                     <input wire:model.defer="horas_asignadas" name="horas_asignadas" id="horas_asignadas" type="number"
                         step="0.01" min="0.01" class="form-control">
@@ -44,10 +40,10 @@
                 @error('horas_asignadas')
                     <small class="text-danger"><i class="fas fa-info-circle mr-2"></i>{{ $message }}</small>
                 @enderror
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-4" wire:ignore>
                     <label for="">Costo por hora<sup>*</sup>(obligatorio)</label>
-                    <input wire:model.defer="costo_hora" name="costo_hora" id="costo_hora" type="number" min="0.01"
-                        step="0.01" class="form-control">
+                    <input wire:model.defer="horas_asignadas" name="costo_hora" id="costo_hora" type="number"
+                        min="0.01" step="0.01" class="form-control">
                 </div>
                 @error('costo_hora')
                     <small class="text-danger"><i class="fas fa-info-circle mr-2"></i>{{ $message }}</small>
@@ -77,8 +73,8 @@
             </thead>
 
             <tbody style="position:relative;">
-                @if ($proyecto_empleados)
-                    @foreach ($proyecto_empleados as $proyect_empleado)
+                @if ($emp_proy)
+                    @foreach ($emp_proy as $proyect_empleado)
                         <tr>
                             <td>{{ $proyect_empleado->empleado->name }} </td>
                             <td>{{ $proyect_empleado->empleado->area->area }} </td>
@@ -117,8 +113,8 @@
         </table>
     </div>
 
-    @if ($proyecto_empleados)
-        @foreach ($proyecto_empleados as $proyect_empleado)
+    @if ($emp_proy)
+        @foreach ($emp_proy as $proyect_empleado)
             <div class="modal fade" id="modal_proyecto_empleado_editar_{{ $proyect_empleado->id }}" tabindex="-1"
                 role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" wire:ignore>
                 <x-loading-indicator />
@@ -195,8 +191,8 @@
         @endforeach
     @endif
 
-    @if ($proyecto_empleados)
-        @foreach ($proyecto_empleados as $proyect_empleado)
+    @if ($emp_proy)
+        @foreach ($emp_proy as $proyect_empleado)
             <div class="modal fade" id="modal_proyecto_empleado_eliminar_{{ $proyect_empleado->id }}" tabindex="-1"
                 role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">

@@ -16,7 +16,7 @@ class TimesheetProyectoEmpleadosComponent extends Component
     use WithPagination;
     use LivewireAlert;
 
-    protected $listeners = ['refreshComponent' => 'render'];
+    // protected $listeners = ['refreshComponent' => 'render'];
 
     protected $paginationTheme = 'bootstrap';
 
@@ -54,11 +54,11 @@ class TimesheetProyectoEmpleadosComponent extends Component
     {
         // $emp_proy = TimesheetProyectoEmpleado::where('proyecto_id', $this->proyecto->id)->orderBy('id')->fastPaginate($this->perPage);
         $emp_proy = TimesheetProyectoEmpleado::where('proyecto_id', $this->proyecto->id)->orderBy('id')->get();
-        // dd($emp_proy);
+
         if ($this->proyecto->tipo === 'Externo') {
             foreach ($emp_proy as $ep) {
-                $times = TimesheetHoras::getData()->where('proyecto_id', '=', $ep->proyecto_id)
-                    ->where('empleado_id', '=', $ep->empleado_id);
+                $times = TimesheetHoras::where('proyecto_id', '=', $ep->proyecto_id)
+                    ->where('empleado_id', '=', $ep->empleado_id)->get();
 
                 $tot_horas_proyecto = 0;
 
@@ -107,25 +107,39 @@ class TimesheetProyectoEmpleadosComponent extends Component
         $this->costo_hora = null;
     }
 
-    public function addEmpleado()
+    public function addEmpleado($agregado)
     {
-        // dd($this->empleado_anadido);
-        $empleado_add_proyecto = Empleado::select('id', 'area_id')->find($this->empleado_anadido);
-        // dd($empleado_add_proyecto);
+        if ($agregado['empleado_anadido'] == "nulo") {
+            $this->alert('error', 'Seleccione un empleado', [
+                'position' => 'top-end',
+                'timer' => 3000,
+                'toast' => true,
+                'timerProgressBar' => true,
+            ]);
+            return null;
+        }
+
+        $empleado_add_proyecto = Empleado::select('id', 'area_id')->find($agregado['empleado_anadido']);
 
         if ($this->proyecto->tipo === 'Externo') {
-            $this->validate([
-                'horas_asignadas' => ['required'],
-                'costo_hora' => ['required'],
-            ]);
+            if (empty($datos['horas_asignadas']) || empty($datos['costo_hora'])) {
 
-            $time_proyect_empleado = TimesheetProyectoEmpleado::firstOrCreate([
-                'proyecto_id' => $this->proyecto->id,
-                'empleado_id' => $empleado_add_proyecto->id,
-                'area_id' => $empleado_add_proyecto->area_id,
-                'horas_asignadas' => $this->horas_asignadas,
-                'costo_hora' => $this->costo_hora,
-            ]);
+                $this->alert('error', 'No debe contener datos vacios', [
+                    'position' => 'top-end',
+                    'timer' => 3000,
+                    'toast' => true,
+                    'timerProgressBar' => true,
+                ]);
+
+                return null;
+            } else
+                $time_proyect_empleado = TimesheetProyectoEmpleado::firstOrCreate([
+                    'proyecto_id' => $this->proyecto->id,
+                    'empleado_id' => $empleado_add_proyecto->id,
+                    'area_id' => $empleado_add_proyecto->area_id,
+                    'horas_asignadas' => $agregado['horas_asignadas'],
+                    'costo_hora' => $agregado['costo_hora'],
+                ]);
             $this->resetInput();
         } else {
             $time_proyect_empleado = TimesheetProyectoEmpleado::firstOrCreate([
@@ -193,6 +207,8 @@ class TimesheetProyectoEmpleadosComponent extends Component
             'toast' => true,
             'timerProgressBar' => true,
         ]);
+
+        $this->emit('scriptTabla');
     }
 
     public function bloquearEmpleado($id)
@@ -218,8 +234,8 @@ class TimesheetProyectoEmpleadosComponent extends Component
                 'timerProgressBar' => true,
             ]);
         }
-        // dd($emp_bloq->usuario_bloqueado);
 
+        $this->emit('scriptTabla');
     }
 
     public function empleadoProyectoRemove($id)
@@ -227,5 +243,7 @@ class TimesheetProyectoEmpleadosComponent extends Component
         $empleado_remov = TimesheetProyectoEmpleado::find($id);
 
         $empleado_remov->delete();
+
+        $this->emit('scriptTabla');
     }
 }
