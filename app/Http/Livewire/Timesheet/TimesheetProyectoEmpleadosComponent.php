@@ -145,7 +145,7 @@ class TimesheetProyectoEmpleadosComponent extends Component
         ]);
 
         // Emit an event
-        $this->emit('refreshComponent');
+        $this->emit('scriptTabla');
     }
 
     public function editEmpleado($id, $datos)
