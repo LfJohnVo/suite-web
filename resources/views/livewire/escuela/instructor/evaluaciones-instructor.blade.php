@@ -10,7 +10,7 @@
                 @csrf
                 <div wire:ignore x-show="open">
                     <p class="text-primary mt-2">Sección a evaluar</p>
-                    <select wire:model.defer="section_id" id="section_id" name="section[is_active]"
+                    <select wire:model="section_id" id="section_id" name="section[is_active]"
                         value="{{ old('section.is_active') }}" class="form-control">
                         <option value="" selected disabled>Seleccionar una o más secciones
                         </option>
@@ -30,7 +30,7 @@
                         <span class="content-end float-right text-xs text-red-700">{{ $message }}</span>
                     @enderror
                     <input class="form-control" type="text" value="" id="title"
-                        wire:model.defer="name">
+                        wire:model="name">
                     @error('name')
                         <p class="text-danger">{{ $message }}</p>
                     @enderror
@@ -39,7 +39,7 @@
 
                     {!! Form::label('description', 'Descripción:', ['class' => 'text-primary mt-4']) !!}
                     <textarea class="mb-2 form-control" type="text" value="" id="title"
-                        wire:model.defer="description"></textarea>
+                        wire:model="description"></textarea>
                     @error('description')
                         <p class="text-danger">{{ $message }}</p>
                     @enderror

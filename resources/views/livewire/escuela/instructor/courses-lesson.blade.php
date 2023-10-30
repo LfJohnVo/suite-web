@@ -26,11 +26,11 @@
             </div>
             <div class="card-body collapse row" style="border: 1px solid #D8D8D8;" id="collapse{{$item->id}}"
                 wire:ignore>
-                <form wire:submit.prevent="update" class="px-3 py-2 col-12">
+                <form wire:submit="update" class="px-3 py-2 col-12">
                     <div class="grid mt-2 mb-2 grid-col-1 md:grid-cols-6 md:gap-2">
                         <label for="edit-lesson-name-{{ $section->id }}">Nombre</label>
                         <div class="md:col-span-5">
-                            <input wire:model="lesson.name" id="edit-lesson-name-{{ $section->id }}" type="text"
+                            <input wire:model.live="lesson.name" id="edit-lesson-name-{{ $section->id }}" type="text"
                                 class=" w-full form-control @if ($errors->has('lesson.name')) invalid @endif">
                             @error('lesson.name')
                                 <b class="block mt-1 text-xs text-red-500">{{ $message }}</b>
@@ -40,7 +40,7 @@
                     <div class="grid items-center mb-2 grid-col-1 md:grid-cols-6 md:gap-3">
                         <label for="edit-lesson-platform-{{ $section->id }}">Plataforma</label>
                         <div class="md:col-span-5">
-                            <select wire:model="lesson.platform_id" id="edit-lesson-platform-{{ $section->id }}"
+                            <select wire:model.live="lesson.platform_id" id="edit-lesson-platform-{{ $section->id }}"
                                 type="text"
                                 class="w-full form-control @if ($errors->has('lesson.platform')) invalid @endif">
                                 @foreach ($platforms as $platform)
@@ -55,7 +55,7 @@
                     <div class="grid items-center mb-2 grid-col-1 md:grid-cols-6 md:gap-3">
                         <label for="edit-lesson-url-{{ $section->id }}">URL</label>
                         <div class="md:col-span-5">
-                            <input wire:model="lesson.url" id="edit-lesson-url-{{ $section->id }}" type="text"
+                            <input wire:model.live="lesson.url" id="edit-lesson-url-{{ $section->id }}" type="text"
                                 class="form-control w-full @if ($errors->has('lesson.url')) invalid @endif">
                             @error('lesson.url')
                                 <b class="block mt-1 text-xs text-red-500">{{ $message }}</b>
@@ -126,11 +126,11 @@
 
 {{-- @if ($lesson->id == $item->id)
                 <div class="card-body" style="border: 1px solid #D8D8D8;">
-                    <form wire:submit.prevent="update" class="px-3 py-2">
+                    <form wire:submit="update" class="px-3 py-2">
                         <div class="grid mt-2 mb-2 grid-col-1 md:grid-cols-6 md:gap-2">
                             <label for="edit-lesson-name-{{ $section->id }}">Nombre</label>
                             <div class="md:col-span-5">
-                                <input wire:model="lesson.name" id="edit-lesson-name-{{ $section->id }}" type="text"
+                                <input wire:model.live="lesson.name" id="edit-lesson-name-{{ $section->id }}" type="text"
                                     class=" w-full form-input @if ($errors->has('lesson.name')) invalid @endif">
                                 @error('lesson.name')
                                     <b class="block mt-1 text-xs text-red-500">{{ $message }}</b>
@@ -140,7 +140,7 @@
                         <div class="grid items-center mb-2 grid-col-1 md:grid-cols-6 md:gap-3">
                             <label for="edit-lesson-platform-{{ $section->id }}">Plataforma</label>
                             <div class="md:col-span-5">
-                                <select wire:model="lesson.platform_id" id="edit-lesson-platform-{{ $section->id }}"
+                                <select wire:model.live="lesson.platform_id" id="edit-lesson-platform-{{ $section->id }}"
                                     type="text" class="w-full form-input @if ($errors->has('lesson.platform')) invalid @endif">
                                     @foreach ($platforms as $platform)
                                         <option value="{{ $platform->id }}">{{ $platform->name }}</option>
@@ -154,7 +154,7 @@
                         <div class="grid items-center mb-2 grid-col-1 md:grid-cols-6 md:gap-3">
                             <label for="edit-lesson-url-{{ $section->id }}">URL</label>
                             <div class="md:col-span-5">
-                                <input wire:model="lesson.url" id="edit-lesson-url-{{ $section->id }}" type="text"
+                                <input wire:model.live="lesson.url" id="edit-lesson-url-{{ $section->id }}" type="text"
                                     class="form-input w-full @if ($errors->has('lesson.url')) invalid @endif">
                                 @error('lesson.url')
                                     <b class="block mt-1 text-xs text-red-500">{{ $message }}</b>

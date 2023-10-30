@@ -1205,7 +1205,7 @@
             'user' => auth()->check() ? auth()->user()->id : null,
         ]) !!};
     </script>
-    <script src="//unpkg.com/alpinejs" defer></script>
+    {{-- <script src="//unpkg.com/alpinejs" defer></script> --}}
 
     <script src="{{ asset('js/main.js') }}"></script>
 
