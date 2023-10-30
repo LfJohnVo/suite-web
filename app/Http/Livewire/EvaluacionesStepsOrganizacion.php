@@ -6,6 +6,7 @@ namespace App\Http\Livewire;
 use App\Models\Area;
 use App\Models\Empleado;
 use App\Models\EvaluacionOrganizacion;
+use App\Models\EvaluadoresObjetivosEvaluacionOrganizacion;
 use App\Models\EvaluadosEvaluacionOrganizacion;
 use App\Models\PeriodosEvaluacionOrganizacion;
 use App\Models\PerspectivasEvaluacionOrganizacion;
@@ -348,7 +349,7 @@ class EvaluacionesStepsOrganizacion extends Component
             case 'total':
 
                 foreach ($this->evaluados as $evaluado) {
-                    $lista_evaluados = EvaluadosEvaluacionOrganizacion::create([
+                    EvaluadosEvaluacionOrganizacion::create([
                         'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
                         'evaluado_id' => $evaluado->id,
                         'area_id' => $evaluado->area_id,
@@ -370,10 +371,10 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public function reglas($form5)
     {
-        // dd($form5);
+        // dd($form5, $this->fields);
         // $this->evaluadores = Empleado::getAltaEmpleados();
 
-        $create_reglas = ReglasEvaluacionOrganizacion::create([
+        ReglasEvaluacionOrganizacion::create([
             'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
             'rango_minimo' => $this->minValue,
             'rango_maximo' => $this->maxValue,
@@ -381,7 +382,7 @@ class EvaluacionesStepsOrganizacion extends Component
             'valor_regla' => $this->regla_1,
         ]);
 
-        $create_reglas = ReglasEvaluacionOrganizacion::create([
+        ReglasEvaluacionOrganizacion::create([
             'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
             'rango_minimo' => $this->minValue,
             'rango_maximo' => $this->maxValue,
@@ -389,15 +390,104 @@ class EvaluacionesStepsOrganizacion extends Component
             'valor_regla' =>     $this->regla_2,
         ]);
 
-        dd('Guardados');
+        foreach ($this->fields as $key => $value) {
 
-        $this->paso = 6;
+            $nombre = $value["nombre"];
+            $valor = $value["regla"];
+
+            ReglasEvaluacionOrganizacion::create([
+                'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
+                'rango_minimo' => $this->minValue,
+                'rango_maximo' => $this->maxValue,
+                'nombre_regla' => $nombre,
+                'valor_regla' => $valor,
+            ]);
+        }
+
+        // dd("Se guardo");
+        $this->evaluadores = Empleado::getAltaEmpleados();
+        $this->paso = "evaluadores_objetivos";
     }
 
-    public function formpaso6($form6)
+    public function evaluadores_objetivos($form6)
     {
-        // dd($form5);
-        dd($form6);
-        $this->paso = 6;
+
+        $groupedData = [];
+
+        foreach ($form6 as $key => $value) {
+            // Check if the key is for id_evaluado
+            if (strpos($key, 'id_evaluado_') !== false) {
+                $position = str_replace('id_evaluado_', '', $key);
+
+                $groupedData[$position]['id_evaluado'] = $value;
+            }
+
+            // Check if the key is for evaluador
+            if (strpos($key, 'evaluador_') !== false) {
+                $evaluadorPosition = str_replace('evaluador_', '', $key);
+
+                // Check if it's a sub-position (e.g., 0_0)
+                if (strpos($evaluadorPosition, '_') !== false) {
+                    list($position, $subPosition) = explode('_', $evaluadorPosition);
+                    $groupedData[$position]['evaluadores'][$subPosition]['evaluador'] = $value;
+                } else {
+                    $groupedData[$evaluadorPosition]['evaluador'] = $value;
+                }
+            }
+
+            // Exclude keys that start with "peso_"
+            if (strpos($key, 'peso_evaluacion_') !== false) {
+                $position = str_replace('peso_evaluacion_', '', $key);
+
+                if (strpos($evaluadorPosition, '_') !== false) {
+                    list($position, $subPosition) = explode('_', $evaluadorPosition);
+                    $groupedData[$position]['evaluadores'][$subPosition]['peso_evaluacion'] = $value;
+                } else {
+                    $groupedData[$evaluadorPosition]['peso_evaluacion'] = $value;
+                }
+            }
+        }
+
+        // dd($groupedData);
+
+        foreach ($groupedData as $key => $data) {
+            $total_peso = 0;
+            // dd($total_peso);
+
+            if (isset($data['evaluadores'])) {
+                foreach ($data['evaluadores'] as $evaluadorData) {
+                    $total_peso = $total_peso + $evaluadorData['peso_evaluacion'];
+                    // dd($total_peso);
+                }
+            }
+
+            $total_peso = $total_peso + $data['peso_evaluacion'];
+
+            if ($total_peso == 100) {
+                EvaluadoresObjetivosEvaluacionOrganizacion::create([
+                    'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
+                    'evaluado_id' => $data['id_evaluado'],
+                    'evaluador_id' => $data['evaluador'],
+                    'peso_evaluador' => $data['peso_evaluacion'],
+                ]);
+
+                if (isset($data['evaluadores'])) {
+                    foreach ($data['evaluadores'] as $evaluadorData) {
+
+                        EvaluadoresObjetivosEvaluacionOrganizacion::create([
+                            'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
+                            'evaluado_id' => $data['id_evaluado'],
+                            'evaluador_id' => $evaluadorData['evaluador'],
+                            'peso_evaluador' => $evaluadorData['peso_evaluacion'],
+                        ]);
+                    }
+                }
+            } else {
+                $this->addError('total_peso', 'Error message for field_name');
+                return null;
+            }
+        }
+
+        $this->paso = "evaluacion-creada";
     }
 }

@@ -464,16 +464,19 @@
                     <div class="col-md-6">
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control"
-                                wire:model.lazy="fields.{{ $index }}.nombre" placeholder="Nombre del valor"
-                                maxlength="150" required>
+                                wire:model.lazy="fields.{{ $index }}.nombre"
+                                id="fields.{{ $index }}.nombre" name="fields.{{ $index }}.nombre"
+                                placeholder="Nombre del valor" maxlength="150" required>
                             <label for="nombre">Nombre del valor</label>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-floating mb-3">
                             <input type="number" class="form-control"
-                                wire:model.lazy="fields.{{ $index }}.regla" placeholder="Valor Numerico"
-                                min="{{ $this->minValue }}" max="{{ $this->maxValue }}" required>
+                                wire:model.lazy="fields.{{ $index }}.regla"
+                                id="fields.{{ $index }}.regla" name="fields.{{ $index }}.regla"
+                                placeholder="Valor Numerico" min="{{ $this->minValue }}"
+                                max="{{ $this->maxValue }}" required>
                             <label for="nombre">Valor Numerico</label>
                         </div>
                     </div>
@@ -499,9 +502,9 @@
         </form>
     @endif
 
-    @if ($paso == 6)
+    @if ($paso == 'evaluadores_objetivos')
         <h3>Evaluadores</h3>
-        <form wire:submit.prevent="formpaso6(Object.fromEntries(new FormData($event.target)))">
+        <form wire:submit.prevent="evaluadores_objetivos(Object.fromEntries(new FormData($event.target)))">
             @foreach ($this->evaluados as $index => $ev)
                 <div class="row g-1">
                     <div class="m-3 row">
@@ -522,7 +525,7 @@
                     </div>
                     <div class="m-3 row">
                         <div class="col-md-6">
-                            <label for="evaluador_{{ $index }}">Evaluador</label>
+                            <label for="evaluador_{{ $index }}">Evaluador <sup>*</sup></label>
                             <select class="form-control" name="evaluador_{{ $index }}"
                                 id="evaluador_{{ $index }}" required>
                                 @foreach ($evaluadores as $evdrs)
@@ -531,7 +534,7 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label for="peso_evaluacion_{{ $index }}">Peso de evaluación</label>
+                            <label for="peso_evaluacion_{{ $index }}">Peso de evaluación <sup>*</sup></label>
                             <input class="form-control" id="peso_evaluacion_{{ $index }}"
                                 name="peso_evaluacion_{{ $index }}" type="number" min="1"
                                 max="100" value="100">
@@ -549,20 +552,30 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-3">
-                                <label for="peso_evaluador_{{ $index }}_{{ $idx }}">Peso de
+                            <div class="col-md-2">
+                                <label for="peso_evaluacion_{{ $index }}_{{ $idx }}">Peso de
                                     evaluación</label>
                                 <input class="form-control"
-                                    id="peso_evaluador_{{ $index }}_{{ $idx }}"
-                                    name="peso_evaluador_{{ $index }}_{{ $idx }}" type="number"
+                                    id="peso_evaluacion_{{ $index }}_{{ $idx }}"
+                                    name="peso_evaluacion_{{ $index }}_{{ $idx }}" type="number"
                                     min="1" max="100" value="100">
-                                <button
-                                    wire:click.prevent="removeEvaluador({{ $index }}, {{ $idx }})"
-                                    class="btn btn-danger mt-2">Eliminar
-                                </button>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-center">
+                                <a role="button"
+                                    wire:click.prevent="removeEvaluador({{ $index }}, {{ $idx }})"><i
+                                        class="bi bi-trash"></i></a>
                             </div>
                         </div>
                     @endforeach
+
+                    <span class="errors text-danger">
+                        @if ($errors->has('total_peso'))
+                            {{ $errors->first('total_peso') }}
+                        @endif
+                    </span>
+
+
+
                     <div class="m-3 row">
                         <div class="col-md-4">
                             <button type="button" wire:click="addOrInsertEvaluador({{ $index }})"
