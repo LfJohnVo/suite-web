@@ -65,7 +65,7 @@ class CreateMiembrosComiteSeguridad extends Component
 
         $this->reset('nombre_rol', 'colaborador', 'fecha_vigor', 'responsabilidades');
         $this->dispatch('render');
-        $this->dispatch('cerrar-modal', ['editar' => false]);
+        $this->dispatch('cerrar-modal', editar: false);
     }
 
     public function edit($id)

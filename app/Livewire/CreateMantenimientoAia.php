@@ -65,7 +65,7 @@ class CreateMantenimientoAia extends Component
 
         $this->reset('id', 'nombre', 'puesto', 'correo_electronico', 'extencion', 'ubicacion', 'interno_externo');
         $this->dispatch('render');
-        $this->dispatch('cerrar-modal-mantenimiento', ['editar' => false]);
+        $this->dispatch('cerrar-modal-mantenimiento', editar: false);
     }
 
     public function edit($id)

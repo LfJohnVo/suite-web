@@ -16,17 +16,17 @@
         }
 
         /* .asterisco {
-                                                                                                                                                                                                                                                                                                                                                                                                                    color: red;
-                                                                                                                                                                                                                                                                                                                                                                                                                    margin-left: 5px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                color: red;
+                                                                                                                                                                                                                                                                                                                                                                                                                                margin-left: 5px;
 
-                                                                                                                                                                                                                                                                                                                                                                                                                } */
+                                                                                                                                                                                                                                                                                                                                                                                                                            } */
 
         /*.select-wrapper input{
 
-                                                                                                                                                                                                                                                                                                                                                                                                                direction:rtl;
-                                                                                                                                                                                                                                                                                                                                                                                                                text-align:left;
+                                                                                                                                                                                                                                                                                                                                                                                                                            direction:rtl;
+                                                                                                                                                                                                                                                                                                                                                                                                                            text-align:left;
 
-                                                                                                                                                                                                                                                                                                                                                                                                                }*/
+                                                                                                                                                                                                                                                                                                                                                                                                                            }*/
     </style>
 
     {{-- {{ Breadcrumbs::render('contratos_edit', $contrato) }} --}}
@@ -275,7 +275,9 @@
         <div class="card card-body">
             <h5 class="mb-0 d-inline-block">Cédula de cumplimiento</h5>
             <hr class="hr-custom-title">
-            @livewire('cedula-cumplimiento.cedula-cumplimiento-component', ['contrato_id' => $contratos->id, 'show_contrato' => false])
+            <div>
+                @livewire('cedula-cumplimiento.cedula-cumplimiento-component', ['contrato_id' => $contratos->id, 'show_contrato' => false], key($contratos->id))
+            </div>
         </div>
     </div>
 

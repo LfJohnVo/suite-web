@@ -115,7 +115,7 @@ class Cierrecomponent extends Component
 
     public function confirmDelete($em_id)
     {
-        $this->dispatch('confirmDeleteCierreEvent', ['em_id' => $em_id]);
+        $this->dispatch('confirmDeleteCierreEvent', em_id: $em_id);
     }
 
     public function destroy($id)

@@ -171,7 +171,7 @@ class CedulaCumplimientoComponent extends Component
 
     public function confirmDelete($cedula_id)
     {
-        $this->dispatch('confirmDeleteCedulaEvent', ['cedula_id' => $cedula_id]);
+        $this->dispatch('confirmDeleteCedulaEvent', cedula_id: $cedula_id);
     }
 
     public function destroy($id)

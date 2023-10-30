@@ -19,7 +19,9 @@
     <div>
         <h5 class="mb-0 d-inline-block">Facturas</h5>
         <hr class="hr-custom-title">
-        <div> @include('livewire.cedula-cumplimiento.facturas_table')</div>
+        <div>
+            @include('livewire.cedula-cumplimiento.facturas_table')
+        </div>
     </div>
 
 

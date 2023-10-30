@@ -62,7 +62,7 @@ class CreateInfraestructuraTecnologica extends Component
 
         $this->reset('id', 'sistemas', 'aplicativos', 'base_datos', 'otro', 'escenario');
         $this->dispatch('render');
-        $this->dispatch('cerrar-modal-infraestructura', ['editarInfraestructura' => false]);
+        $this->dispatch('cerrar-modal-infraestructura', editarInfraestructura: false);
     }
 
     public function editInfraestructura($id)
