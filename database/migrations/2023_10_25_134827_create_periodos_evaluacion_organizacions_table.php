@@ -41,6 +41,7 @@ return new class extends Migration
             $table->date('fecha_inicio_competencias_p4')->nullable();
             $table->date('fecha_fin_competencias_p4')->nullable();
             $table->timestamps();
+            $table->foreign('evaluacion_organizacion_id')->references('id')->on('evaluacion_organizacions')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

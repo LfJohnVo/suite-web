@@ -18,5 +18,6 @@ class EvaluacionOrganizacion extends Model
         'valor_objetivos',
         'competencias',
         'valor_competencias',
+        'estado',
     ];
 }

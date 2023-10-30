@@ -9,6 +9,8 @@ class PeriodosEvaluacionOrganizacion extends Model
 {
     use HasFactory;
 
+    protected $table = 'periodos_evaluacion_organizacions';
+
     protected $fillable = [
         'tipo',
         'objetivos_y_competencias',
