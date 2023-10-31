@@ -12,10 +12,54 @@
 @section('content')
     <!-- Bootstrap 5 JS CDN -->
 
+    <style>
+        .step-number-activo {
+            width: 40px;
+            height: 40px;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 50%;
+            border-color: #007bff;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background-color: #fff;
+            color: #007bff;
+            border-radius: 50%;
+            border-color: #007bff;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+
     {{ Breadcrumbs::render('EV360-Evaluaciones-Create') }}
 
     <h5 class="col-12 titulo_general_funcion">Crear Evaluación</h5>
 
+    <div class="container mt-5">
+        <ul class="list-inline d-flex justify-content-center">
+            <li class="list-inline-item me-3 text-center">
+                <div class="step-number-activo mb-2">1</div>
+                <h4>Step 1</h4>
+            </li>
+            <li class="list-inline-item me-3 text-center">
+                <div class="step-number mb-2">2</div>
+                <h4>Step 2</h4>
+            </li>
+            <li class="list-inline-item text-center">
+                <div class="step-number mb-2">3</div>
+                <h4>Step 3</h4>
+            </li>
+        </ul>
+    </div>
 
     <div class="row">
         <div class="col-12">

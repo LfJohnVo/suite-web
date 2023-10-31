@@ -3,8 +3,7 @@
         @case('crear-evaluacion')
             <form wire:submit.prevent="crearevaluacion">
                 <div class="container">
-                    <div class="row
-            g-2">
+                    <div class="row g-2">
                         <div class="col-md">
                             <div class="p-3 border bg-light">
                                 <div class="row g-2">
@@ -97,7 +96,7 @@
                 <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
                     <div class="col s12 right-align btn-grd distancia">
                         <button class="btn btn_cancelar">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="submit" class="btn btn-primary">Siguiente</button>
                     </div>
                 </div>
             </form>
@@ -319,7 +318,7 @@
                 <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
                     <div class="col s12 right-align btn-grd distancia">
                         <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="submit" class="btn btn-primary">Siguiente</button>
                     </div>
                 </div>
             </form>
@@ -353,7 +352,7 @@
                 <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
                     <div class="col s12 right-align btn-grd distancia">
                         <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="submit" class="btn btn-primary">Siguiente</button>
                     </div>
                 </div>
             </form>
@@ -401,7 +400,7 @@
                 <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
                     <div class="col s12 right-align btn-grd distancia">
                         <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="submit" class="btn btn-primary">Siguiente</button>
                     </div>
                 </div>
             </form>
@@ -497,7 +496,7 @@
                 <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
                     <div class="col s12 right-align btn-grd distancia">
                         <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="submit" class="btn btn-primary">Siguiente</button>
                     </div>
                 </div>
             </form>
