@@ -18,4 +18,10 @@ class EvaluadosEvaluacionOrganizacion extends Model
         'area_id',
         'gtupo_id',
     ];
+
+    public function empleado()
+    {
+        return $this->belongsTo(Empleado::class, 'evaluado_id', 'id')->alta()
+            ->select('id', 'name', 'area_id');;
+    }
 }
