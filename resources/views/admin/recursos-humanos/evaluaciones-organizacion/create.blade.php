@@ -9,63 +9,127 @@
         integrity="sha512-mR/b5Y7FRsKqrYZou7uysnOdCIJib/7r5QeJMFvLNHNhtye3xJp1TdJVPLtetkukFn227nKpXD9OjUc09lx97Q=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
+
+<style>
+    .step-number-completado {
+        width: 40px;
+        height: 40px;
+        background-color: #007bff;
+        border: 2px solid #007bff;
+        color: #fff;
+        border-radius: 50%;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 20px;
+    }
+
+    .step-number-completado div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        /* Make sure the child div fills the parent */
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background-color: #fff;
+        border: 2px solid #007bff;
+        color: #007bff;
+        border-radius: 50%;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 20px;
+    }
+
+    .step-number div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        /* Make sure the child div fills the parent */
+    }
+
+    .line {
+        position: absolute;
+        width: 34px;
+        height: 1px;
+        background-color: #7b7b7b;
+        top: 25%;
+        left: 80%;
+        transform: translate(10%, 100%);
+    }
+
+    ul li p {
+        min-width: 80px;
+        max-width: 80px;
+        /* Adjust the width to your preference */
+        margin: 0 auto;
+        /* Center the text within the defined width */
+        overflow: hidden;
+        /* Hide any overflowing text */
+        text-overflow: ellipsis;
+        /* Add an ellipsis (...) to indicate truncated text */
+        white-space: nowrap;
+        /* Prevent wrapping */
+    }
+
+    ul li {
+        margin-right: 50px;
+        /* Adjust the value to control the spacing */
+    }
+</style>
+
 @section('content')
-    <!-- Bootstrap 5 JS CDN -->
-
-    <style>
-        .step-number-activo {
-            width: 40px;
-            height: 40px;
-            background-color: #007bff;
-            color: #fff;
-            border-radius: 50%;
-            border-color: #007bff;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .step-number {
-            width: 40px;
-            height: 40px;
-            background-color: #fff;
-            color: #007bff;
-            border-radius: 50%;
-            border-color: #007bff;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
-
     {{ Breadcrumbs::render('EV360-Evaluaciones-Create') }}
 
     <h5 class="col-12 titulo_general_funcion">Crear Evaluación</h5>
 
-    <div class="container mt-5">
+    <div class="container mt-12">
         <ul class="list-inline d-flex justify-content-center">
-            <li class="list-inline-item me-3 text-center">
-                <div class="step-number-activo mb-2">1</div>
-                <h4>Step 1</h4>
+            <li class="list-inline-item me-2 text-center position-relative">
+                <div class="step-number-completado mb-2">1</div>
+                <p>Inicio</p>
+                <div class="line"></div>
             </li>
-            <li class="list-inline-item me-3 text-center">
+            <li class="list-inline-item me-2 text-center position-relative">
                 <div class="step-number mb-2">2</div>
-                <h4>Step 2</h4>
+                <p>Periodos</p>
+                <div class="line"></div>
             </li>
-            <li class="list-inline-item text-center">
+            <li class="list-inline-item me-2 text-center position-relative">
                 <div class="step-number mb-2">3</div>
-                <h4>Step 3</h4>
+                <p>Perspectiva</p>
+                <div class="line"></div>
+            </li>
+            <li class="list-inline-item me-2 text-center position-relative">
+                <div class="step-number mb-2">4</div>
+                <p class="text-center">Público</p>
+                <div class="line"></div>
+            </li>
+            <li class="list-inline-item me-2 text-center position-relative">
+                <div class="step-number mb-2">5</div>
+                <p>Reglas</p>
+                <div class="line"></div>
+            </li>
+            <li class="list-inline-item me-2 text-center position-relative">
+                <div class="step-number mb-2">6</div>
+                <p>Evaluadores Objetivos</p>
+                <div class="line"></div>
+            </li>
+            <li class="list-inline-item me-2 text-center">
+                <div class="step-number mb-2">7</div>
+                <p>Evaluadores Competencias</p>
             </li>
         </ul>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            @livewire('evaluaciones-steps-organizacion')
-        </div>
-    </div>
+    @livewire('evaluaciones-steps-organizacion')
 @endsection
 
 @section('scripts')

@@ -65,6 +65,7 @@ class EvaluacionesStepsOrganizacion extends Component
     //Paso_periodos
     public $create_periodos;
     public $tipo;
+    public $juntoscompetencias = "true";
     public $objetivos_y_competencias;
     public $evaluacion_organizacion_id;
     public $nombre_periodo_1;
@@ -79,18 +80,18 @@ class EvaluacionesStepsOrganizacion extends Component
     public $nombre_periodo_4;
     public $fecha_inicio_p4;
     public $fecha_fin_p4;
-    public $nombre_periodo_competencias_1;
-    public $fecha_inicio_competencias_p1;
-    public $fecha_fin_competencias_p1;
-    public $nombre_periodo_competencias_2;
-    public $fecha_inicio_competencias_p2;
-    public $fecha_fin_competencias_p2;
-    public $nombre_periodo_competencias_3;
-    public $fecha_inicio_competencias_p3;
-    public $fecha_fin_competencias_p3;
-    public $nombre_periodo_competencias_4;
-    public $fecha_inicio_competencias_p4;
-    public $fecha_fin_competencias_p4;
+    public $nombre_periodo_competencia_p1;
+    public $fecha_inicio_competencia_p1;
+    public $fecha_fin_competencia_p1;
+    public $nombre_periodo_competencia_p2;
+    public $fecha_inicio_competencia_p2;
+    public $fecha_fin_competencia_p2;
+    public $nombre_periodo_competencia_p3;
+    public $fecha_inicio_competencia_p3;
+    public $fecha_fin_competencia_p3;
+    public $nombre_periodo_competencia_p4;
+    public $fecha_inicio_competencia_p4;
+    public $fecha_fin_competencia_p4;
 
     //Paso periodos
     public $create_perspectivas;
@@ -149,19 +150,31 @@ class EvaluacionesStepsOrganizacion extends Component
         $this->publico = $value;
     }
 
+    public function updatedJuntosCompetencias($value)
+    {
+        // dd($value);
+        $this->juntoscompetencias = $value;
+    }
+
     public function addInput()
     {
         $this->inputs[] = '';
     }
 
-    // public function getRangeProperty()
-    // {
-    //     return range($this->minValue, $this->maxValue);
-    // }
+    protected $listeners = ['showDeleteConfirmation'];
 
+    public $inputKeyToDelete;
+
+    public function showDeleteConfirmation($inputKey)
+    {
+        // dd($inputKey);
+        $this->inputKeyToDelete = $inputKey;
+        $this->emit('showDeleteInputConfirmationModal');
+    }
 
     public function removeInput($index)
     {
+        dd($index);
         unset($this->inputs[$index]);
         $this->inputs = array_values($this->inputs);
     }
@@ -279,51 +292,102 @@ class EvaluacionesStepsOrganizacion extends Component
         //     // $this->fecha_fin_competencias_p4,
         // );
 
-        $this->validate([
-            'tipo' => 'required',
-            'nombre_periodo_1' => 'required',
-            'fecha_inicio_p1' => 'required',
-            'fecha_fin_p1' => 'required|after_or_equal:fecha_inicio_p1',
-            'nombre_periodo_2' => 'required',
-            'fecha_inicio_p2' => 'required|after_or_equal:fecha_fin_p1',
-            'fecha_fin_p2' => 'required|after_or_equal:fecha_inicio_p2',
-            'nombre_periodo_3' => 'required',
-            'fecha_inicio_p3' => 'required|after_or_equal:fecha_fin_p2',
-            'fecha_fin_p3' => 'required|after_or_equal:fecha_inicio_p3',
-            'nombre_periodo_4' => 'required',
-            'fecha_inicio_p4' => 'required|after_or_equal:fecha_fin_p3',
-            'fecha_fin_p4' => 'required|after_or_equal:fecha_inicio_p4',
-        ]);
 
-        $this->create_periodos = PeriodosEvaluacionOrganizacion::create([
-            'tipo' =>  $this->tipo,
-            'objetivos_y_competencias',
-            'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
-            'periodo_1' => $this->nombre_periodo_1,
-            'fecha_inicio_p1' => $this->fecha_inicio_p1,
-            'fecha_fin_p1' => $this->fecha_fin_p1,
-            'periodo_2' => $this->nombre_periodo_2,
-            'fecha_inicio_p2' => $this->fecha_inicio_p2,
-            'fecha_fin_p2' => $this->fecha_fin_p2,
-            'periodo_3' => $this->nombre_periodo_3,
-            'fecha_inicio_p3' => $this->fecha_inicio_p3,
-            'fecha_fin_p3' => $this->fecha_fin_p3,
-            'periodo_4' => $this->nombre_periodo_4,
-            'fecha_inicio_p4' => $this->fecha_inicio_p4,
-            'fecha_fin_p4' => $this->fecha_fin_p4,
-            'periodo_competencias_1' => null,
-            'fecha_inicio_competencias_p1' => null,
-            'fecha_fin_competencias_p1' => null,
-            'periodo_competencias_2' => null,
-            'fecha_inicio_competencias_p2' => null,
-            'fecha_fin_competencias_p2' => null,
-            'periodo_competencias_3' => null,
-            'fecha_inicio_competencias_p3' => null,
-            'fecha_fin_competencias_p3' => null,
-            'periodo_competencias_4' => null,
-            'fecha_inicio_competencias_p4' => null,
-            'fecha_fin_competencias_p4' => null,
-        ]);
+        if ($this->juntoscompetencias == "true") {
+            $this->validate([
+                'tipo' => 'required',
+                'nombre_periodo_1' => 'required',
+                'fecha_inicio_p1' => 'required',
+                'fecha_fin_p1' => 'required|after_or_equal:fecha_inicio_p1',
+                'nombre_periodo_2' => 'required',
+                'fecha_inicio_p2' => 'required|after_or_equal:fecha_fin_p1',
+                'fecha_fin_p2' => 'required|after_or_equal:fecha_inicio_p2',
+                'nombre_periodo_3' => 'required',
+                'fecha_inicio_p3' => 'required|after_or_equal:fecha_fin_p2',
+                'fecha_fin_p3' => 'required|after_or_equal:fecha_inicio_p3',
+                'nombre_periodo_4' => 'required',
+                'fecha_inicio_p4' => 'required|after_or_equal:fecha_fin_p3',
+                'fecha_fin_p4' => 'required|after_or_equal:fecha_inicio_p4',
+            ]);
+
+            $this->create_periodos = PeriodosEvaluacionOrganizacion::create([
+                'tipo' =>  $this->tipo,
+                'objetivos_y_competencias' => $this->juntoscompetencias,
+                'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
+                'periodo_1' => $this->nombre_periodo_1,
+                'fecha_inicio_p1' => $this->fecha_inicio_p1,
+                'fecha_fin_p1' => $this->fecha_fin_p1,
+                'periodo_2' => $this->nombre_periodo_2,
+                'fecha_inicio_p2' => $this->fecha_inicio_p2,
+                'fecha_fin_p2' => $this->fecha_fin_p2,
+                'periodo_3' => $this->nombre_periodo_3,
+                'fecha_inicio_p3' => $this->fecha_inicio_p3,
+                'fecha_fin_p3' => $this->fecha_fin_p3,
+                'periodo_4' => $this->nombre_periodo_4,
+                'fecha_inicio_p4' => $this->fecha_inicio_p4,
+                'fecha_fin_p4' => $this->fecha_fin_p4,
+            ]);
+        } else {
+
+            // dd($this->nombre_periodo_competencia_p1);
+            $this->validate([
+                'tipo' => 'required',
+                'nombre_periodo_1' => 'required',
+                'fecha_inicio_p1' => 'required',
+                'fecha_fin_p1' => 'required|after_or_equal:fecha_inicio_p1',
+                'nombre_periodo_2' => 'required',
+                'fecha_inicio_p2' => 'required|after_or_equal:fecha_fin_p1',
+                'fecha_fin_p2' => 'required|after_or_equal:fecha_inicio_p2',
+                'nombre_periodo_3' => 'required',
+                'fecha_inicio_p3' => 'required|after_or_equal:fecha_fin_p2',
+                'fecha_fin_p3' => 'required|after_or_equal:fecha_inicio_p3',
+                'nombre_periodo_4' => 'required',
+                'fecha_inicio_p4' => 'required|after_or_equal:fecha_fin_p3',
+                'fecha_fin_p4' => 'required|after_or_equal:fecha_inicio_p4',
+                // 'nombre_periodo_competencia_p1 ' => 'required',
+                // 'fecha_inicio_competencia_p1 ' => 'required',
+                // 'fecha_fin_competencia_p1 ' => 'required|after_or_equal:fecha_inicio_competencia_p1',
+                // 'nombre_periodo_competencia_p2 ' => 'required',
+                // 'fecha_inicio_competencia_p2 ' => 'required|after_or_equal:fecha_fin_competencia_p1',
+                // 'fecha_fin_competencia_p2 ' => 'required|after_or_equal:fecha_inicio_competencia_p2',
+                // 'nombre_periodo_competencia_p3 ' => 'required',
+                // 'fecha_inicio_competencia_p3 ' => 'required|after_or_equal:fecha_fin_competencia_p2',
+                // 'fecha_fin_competencia_p3 ' => 'required|after_or_equal:fecha_inicio_competencia_p3',
+                // 'nombre_periodo_competencia_p4 ' => 'required',
+                // 'fecha_inicio_competencia_p4 ' => 'required|after_or_equal:fecha_fin_competencia_p3',
+                // 'fecha_fin_competencia_p4 ' => 'required|after_or_equal:fecha_inicio_competencia_p4',
+            ]);
+
+            $this->create_periodos = PeriodosEvaluacionOrganizacion::create([
+                'tipo' =>  $this->tipo,
+                'objetivos_y_competencias' => $this->juntoscompetencias,
+                'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
+                'periodo_1' => $this->nombre_periodo_1,
+                'fecha_inicio_p1' => $this->fecha_inicio_p1,
+                'fecha_fin_p1' => $this->fecha_fin_p1,
+                'periodo_2' => $this->nombre_periodo_2,
+                'fecha_inicio_p2' => $this->fecha_inicio_p2,
+                'fecha_fin_p2' => $this->fecha_fin_p2,
+                'periodo_3' => $this->nombre_periodo_3,
+                'fecha_inicio_p3' => $this->fecha_inicio_p3,
+                'fecha_fin_p3' => $this->fecha_fin_p3,
+                'periodo_4' => $this->nombre_periodo_4,
+                'fecha_inicio_p4' => $this->fecha_inicio_p4,
+                'fecha_fin_p4' => $this->fecha_fin_p4,
+                'periodo_competencias_1' => $this->nombre_periodo_competencia_p1,
+                'fecha_inicio_competencias_p1' => $this->fecha_inicio_competencia_p1,
+                'fecha_fin_competencias_p1' => $this->fecha_fin_competencia_p1,
+                'periodo_competencias_2' => $this->nombre_periodo_competencia_p2,
+                'fecha_inicio_competencias_p2' => $this->fecha_inicio_competencia_p2,
+                'fecha_fin_competencias_p2' => $this->fecha_fin_competencia_p2,
+                'periodo_competencias_3' => $this->nombre_periodo_competencia_p3,
+                'fecha_inicio_competencias_p3' => $this->fecha_inicio_competencia_p3,
+                'fecha_fin_competencias_p3' => $this->fecha_fin_competencia_p3,
+                'periodo_competencias_4' => $this->nombre_periodo_competencia_p4,
+                'fecha_inicio_competencias_p4' => $this->fecha_inicio_competencia_p4,
+                'fecha_fin_competencias_p4' => $this->fecha_fin_competencia_p4,
+            ]);
+        }
 
         switch ($this->flujo) {
             case 'obj_com':
