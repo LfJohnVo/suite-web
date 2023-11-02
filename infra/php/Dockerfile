@@ -1,72 +1,63 @@
-FROM php:8.2-fpm-alpine
+# ================
+#Base Stage
+#================
+FROM serversideup/php:8.2-fpm-nginx as base
 
-# Add docker-php-extension-installer script
-ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+ENV AUTORUN_ENABLED=false
+ENV SSL_MODE=full
+ENV PHP_MAX_EXECUTION_TIME=3600
+ENV PHP_MEMORY_LIMIT=3060M
+ENV PHP_POST_MAX_SIZE=3060M
+ENV PHP_PM_MAX_SPARE_SERVERS=10
+ENV PHP_PM_START_SERVERS=5
+ENV PHP_PM_MIN_SPARE_SERVERS=5
+ENV PHP_PM_MAX_CHILDREN=15
 
-# Install dependencies
-RUN apk add --no-cache \
-    bash \
-    curl \
-    freetype-dev \
-    g++ \
-    gcc \
-    git \
-    icu-dev \
-    icu-libs \
-    libc-dev \
-    libzip-dev \
-    make \
-    mysql-client \
-    # nodejs \
-    # npm \
-    oniguruma-dev \
-    yarn \
-    openssh-client \
-    postgresql-libs \
-    rsync \
-    zlib-dev \
-    sudo \
-    zip \
-    unzip \
-    libsodium-dev \
-    dcron
+# ================
+# Production Stage
+# ================
+FROM base as production
 
-# Install php extensions
-RUN chmod +x /usr/local/bin/install-php-extensions && \
-    install-php-extensions \
-    @composer \
-    redis-stable \
-    imagick-stable \
-    #xdebug-stable \
-    bcmath \
-    calendar \
-    exif \
-    gd \
-    intl \
-    pdo_mysql \
-    pdo_pgsql \
-    pcntl \
-    soap \
-    zip \
-    apcu \
-    opcache \
-    sockets \
-    sodium \
-    excimer
+RUN apt-get update && \
+    apt-get install -y \
+    php8.2-imagick \
+    php8.2-bcmath \
+    php8.2-gd \
+    php8.2-cli \
+    php8.2-pgsql \
+    php8.2-mbstring \
+    php8.2-xml \
+    php8.2-zip \
+    php8.2-curl \
+    php8.2-calendar \
+    php8.2-exif \
+    php8.2-ftp \
+    php8.2-intl \
+    php8.2-mysql \
+    php8.2-soap \
+    php8.2-sockets \
+    php8.2-apcu \
+    php8.2-opcache \
+    php8.2-excimer \
+    php8.2-redis
+    #rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
-# Enable phpredis extension
-#RUN echo "extension=redis.so" > /usr/local/etc/php/conf.d/docker-php-ext-redis.ini
+# Install phpredis extension
+# RUN pecl install redis &&
+# docker-php-ext-enable redis
 
-# Copy custom php.ini
-COPY php.ini /usr/local/etc/php/php.ini
+USER $PUID:$PGID
 
-# Copy custom www.conf
-COPY www.conf /usr/local/etc/php-fpm.d/www.conf
+#Copy contents.
+#- To ignore files or folders, use .dockerignore
+COPY --chown=$PUID:$PGID . .
 
-RUN chown -R www-data:www-data /var/www \
-    && chmod 755 -R /var/www
+RUN composer install --optimize-autoloader --no-dev --no-interaction --no-progress --ansi
 
-# Healthcheck
-HEALTHCHECK --interval=15m --timeout=3s \
-    CMD curl --fail http://localhost/ || exit 1
+#artisan commands
+#RUN php ./artisan optimize:clear
 
+# php ./artisan route:cache && \
+#     php ./artisan view:cache
+
+USER root:root
