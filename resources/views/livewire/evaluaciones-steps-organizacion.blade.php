@@ -558,12 +558,12 @@
                             <div class="col-md d-flex align-items-center">
                                 {{-- <a role="button" wire:click="removeInput({{ $key }})"><i
                                         class="bi bi-trash"></i></a> --}}
-                                <a role="button" class="bi bi-trash" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                </a>
+                                <a role="button" class="bi bi-trash" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal{{ $key }}"></a>
                             </div>
 
-                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                                aria-hidden="true">
+                            <div class="modal fade" id="exampleModal{{ $key }}" tabindex="-1"
+                                aria-labelledby="exampleModalLabel{{ $key }}" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -652,6 +652,7 @@
                                 @endforeach
                             </ul>
                         </div> --}}
+                        {{-- Alternativa --}}
                         <div class="btn-group">
                             <button class="btn btn-secondary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown"
                                 aria-expanded="false">
@@ -672,6 +673,8 @@
                                 @endforeach
                             </ul>
                         </div>
+
+                        {{-- Principal --}}
                         {{-- <div class="form-floating">
                             <select class="form-select form-control" name="evaluados" id="evaluados">
                                 @foreach ($this->evaluados as $index => $evaluado)
@@ -806,205 +809,212 @@
     @break
 
     @case('evaluadores_objetivos')
-        <h3>Evaluadores</h3>
         <form wire:submit.prevent="evaluadores_objetivos(Object.fromEntries(new FormData($event.target)))">
-            @foreach ($this->evaluados_asignacion as $index => $ev)
-                <div class="row g-1">
-                    <div class="m-3 row">
-                        <div class="col-md-6">
-                            <label>Evaluado</label><br>
-                            {{ $ev->empleado->name }}
-                            <input type="number" id="id_evaluado_{{ $index }}"
-                                name="id_evaluado_{{ $index }}" value="{{ $ev->empleado->id }}" hidden>
-                        </div>
-                        <div class="col-md-3">
-                            <label>Área</label><br>
-                            {{ $ev->empleado->area->area }}
-                        </div>
-                        <div class="col-md-3">
-                            <label>Grupo</label><br>
-                            {{-- {{ $ev->empleado->area->area }} --}}
-                        </div>
-                    </div>
-                    <div class="m-3 row">
-                        <div class="col-md-6">
-                            <label for="evaluador_{{ $index }}">Evaluador <sup>*</sup></label>
-                            <select class="form-control" name="evaluador_{{ $index }}"
-                                id="evaluador_{{ $index }}" required>
-                                @foreach ($evaluadores as $evdrs)
-                                    <option value="{{ $evdrs->id }}">{{ $evdrs->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label for="peso_evaluacion_{{ $index }}">Peso de evaluación
-                                <sup>*</sup></label>
-                            <input class="form-control" id="peso_evaluacion_{{ $index }}"
-                                name="peso_evaluacion_{{ $index }}" type="number" min="1" max="100"
-                                value="100">
-                        </div>
-                    </div>
-                    <!-- Add a loop for additional evaluadores here -->
-                    @foreach ($evaluadoresselects[$index] ?? [] as $idx => $evaluador)
+            <div class="card card-body">
+                <h3>Evaluadores</h3>
+                @foreach ($this->evaluados_asignacion as $index => $ev)
+                    <div class="row g-1">
                         <div class="m-3 row">
                             <div class="col-md-6">
-                                <label for="evaluador_{{ $index }}_{{ $idx }}">Evaluador</label>
-                                <select class="form-control" name="evaluador_{{ $index }}_{{ $idx }}">
+                                <label>Evaluado</label><br>
+                                {{ $ev->empleado->name }}
+                                <input type="number" id="id_evaluado_{{ $index }}"
+                                    name="id_evaluado_{{ $index }}" value="{{ $ev->empleado->id }}" hidden>
+                            </div>
+                            <div class="col-md-3">
+                                <label>Área</label><br>
+                                {{ $ev->empleado->area->area }}
+                            </div>
+                            <div class="col-md-3">
+                                <label>Grupo</label><br>
+                                {{-- {{ $ev->empleado->area->area }} --}}
+                            </div>
+                        </div>
+                        <div class="m-3 row">
+                            <div class="col-md-6">
+                                <label for="evaluador_{{ $index }}">Evaluador <sup>*</sup></label>
+                                <select class="form-control" name="evaluador_{{ $index }}"
+                                    id="evaluador_{{ $index }}" required>
                                     @foreach ($evaluadores as $evdrs)
-                                        <option value="{{ $evdrs->id }}">{{ $evdrs->name }}
-                                        </option>
+                                        <option value="{{ $evdrs->id }}">{{ $evdrs->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <label for="peso_evaluacion_{{ $index }}_{{ $idx }}">Peso
-                                    de
-                                    evaluación</label>
-                                <input class="form-control" id="peso_evaluacion_{{ $index }}_{{ $idx }}"
-                                    name="peso_evaluacion_{{ $index }}_{{ $idx }}" type="number"
-                                    min="1" max="100" value="100">
-                            </div>
-                            <div class="col-md-2 d-flex align-items-center">
-                                <a role="button"
-                                    wire:click.prevent="removeEvaluador({{ $index }}, {{ $idx }})"><i
-                                        class="bi bi-trash"></i></a>
+                                <label for="peso_evaluacion_{{ $index }}">Peso de evaluación
+                                    <sup>*</sup></label>
+                                <input class="form-control" id="peso_evaluacion_{{ $index }}"
+                                    name="peso_evaluacion_{{ $index }}" type="number" min="1" max="100"
+                                    value="100">
                             </div>
                         </div>
-                    @endforeach
+                        <!-- Add a loop for additional evaluadores here -->
+                        @foreach ($evaluadoresselects[$index] ?? [] as $idx => $evaluador)
+                            <div class="m-3 row">
+                                <div class="col-md-6">
+                                    <label for="evaluador_{{ $index }}_{{ $idx }}">Evaluador</label>
+                                    <select class="form-control" name="evaluador_{{ $index }}_{{ $idx }}">
+                                        @foreach ($evaluadores as $evdrs)
+                                            <option value="{{ $evdrs->id }}">{{ $evdrs->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="peso_evaluacion_{{ $index }}_{{ $idx }}">Peso
+                                        de
+                                        evaluación</label>
+                                    <input class="form-control" id="peso_evaluacion_{{ $index }}_{{ $idx }}"
+                                        name="peso_evaluacion_{{ $index }}_{{ $idx }}" type="number"
+                                        min="1" max="100" value="100">
+                                </div>
+                                <div class="col-md-2 d-flex align-items-center">
+                                    <a role="button"
+                                        wire:click.prevent="removeEvaluador({{ $index }}, {{ $idx }})"><i
+                                            class="bi bi-trash"></i></a>
+                                </div>
+                            </div>
+                        @endforeach
 
-                    <span class="errors text-danger">
-                        @if ($errors->has('total_peso'))
-                            {{ $errors->first('total_peso') }}
-                        @endif
-                    </span>
+                        <span class="errors text-danger">
+                            @if ($errors->has('total_peso'))
+                                {{ $errors->first('total_peso') }}
+                            @endif
+                        </span>
 
 
 
-                    <div class="m-3 row">
-                        <div class="col-md-4">
-                            <button type="button" wire:click="addOrInsertEvaluador({{ $index }})"
-                                class="btn btn-link mt-2">Agregar Evaluador
-                            </button>
+                        <div class="m-3 row">
+                            <div class="col-md-4">
+                                <button type="button" wire:click="addOrInsertEvaluador({{ $index }})"
+                                    class="btn btn-link mt-2">Agregar Evaluador
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
 
-            <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
-                <div class="col s12 right-align btn-grd distancia">
-                    <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
+                    <div class="col s12 right-align btn-grd distancia">
+                        <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
                 </div>
             </div>
         </form>
     @break
 
     @case('evaluadores_competencias')
-        <h3>Evaluadores</h3>
         <form wire:submit.prevent="evaluadores_competencias(Object.fromEntries(new FormData($event.target)))">
-            @foreach ($this->evaluados_asignacion as $index => $ev)
-                <div class="row g-1">
-                    <div class="m-3 row">
-                        <div class="col-md-6">
-                            <label>Evaluado</label><br>
-                            {{ $ev->empleado->name }}
-                            <input type="number" id="id_evaluado_{{ $index }}"
-                                name="id_evaluado_{{ $index }}" value="{{ $ev->empleado->id }}" hidden>
-                        </div>
-                        <div class="col-md-3">
-                            <label>Área</label><br>
-                            {{ $ev->empleado->area->area }}
-                        </div>
-                        <div class="col-md-3">
-                            <label>Grupo</label><br>
-                            {{-- {{ $ev->empleado->area->area }} --}}
-                        </div>
-                    </div>
-                    <div class="m-3 row">
-                        <div class="col-md-6">
-                            <label for="evaluador_{{ $index }}">Evaluador <sup>*</sup></label>
-                            <select class="form-control" name="evaluador_{{ $index }}"
-                                id="evaluador_{{ $index }}" required>
-                                @foreach ($evaluadores as $evdrs)
-                                    <option value="{{ $evdrs->id }}">{{ $evdrs->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label for="peso_evaluacion_{{ $index }}">Peso de evaluación
-                                <sup>*</sup></label>
-                            <input class="form-control" id="peso_evaluacion_{{ $index }}"
-                                name="peso_evaluacion_{{ $index }}" type="number" min="1" max="100"
-                                value="100">
-                        </div>
-                    </div>
-                    <!-- Add a loop for additional evaluadores here -->
-                    @foreach ($evaluadoresselects[$index] ?? [] as $idx => $evaluador)
+            <div class="card card-body">
+                <h3>Evaluadores</h3>
+                @foreach ($this->evaluados_asignacion as $index => $ev)
+                    <div class="row g-1">
                         <div class="m-3 row">
                             <div class="col-md-6">
-                                <label for="evaluador_{{ $index }}_{{ $idx }}">Evaluador</label>
-                                <select class="form-control" name="evaluador_{{ $index }}_{{ $idx }}">
+                                <label>Evaluado</label><br>
+                                {{ $ev->empleado->name }}
+                                <input type="number" id="id_evaluado_{{ $index }}"
+                                    name="id_evaluado_{{ $index }}" value="{{ $ev->empleado->id }}" hidden>
+                            </div>
+                            <div class="col-md-3">
+                                <label>Área</label><br>
+                                {{ $ev->empleado->area->area }}
+                            </div>
+                            <div class="col-md-3">
+                                <label>Grupo</label><br>
+                                {{-- {{ $ev->empleado->area->area }} --}}
+                            </div>
+                        </div>
+                        <div class="m-3 row">
+                            <div class="col-md-6">
+                                <label for="evaluador_{{ $index }}">Evaluador <sup>*</sup></label>
+                                <select class="form-control" name="evaluador_{{ $index }}"
+                                    id="evaluador_{{ $index }}" required>
                                     @foreach ($evaluadores as $evdrs)
-                                        <option value="{{ $evdrs->id }}">{{ $evdrs->name }}
-                                        </option>
+                                        <option value="{{ $evdrs->id }}">{{ $evdrs->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <label for="peso_evaluacion_{{ $index }}_{{ $idx }}">Peso
-                                    de
-                                    evaluación</label>
-                                <input class="form-control" id="peso_evaluacion_{{ $index }}_{{ $idx }}"
-                                    name="peso_evaluacion_{{ $index }}_{{ $idx }}" type="number"
-                                    min="1" max="100" value="100">
-                            </div>
-                            <div class="col-md-2 d-flex align-items-center">
-                                <a role="button"
-                                    wire:click.prevent="removeEvaluador({{ $index }}, {{ $idx }})"><i
-                                        class="bi bi-trash"></i></a>
+                                <label for="peso_evaluacion_{{ $index }}">Peso de evaluación
+                                    <sup>*</sup></label>
+                                <input class="form-control" id="peso_evaluacion_{{ $index }}"
+                                    name="peso_evaluacion_{{ $index }}" type="number" min="1" max="100"
+                                    value="100">
                             </div>
                         </div>
-                    @endforeach
+                        <!-- Add a loop for additional evaluadores here -->
+                        @foreach ($evaluadoresselects[$index] ?? [] as $idx => $evaluador)
+                            <div class="m-3 row">
+                                <div class="col-md-6">
+                                    <label for="evaluador_{{ $index }}_{{ $idx }}">Evaluador</label>
+                                    <select class="form-control" name="evaluador_{{ $index }}_{{ $idx }}">
+                                        @foreach ($evaluadores as $evdrs)
+                                            <option value="{{ $evdrs->id }}">{{ $evdrs->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="peso_evaluacion_{{ $index }}_{{ $idx }}">Peso
+                                        de
+                                        evaluación</label>
+                                    <input class="form-control"
+                                        id="peso_evaluacion_{{ $index }}_{{ $idx }}"
+                                        name="peso_evaluacion_{{ $index }}_{{ $idx }}" type="number"
+                                        min="1" max="100" value="100">
+                                </div>
+                                <div class="col-md-2 d-flex align-items-center">
+                                    <a role="button"
+                                        wire:click.prevent="removeEvaluador({{ $index }}, {{ $idx }})"><i
+                                            class="bi bi-trash"></i></a>
+                                </div>
+                            </div>
+                        @endforeach
 
-                    <span class="errors text-danger">
-                        @if ($errors->has('total_peso'))
-                            {{ $errors->first('total_peso') }}
-                        @endif
-                    </span>
+                        <span class="errors text-danger">
+                            @if ($errors->has('total_peso'))
+                                {{ $errors->first('total_peso') }}
+                            @endif
+                        </span>
 
 
 
-                    <div class="m-3 row">
-                        <div class="col-md-4">
-                            <button type="button" wire:click="addOrInsertEvaluador({{ $index }})"
-                                class="btn btn-link mt-2">Agregar Evaluador
-                            </button>
+                        <div class="m-3 row">
+                            <div class="col-md-4">
+                                <button type="button" wire:click="addOrInsertEvaluador({{ $index }})"
+                                    class="btn btn-link mt-2">Agregar Evaluador
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
 
-            <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
-                <div class="col s12 right-align btn-grd distancia">
-                    <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
+                    <div class="col s12 right-align btn-grd distancia">
+                        <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
                 </div>
             </div>
         </form>
     @break
 
     @case('evaluacion-creada')
-        <div class="col-12">
-            <div class="text-center">
-                <div class="row">
-                    <h4 class="card-title graficas_titulos graficas_titulo1">Evaluación creada con éxito</h4>
-                </div>
+        <div class="card card-body">
+            <div class="col-12">
+                <div class="text-center">
+                    <div class="row">
+                        <h4 class="card-title graficas_titulos graficas_titulo1">Evaluación creada con éxito</h4>
+                    </div>
 
-                <img src="{{ asset('img/evaluacion-creada.png') }}">
+                    <img src="{{ asset('img/evaluacion-creada.png') }}">
 
-                <div class="row">
-                    <p>Tu evaluación ha sido creada y guardada, puedes consultarla o editarla <br> en la tabla de
-                        evaluaciones</p>
+                    <div class="row">
+                        <p>Tu evaluación ha sido creada y guardada, puedes consultarla o editarla <br> en la tabla de
+                            evaluaciones</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1015,13 +1025,6 @@
 @livewireScripts
 
 <script>
-    document.addEventListener('livewire:load', function() {
-        Livewire.on('hideDeleteInputConfirmationModal', function() {
-            $('#deleteInputConfirmationModal').modal('hide');
-        });
-    });
-
-
     document.addEventListener('livewire:load', function() {
         Livewire.hook('element.updating', (fromEl, toEl, component) => {
             if (fromEl.tagName === 'INPUT' && fromEl.type === 'checkbox' && !fromEl.checked) {
