@@ -556,13 +556,51 @@
                                 </div>
                             </div>
                             <div class="col-md d-flex align-items-center">
-                                <a role="button" wire:click="removeInput({{ $key }})"><i
-                                        class="bi bi-trash"></i></a>
+                                {{-- <a role="button" wire:click="removeInput({{ $key }})"><i
+                                        class="bi bi-trash"></i></a> --}}
+                                <a role="button" class="bi bi-trash" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                </a>
+                            </div>
+
+                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h6 class="modal-title" id="exampleModalLabel"></h6>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body d-flex flex-column align-items-center">
+                                            <div class="row mb-3">
+                                                <p style="color: #5555b4; font-size:18px;">¿Estas seguro
+                                                    que deseas
+                                                    eliminar
+                                                    este elemento?</p>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <i class="fa-solid fa-trash fa-3x"></i>
+                                            </div>
+
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                                                    wire:click="removeInput({{ $key }})">
+                                                    Eliminar
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
-                <div class="row g-1">
+                <div class="row
+                                g-1">
                     <div class="col-md-3">
                         <a role="button" class="btn btn-link" wire:click="addInput">+ Agregar Clasificación</a>
                     </div>
@@ -578,141 +616,190 @@
     @break
 
     @case('publico')
-        <h3>Público</h3>
         <form wire:submit.prevent="publico(Object.fromEntries(new FormData($event.target)))">
-            <!-- your_component_view.blade.php -->
-            <div class="row">
-                <div class="form-floating">
-                    <select class="form-select" name="publico" id="publico" wire:model.lazy="publico"
-                        aria-label="Floating label select example">
-                        <option value="total">Toda la empresa</option>
-                        <option value="area">Por área</option>
-                        <option value="manual">Manualmente</option>
-                    </select>
-                    <label for="publico">Publico Objetivo</label>
+            <div class="card card-body">
+                <div>
+                    <h4 class="d-inline">Público</h4>
+                    <p class="d-inline">Selecciona a quien(es) va dirigida la evaluación o crean un nuevo grupo</p>
+                    <hr style="width: 100%; height:1px;">
                 </div>
-            </div>
-
-            @if ($this->publico != 'total')
+                <!-- your_component_view.blade.php -->
                 <div class="row">
                     <div class="form-floating">
-                        <select class="form-select form-control" name="evaluados" id="evaluados">
-                            @foreach ($this->evaluados as $index => $evaluado)
-                                <option> {{ $evaluado->name ?? $evaluado->area }}
-                                </option>
-                                <input type="checkbox" wire:model.lazy="selectedItems.{{ $index }}"
-                                    value="{{ $evaluado->id }}">
-                            @endforeach
+                        <select class="form-select" name="publico" id="publico" wire:model.lazy="publico"
+                            aria-label="Floating label select example">
+                            <option value="total">Toda la empresa</option>
+                            <option value="area">Por área</option>
+                            <option value="manual">Manualmente</option>
                         </select>
-                        <label for="evaluados">Seleccione</label>
+                        <label for="publico">Publico Objetivo</label>
                     </div>
                 </div>
-            @elseif ($this->evaluados == null or $this->publico == 'total')
-                <div class="row">
-                    <div class="form-floating">
-                        <select name="" id="" class="form-select" disabled></select>
-                        <label for="evaluados">Seleccione</label>
-                    </div>
-                </div>
-            @endif
 
-            <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
-                <div class="col s12 right-align btn-grd distancia">
-                    <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Siguiente</button>
+                @if ($this->publico != 'total')
+                    <div class="row">
+                        {{-- <div class="btn-group">
+                            <button class="btn btn-secondary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                Large button
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                @foreach ($this->evaluados as $index => $evaluado)
+                                    <li> {{ $evaluado->name ?? $evaluado->area }}
+                                        <input type="checkbox" wire:model.lazy="selectedItems.{{ $index }}"
+                                            value="{{ $evaluado->id }}">
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div> --}}
+                        <div class="btn-group">
+                            <button class="btn btn-secondary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                Large button
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink"
+                                style="max-height: 200px; min-width:400px; overflow-y: auto;">
+                                @foreach ($this->evaluados as $index => $evaluado)
+                                    <li class="d-flex justify-content-between">
+                                        <div>
+                                            {{ $evaluado->name ?? $evaluado->area }}
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" wire:model.lazy="selectedItems.{{ $index }}"
+                                                value="{{ $evaluado->id }}">
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        {{-- <div class="form-floating">
+                            <select class="form-select form-control" name="evaluados" id="evaluados">
+                                @foreach ($this->evaluados as $index => $evaluado)
+                                    <option> {{ $evaluado->name ?? $evaluado->area }}
+                                        <input type="checkbox" wire:model.lazy="selectedItems.{{ $index }}"
+                                            value="{{ $evaluado->id }}">
+                                    </option>
+                                @endforeach
+                            </select>
+                            <label for="evaluados">Seleccione</label>
+                        </div> --}}
+                    </div>
+                @elseif ($this->evaluados == null or $this->publico == 'total')
+                    <div class="row">
+                        <div class="form-floating">
+                            <select name="" id="" class="form-select" disabled></select>
+                            <label for="evaluados">Seleccione</label>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
+                    <div class="col s12 right-align btn-grd distancia">
+                        <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Siguiente</button>
+                    </div>
                 </div>
             </div>
         </form>
     @break
 
     @case('reglas')
-        <h3>Reglas</h3>
         <form wire:submit.prevent="reglas(Object.fromEntries(new FormData($event.target)))">
-            <div class="row g-2">
-                <div class="col-md-3">
-                    <div class="form-floating mb-3">
-                        <input class="form-control" wire:model.lazy="minValue" type="number" id="minValue"
-                            name="minValue" placeholder="Rango Minimo">
-                        <label for="minValue">Rango Minimo:</label>
-                    </div>
+            <div class="card card-body">
+                <div>
+                    <h4 class="d-inline">Reglas de evaluación</h4>
+                    <p class="d-inline">Selecciona a quien(es) va dirigida la evaluación o crean un nuevo grupo</p>
+                    <hr style="width: 100%; height:1px;">
                 </div>
-                <div class="col-md-3">
-                    <div class="form-floating mb-3">
-                        <input class="form-control" wire:model.lazy="maxValue" type="number" id="maxValue"
-                            name="maxValue" placeholder="Rango Maximo">
-                        <label for="maxValue">Rango Maximo:</label>
-                    </div>
-
-                </div>
-            </div>
-            <div class="row g-1">
-                <div class="col-md-6">
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="nombre_regla_1" name="nombre_regla_1"
-                            wire:model.lazy="nombre_regla_1" placeholder="Nombre del valor" maxlength="150" required>
-                        <label for="nombre_regla_1">Nombre del valor<sup>*</sup></label>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-floating mb-3">
-                        <input type="number" class="form-control" id="regla_1" name="regla_1" wire:model.lazy="regla_1"
-                            placeholder="Valor Numerico" min="{{ $this->minValue }}" max="{{ $this->maxValue }}" required>
-                        <label for="regla_1">Valor Numerico<sup>*</sup></label>
-                    </div>
-                </div>
-            </div>
-            <div class="row g-1">
-                <div class="col-md-6">
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="nombre_regla_2" name="nombre_regla_2"
-                            wire:model.lazy="nombre_regla_2" placeholder="Nombre del valor" maxlength="150" required>
-                        <label for="nombre_regla_2">Nombre del valor<sup>*</sup></label>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-floating mb-3">
-                        <input type="number" class="form-control" id="regla_2" name="regla_2" wire:model.lazy="regla_2"
-                            placeholder="Valor Numerico" min="{{ $this->minValue }}" max="{{ $this->maxValue }}" required>
-                        <label for="regla_2">Valor Numerico<sup>*</sup></label>
-                    </div>
-                </div>
-            </div>
-            @foreach ($fields as $index => $field)
-                <div class="row g-1">
-                    <div class="col-md-6">
+                <div class="row g-2">
+                    <div class="col-md-3">
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" wire:model.lazy="fields.{{ $index }}.nombre"
-                                id="fields.{{ $index }}.nombre" name="fields.{{ $index }}.nombre"
-                                placeholder="Nombre del valor" maxlength="150" required>
-                            <label for="nombre">Nombre del valor</label>
+                            <input class="form-control" wire:model.lazy="minValue" type="number" id="minValue"
+                                name="minValue" placeholder="Rango Minimo">
+                            <label for="minValue">Rango Minimo:</label>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-floating mb-3">
-                            <input type="number" class="form-control" wire:model.lazy="fields.{{ $index }}.regla"
-                                id="fields.{{ $index }}.regla" name="fields.{{ $index }}.regla"
-                                placeholder="Valor Numerico" min="{{ $this->minValue }}" max="{{ $this->maxValue }}"
-                                required>
-                            <label for="nombre">Valor Numerico</label>
+                            <input class="form-control" wire:model.lazy="maxValue" type="number" id="maxValue"
+                                name="maxValue" placeholder="Rango Maximo">
+                            <label for="maxValue">Rango Maximo:</label>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="row g-1">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="nombre_regla_1" name="nombre_regla_1"
+                                wire:model.lazy="nombre_regla_1" placeholder="Nombre del valor" maxlength="150" required>
+                            <label for="nombre_regla_1">Nombre del valor<sup>*</sup></label>
                         </div>
                     </div>
-                    <div class="col-md d-flex align-items-center">
-                        <a role="button" wire:click="removeField({{ $index }})"><i class="bi bi-trash"></i></a>
+                    <div class="col-md-3">
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" id="regla_1" name="regla_1"
+                                wire:model.lazy="regla_1" placeholder="Valor Numerico" min="{{ $this->minValue }}"
+                                max="{{ $this->maxValue }}" required>
+                            <label for="regla_1">Valor Numerico<sup>*</sup></label>
+                        </div>
                     </div>
                 </div>
-            @endforeach
-
-            <div class="row g-1">
-                <div class="col-md-2">
-                    <button type="button" wire:click="addField" class="btn btn-link">+ Agregar
-                        Reglas</button>
+                <div class="row g-1">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="nombre_regla_2" name="nombre_regla_2"
+                                wire:model.lazy="nombre_regla_2" placeholder="Nombre del valor" maxlength="150" required>
+                            <label for="nombre_regla_2">Nombre del valor<sup>*</sup></label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" id="regla_2" name="regla_2"
+                                wire:model.lazy="regla_2" placeholder="Valor Numerico" min="{{ $this->minValue }}"
+                                max="{{ $this->maxValue }}" required>
+                            <label for="regla_2">Valor Numerico<sup>*</sup></label>
+                        </div>
+                    </div>
                 </div>
-            </div>
+                @foreach ($fields as $index => $field)
+                    <div class="row g-1">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control"
+                                    wire:model.lazy="fields.{{ $index }}.nombre"
+                                    id="fields.{{ $index }}.nombre" name="fields.{{ $index }}.nombre"
+                                    placeholder="Nombre del valor" maxlength="150" required>
+                                <label for="nombre">Nombre del valor</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating mb-3">
+                                <input type="number" class="form-control"
+                                    wire:model.lazy="fields.{{ $index }}.regla" id="fields.{{ $index }}.regla"
+                                    name="fields.{{ $index }}.regla" placeholder="Valor Numerico"
+                                    min="{{ $this->minValue }}" max="{{ $this->maxValue }}" required>
+                                <label for="nombre">Valor Numerico</label>
+                            </div>
+                        </div>
+                        <div class="col-md d-flex align-items-center">
+                            <a role="button" wire:click="removeField({{ $index }})"><i class="bi bi-trash"></i></a>
+                        </div>
+                    </div>
+                @endforeach
 
-            <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
-                <div class="col s12 right-align btn-grd distancia">
-                    <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Siguiente</button>
+                <div class="row g-1">
+                    <div class="col-md-2">
+                        <button type="button" wire:click="addField" class="btn btn-link">+ Agregar
+                            Reglas</button>
+                    </div>
+                </div>
+
+                <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
+                    <div class="col s12 right-align btn-grd distancia">
+                        <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Siguiente</button>
+                    </div>
                 </div>
             </div>
         </form>
@@ -928,6 +1015,13 @@
 @livewireScripts
 
 <script>
+    document.addEventListener('livewire:load', function() {
+        Livewire.on('hideDeleteInputConfirmationModal', function() {
+            $('#deleteInputConfirmationModal').modal('hide');
+        });
+    });
+
+
     document.addEventListener('livewire:load', function() {
         Livewire.hook('element.updating', (fromEl, toEl, component) => {
             if (fromEl.tagName === 'INPUT' && fromEl.type === 'checkbox' && !fromEl.checked) {

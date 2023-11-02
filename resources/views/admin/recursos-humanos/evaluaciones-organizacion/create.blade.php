@@ -83,6 +83,11 @@
         margin-right: 50px;
         /* Adjust the value to control the spacing */
     }
+
+    .larger-icon {
+        font-size: 2em;
+        /* Adjust the font size as needed */
+    }
 </style>
 
 @section('content')
@@ -90,7 +95,7 @@
 
     <h5 class="col-12 titulo_general_funcion">Crear Evaluación</h5>
 
-    <div class="container mt-12">
+    {{-- <div class="container mt-12">
         <ul class="list-inline d-flex justify-content-center">
             <li class="list-inline-item me-2 text-center position-relative">
                 <div class="step-number-completado mb-2">1</div>
@@ -127,7 +132,7 @@
                 <p>Evaluadores Competencias</p>
             </li>
         </ul>
-    </div>
+    </div> --}}
 
     @livewire('evaluaciones-steps-organizacion')
 @endsection

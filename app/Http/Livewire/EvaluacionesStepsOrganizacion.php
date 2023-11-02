@@ -161,20 +161,9 @@ class EvaluacionesStepsOrganizacion extends Component
         $this->inputs[] = '';
     }
 
-    protected $listeners = ['showDeleteConfirmation'];
-
-    public $inputKeyToDelete;
-
-    public function showDeleteConfirmation($inputKey)
-    {
-        // dd($inputKey);
-        $this->inputKeyToDelete = $inputKey;
-        $this->emit('showDeleteInputConfirmationModal');
-    }
-
     public function removeInput($index)
     {
-        dd($index);
+        // dd($index);
         unset($this->inputs[$index]);
         $this->inputs = array_values($this->inputs);
     }
