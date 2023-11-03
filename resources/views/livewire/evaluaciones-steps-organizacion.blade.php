@@ -628,6 +628,7 @@
                     <div class="form-floating">
                         <select class="form-select" name="publico" id="publico" wire:model.lazy="publico"
                             aria-label="Floating label select example">
+                            <option value="null" readonly>Seleccione un público a evaluar</option>
                             <option value="total">Toda la empresa</option>
                             <option value="area">Por área</option>
                             <option value="manual">Manualmente</option>
@@ -687,7 +688,7 @@
                             <label for="evaluados">Seleccione</label>
                         </div> --}}
                     </div>
-                @elseif ($this->evaluados == null or $this->publico == 'total')
+                @elseif ($this->publico == 'total' or $this->publico == null)
                     <div class="row">
                         <div class="form-floating">
                             <select name="" id="" class="form-select" disabled></select>

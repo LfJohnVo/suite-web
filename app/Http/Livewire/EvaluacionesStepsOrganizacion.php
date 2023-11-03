@@ -33,6 +33,8 @@ use Livewire\WithPagination;
 
 class EvaluacionesStepsOrganizacion extends Component
 {
+    use WithPagination;
+
     public $paso = "crear-evaluacion";
 
     public $inputs = [];
@@ -199,7 +201,35 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public function retroceso()
     {
-        $this->paso = $this->paso - 1;
+        switch ($this->flujo) {
+            case "obj_com":
+                switch ($this->paso) {
+                    case "periodos":
+                        $this->paso = "crear-evaluacion";
+                        break;
+                }
+                break;
+            case "obj":
+                switch ($this->paso) {
+                    case "periodos":
+                        $this->paso = "crear-evaluacion";
+                        break;
+                }
+                break;
+            case "com":
+                switch ($this->paso) {
+                    case "periodos":
+                        $this->paso = "crear-evaluacion";
+                        break;
+                    case "publico":
+                        $this->paso = "periodos";
+                        break;
+                    case "evaluadores_competencias":
+                        $this->paso = "periodos";
+                        break;
+                }
+                break;
+        }
     }
 
     public function crearevaluacion()
