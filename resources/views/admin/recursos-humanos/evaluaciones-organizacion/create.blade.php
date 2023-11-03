@@ -88,6 +88,14 @@
         font-size: 2em;
         /* Adjust the font size as needed */
     }
+
+    h4 {
+        color: #0052aaa9;
+    }
+
+    .instrucciones {
+        color: #0052aaa9;
+    }
 </style>
 
 @section('content')

@@ -81,7 +81,7 @@
             <div class="card card-body">
                 <div>
                     <h4 class="d-inline">Nombre de la Evaluación</h4>
-                    <p class="d-inline">Asigna un nombre a tu evaluación</p>
+                    <p class="d-inline instrucciones">Asigna un nombre a tu evaluación</p>
                     <hr style="width: 100%; height: 2px;">
                 </div>
                 <div class="row g-1">
@@ -120,7 +120,7 @@
             <div class="card card-body">
                 <div>
                     <h4 class="d-inline">Periodos de las Competencias</h4>
-                    <p class="d-inline">Crea los periodos de tus evaluaciones</p>
+                    <p class="d-inline instrucciones">Crea los periodos de tus evaluaciones</p>
                     <hr style="width: 100%; height:1px;">
                 </div>
                 <div class="row g-5">
@@ -541,7 +541,7 @@
             <div class="card card-body">
                 <div>
                     <h4 class="d-inline">Clasificación</h4>
-                    <p class="d-inline">Da de alta el grupo de Perspectivas</p>
+                    <p class="d-inline instrucciones">Da de alta el grupo de Perspectivas</p>
                     <hr style="width: 100%; height:1px;">
                 </div>
                 <div class="row g-2">
@@ -620,7 +620,8 @@
             <div class="card card-body">
                 <div>
                     <h4 class="d-inline">Público</h4>
-                    <p class="d-inline">Selecciona a quien(es) va dirigida la evaluación o crean un nuevo grupo</p>
+                    <p class="d-inline instrucciones">Selecciona a quien(es) va dirigida la evaluación o crean un nuevo grupo
+                    </p>
                     <hr style="width: 100%; height:1px;">
                 </div>
                 <!-- your_component_view.blade.php -->
@@ -636,6 +637,8 @@
                         <label for="publico">Publico Objetivo</label>
                     </div>
                 </div>
+
+                <br>
 
                 @if ($this->publico != 'total')
                     <div class="row">
@@ -657,7 +660,7 @@
                         <div class="btn-group">
                             <button class="btn btn-secondary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown"
                                 aria-expanded="false">
-                                Large button
+                                Seleccione los usuarios a evaluar
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink"
                                 style="max-height: 200px; min-width:400px; overflow-y: auto;">
@@ -712,7 +715,8 @@
             <div class="card card-body">
                 <div>
                     <h4 class="d-inline">Reglas de evaluación</h4>
-                    <p class="d-inline">Selecciona a quien(es) va dirigida la evaluación o crean un nuevo grupo</p>
+                    <p class="d-inline instrucciones">Selecciona a quien(es) va dirigida la evaluación o crean un nuevo grupo
+                    </p>
                     <hr style="width: 100%; height:1px;">
                 </div>
                 <div class="row g-2">
@@ -812,7 +816,11 @@
     @case('evaluadores_objetivos')
         <form wire:submit.prevent="evaluadores_objetivos(Object.fromEntries(new FormData($event.target)))">
             <div class="card card-body">
-                <h3>Evaluadores</h3>
+                <div>
+                    <h4 class="d-inline">Evaluador de Objetivos</h4>
+                    <p class="d-inline instrucciones">Asigna a los evaluadores y su porcentaje de evaluación</p>
+                    <hr style="width: 100%; height: 2px;">
+                </div>
                 @foreach ($this->evaluados_asignacion as $index => $ev)
                     <div class="row g-1">
                         <div class="m-3 row">
@@ -908,7 +916,11 @@
     @case('evaluadores_competencias')
         <form wire:submit.prevent="evaluadores_competencias(Object.fromEntries(new FormData($event.target)))">
             <div class="card card-body">
-                <h3>Evaluadores</h3>
+                <div>
+                    <h4 class="d-inline">Evaluador de Competencias</h4>
+                    <p class="d-inline instrucciones">Asigna a los evaluadores y su porcentaje de evaluación</p>
+                    <hr style="width: 100%; height: 2px;">
+                </div>
                 @foreach ($this->evaluados_asignacion as $index => $ev)
                     <div class="row g-1">
                         <div class="m-3 row">
@@ -989,6 +1001,9 @@
                                 </button>
                             </div>
                         </div>
+                    </div>
+                    <div>
+                        <hr style="width: 100%; height: 2px;">
                     </div>
                 @endforeach
 
