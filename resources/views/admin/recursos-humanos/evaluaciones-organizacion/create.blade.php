@@ -11,6 +11,10 @@
 </head>
 
 <style>
+    .card {
+        border-radius: 2em;
+    }
+
     .step-number-completado {
         width: 40px;
         height: 40px;

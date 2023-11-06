@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EvaluacionesStepsOrganizacion extends Component
 {
@@ -110,7 +111,8 @@ class EvaluacionesStepsOrganizacion extends Component
     public $regla_2;
 
     //
-    public $evaluados_asignacion;
+    // public $evaluados_asignacion = [];
+    public $ea;
 
     public function addOrInsertEvaluador($index = null)
     {
@@ -183,6 +185,7 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public function render()
     {
+        $evaluados_asignacion = [];
         // dd($clasificaciones);
         switch ($this->publico) {
             case 'total':
@@ -195,8 +198,14 @@ class EvaluacionesStepsOrganizacion extends Component
                 $this->evaluados = Empleado::getAltaEmpleados();
                 break;
         }
+
+        if ($this->paso == "evaluadores_competencias") {
+            $evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->paginate(10);
+            // dd("es posible", $evaluados_asignacion);
+        }
+        // dd($evaluados_asignacion);
         // dd($this->evaluados);
-        return view('livewire.evaluaciones-steps-organizacion');
+        return view('livewire.evaluaciones-steps-organizacion')->with("evaluados_asignacion", $evaluados_asignacion);
     }
 
     public function retroceso()
@@ -520,9 +529,18 @@ class EvaluacionesStepsOrganizacion extends Component
                 break;
 
             case 'com':
-                $this->evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->get();
+                // $evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->paginate(10);
+                // dd($this->evaluados_asignacion);
+                // $this->evaluados_asignacion = $evaluados_asignacion->toArray();
+                // dd($this->evaluados_asignacion["data"]);
+                // foreach ($this->evaluados_asignacion["data"] as $ea) {
+                //     dd($ea["empleado"]["area"]["area"]);
+                // }
                 $this->evaluadores = Empleado::getAltaEmpleados();
                 $this->paso = "evaluadores_competencias";
+
+                // $this->resetPage();
+
                 break;
         }
     }
@@ -566,20 +584,30 @@ class EvaluacionesStepsOrganizacion extends Component
         switch ($this->flujo) {
             case 'obj_com':
                 $this->evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->get();
+                $paginatedData = collect($this->evaluados_asignacion)->paginate(10);
                 $this->evaluadores = Empleado::getAltaEmpleados();
+                $this->emit('dataGenerated', $paginatedData);
                 $this->paso = "evaluadores_objetivos";
+
                 break;
 
             case 'obj':
                 $this->evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->get();
+                $paginatedData = collect($this->evaluados_asignacion)->paginate(10);
                 $this->evaluadores = Empleado::getAltaEmpleados();
+                $this->emit('dataGenerated', $paginatedData);
                 $this->paso = "evaluadores_objetivos";
+
+
                 break;
 
             case 'com':
                 $this->evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->get();
+                $paginatedData = collect($this->evaluados_asignacion)->paginate(10);
                 $this->evaluadores = Empleado::getAltaEmpleados();
+                $this->emit('dataGenerated', $paginatedData);
                 $this->paso = "evaluadores_competencias";
+
                 break;
         }
     }
@@ -683,7 +711,7 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public function evaluadores_competencias($form7)
     {
-
+        // dd($form7);
         $groupedData = [];
 
         foreach ($form7 as $key => $value) {

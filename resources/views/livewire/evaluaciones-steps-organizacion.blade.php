@@ -821,7 +821,7 @@
                     <p class="d-inline instrucciones">Asigna a los evaluadores y su porcentaje de evaluación</p>
                     <hr style="width: 100%; height: 2px;">
                 </div>
-                @foreach ($this->evaluados_asignacion as $index => $ev)
+                @foreach ($this->evaluados_asignacion->paginate(10) as $index => $ev)
                     <div class="row g-1">
                         <div class="m-3 row">
                             <div class="col-md-6">
@@ -921,7 +921,7 @@
                     <p class="d-inline instrucciones">Asigna a los evaluadores y su porcentaje de evaluación</p>
                     <hr style="width: 100%; height: 2px;">
                 </div>
-                @foreach ($this->evaluados_asignacion as $index => $ev)
+                @foreach ($evaluados_asignacion as $index => $ev)
                     <div class="row g-1">
                         <div class="m-3 row">
                             <div class="col-md-6">
@@ -1007,6 +1007,8 @@
                     </div>
                 @endforeach
 
+                {{ $evaluados_asignacion->links() }}
+
                 <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
                     <div class="col s12 right-align btn-grd distancia">
                         <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
@@ -1049,4 +1051,10 @@
             }
         });
     });
+
+    // document.addEventListener('livewire:load', function() {
+    //     Livewire.on('dataGenerated', function(data) {
+    //         @this.set('yourData', data);
+    //     });
+    // });
 </script>
