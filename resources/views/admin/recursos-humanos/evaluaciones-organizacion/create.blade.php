@@ -12,7 +12,10 @@
 
 <style>
     .card {
-        border-radius: 2em;
+        border: 1px solid #D5D5D5;
+        border-radius: 16px !important;
+        opacity: 1;
+        box-shadow: 0px 0px 0px 0px !important;
     }
 
     .step-number-completado {

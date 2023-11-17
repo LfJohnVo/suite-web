@@ -3,29 +3,29 @@
         <form wire:submit.prevent="crearevaluacion">
             <div class="card card-body">
                 <div class="container">
-                    <div class="row g-2">
-                        <p>
-                            Antes de comenzar puedes decidir si quieres incluir en tu evaluación las competencias, así podrás
-                            dividir el porcentaje que <br>
-                            quieres asignar entre cada una de ellas hasta alcanzar el 100%.
-                        </p>
-                        <div class="col-md">
-                            <div class="p-3 border bg-light">
+                    <p>
+                        Antes de comenzar puedes decidir si quieres incluir en tu evaluación las competencias, así podrás
+                        dividir el porcentaje que <br>
+                        quieres asignar entre cada una de ellas hasta alcanzar el 100%.
+                    </p>
+                    <div class="row g-2 d-flex justify-content-center">
+                        <div class="col-md-4 d-flex justify-content-center">
+                            <div class="p-3 border no-gutters" style="border-radius: 10px; background-color:#565985;">
                                 <div class="row g-2">
-                                    <div class="col-md">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" wire:model.defer="objetivos"
-                                                id="objetivos" name="objetivos">
-                                            <label class="form-check-label" for="objetivos">
-                                                Objetivos
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md">
-                                        <div class="form-floating mb-3">
+                                    <div class="col-md-12">
+                                        <div class="form-row">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" wire:model.defer="objetivos"
+                                                    id="objetivos" name="objetivos"
+                                                    style="border-color: #fff; background-color: #565985; width:22px; height:22px;">
+                                                <label class="form-check-label" for="objetivos"
+                                                    style="margin-left: 8px; margin-right: 10px; font-size:22px; color:#fff;">
+                                                    Objetivos
+                                                </label>
+                                            </div>
                                             <input class="form-input" type="number" min="0" max="100"
                                                 wire:model.defer="porcentaje_objetivos" id="porcentaje_objetivos"
-                                                name="porcentaje_objetivos">
+                                                name="porcentaje_objetivos" style="padding-right:10px;">
                                         </div>
                                     </div>
                                 </div>
@@ -39,23 +39,23 @@
                                 @endif
                             </span>
                         </div>
-                        <div class="col-md">
-                            <div class="p-3 border bg-light">
-                                <div class="row g-2">
-                                    <div class="col-md">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" wire:model.defer="competencias"
-                                                id="competencias" name="competencias">
-                                            <label class="form-check-label" for="competencias">
-                                                Competencias
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md">
-                                        <div class="form-floating mb-3">
+                        <div class="col-md-5 d-flex justify-content-center">
+                            <div class="p-3 border no-gutters" style="border-radius: 10px; background-color:#6974AC;">
+                                <div class="row g-2 justify-items-center">
+                                    <div class="col-md-12">
+                                        <div class="form-row">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" wire:model.defer="competencias"
+                                                    style="border-color: #fff; background-color: #6974AC; width:22px; height:22px;"
+                                                    id="competencias" name="competencias">
+                                                <label class="form-check-label" for="competencias"
+                                                    style="margin-left: 8px; margin-right: 10px; font-size:22px; color:#fff;">
+                                                    Competencias
+                                                </label>
+                                            </div>
                                             <input class="form-input" type="number" min="0" max="100"
                                                 wire:model.defer="porcentaje_competencias" id="porcentaje_competencias"
-                                                name="porcentaje_competencias">
+                                                name="porcentaje_competencias" style="padding-right:10px;">
                                         </div>
                                     </div>
                                 </div>
@@ -540,7 +540,7 @@
         <form wire:submit.prevent="perspectivas(Object.fromEntries(new FormData($event.target)))">
             <div class="card card-body">
                 <div>
-                    <h4 class="d-inline">Clasificación</h4>
+                    <h4 class="d-inline">Categoría</h4>
                     <p class="d-inline instrucciones">Da de alta el grupo de Perspectivas</p>
                     <hr style="width: 100%; height:1px;">
                 </div>
@@ -550,9 +550,9 @@
                             <div class="col-md">
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="inputs.{{ $key }}"
-                                        name="inputs.{{ $key }}" placeholder="Clasificación"
+                                        name="inputs.{{ $key }}" placeholder="Categoría"
                                         wire:model.lazy="inputs.{{ $key }}">
-                                    <label for="inputs.{{ $key }}">Clasificación</label>
+                                    <label for="inputs.{{ $key }}">Categoría</label>
                                 </div>
                             </div>
                             <div class="col-md d-flex align-items-center">
@@ -602,7 +602,7 @@
                 <div class="row
                                 g-1">
                     <div class="col-md-3">
-                        <a role="button" class="btn btn-link" wire:click="addInput">+ Agregar Clasificación</a>
+                        <a role="button" class="btn btn-link" wire:click="addInput">+ Agregar Categoría</a>
                     </div>
                 </div>
                 <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
@@ -714,7 +714,7 @@
         <form wire:submit.prevent="reglas(Object.fromEntries(new FormData($event.target)))">
             <div class="card card-body">
                 <div>
-                    <h4 class="d-inline">Reglas de evaluación</h4>
+                    <h4 class="d-inline">Parametrización de la evaluación</h4>
                     <p class="d-inline instrucciones">Selecciona a quien(es) va dirigida la evaluación o crean un nuevo grupo
                     </p>
                     <hr style="width: 100%; height:1px;">
@@ -914,7 +914,7 @@
     @break
 
     @case('evaluadores_competencias')
-        <form wire:submit.prevent="evaluadores_competencias(Object.fromEntries(new FormData($event.target)))">
+        <form wire:submit.prevent="changepage(Object.fromEntries(new FormData($event.target)))">
             <div class="card card-body">
                 <div>
                     <h4 class="d-inline">Evaluador de Competencias</h4>
@@ -1006,15 +1006,37 @@
                         <hr style="width: 100%; height: 2px;">
                     </div>
                 @endforeach
+                {{-- {{ $evaluados_asignacion->links() }} --}}
+                <div>
+                    @if ($evaluados_asignacion->hasPages())
+                        <nav role="navigation" aria-label="Pagination Navigation">
+                            <span>
+                                @if ($evaluados_asignacion->onFirstPage())
+                                    <span>Anterior</span>
+                                @else
+                                    <button type="submit" wire:click="$set('buttonClicked', 'previous')"
+                                        {{-- wire:click="previousPageAndSave" --}} wire:loading.attr="disabled" rel="prev">Anterior</button>
+                                @endif
+                            </span>
 
-                {{ $evaluados_asignacion->links() }}
+                            <span>
+                                @if ($evaluados_asignacion->onLastPage())
+                                    <span>Siguiente</span>
+                                @else
+                                    <button type="submit" wire:click="$set('buttonClicked', 'next')" {{-- wire:click="nextPageAndSave" --}}
+                                        wire:loading.attr="disabled" rel="next">Siguiente</button>
+                                @endif
+                            </span>
+                        </nav>
+                    @endif
+                </div>
 
-                <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
+                {{-- <div class="form-group col-12 text-right mt-4" style="margin-left: 10px; margin-right: 10px;">
                     <div class="col s12 right-align btn-grd distancia">
                         <button class="btn btn_cancelar" wire:click.prevent="retroceso">Cancelar</button>
                         <button type="submit" class="btn btn-primary">Guardar</button>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </form>
     @break

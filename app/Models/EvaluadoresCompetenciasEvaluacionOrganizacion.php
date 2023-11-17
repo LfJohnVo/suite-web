@@ -11,8 +11,7 @@ class EvaluadoresCompetenciasEvaluacionOrganizacion extends Model
     protected $table = "evaluadores_competencias_evaluacion_organizacions";
 
     protected $fillable = [
-        'evaluacion_organizacion_id',
-        'evaluado_id',
+        'evaluadores_competencias_pivot_id',
         'evaluador_id',
         'peso_evaluador',
     ];

@@ -16,12 +16,12 @@ class EvaluadosEvaluacionOrganizacion extends Model
         'evaluado_id',
         'evaluacion_organizacion_id',
         'area_id',
-        'gtupo_id',
+        'grupo_id',
     ];
 
     public function empleado()
     {
         return $this->belongsTo(Empleado::class, 'evaluado_id', 'id')->alta()
-            ->select('id', 'name', 'area_id');;
+            ->select('id', 'name', 'area_id');
     }
 }

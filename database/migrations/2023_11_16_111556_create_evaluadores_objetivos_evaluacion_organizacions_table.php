@@ -13,12 +13,10 @@ return new class extends Migration
     {
         Schema::create('evaluadores_objetivos_evaluacion_organizacions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('evaluacion_organizacion_id');
-            $table->unsignedBigInteger('evaluado_id');
+            $table->unsignedBigInteger('evaluadores_objetivos_pivot_id');
             $table->unsignedBigInteger('evaluador_id');
             $table->float('peso_evaluador', 8, 2);
-            $table->foreign('evaluacion_organizacion_id')->references('id')->on('evaluacion_organizacions')->constrained()->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('evaluado_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('evaluadores_objetivos_pivot_id')->references('id')->on('evaluadores_objetivos_evaluacion_organizacions_pivot')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('evaluador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });

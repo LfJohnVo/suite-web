@@ -52,6 +52,9 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public $selectedEvaluadorIndex = null;
 
+    public $buttonClicked;
+    public $arreglo_evaluadores_competencias = [];
+
     //Casos
     public $flujo = '';
 
@@ -174,6 +177,8 @@ class EvaluacionesStepsOrganizacion extends Component
 
     public function mount()
     {
+        $this->buttonClicked = null;
+
         $clasificaciones = TipoObjetivo::select('id', 'nombre')->get();
 
         foreach ($clasificaciones as $clasif) {
@@ -201,7 +206,11 @@ class EvaluacionesStepsOrganizacion extends Component
 
         if ($this->paso == "evaluadores_competencias") {
             $evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->paginate(10);
-            // dd("es posible", $evaluados_asignacion);
+            // dd($evaluados_asignacion);
+            // for ($i = $evaluados_asignacion->currentPage(); $i < 1; $i--) {
+            //     $evaluados_asignacion->currentPage() = $evaluados_asignacion->currentPage() - 1;
+            // }
+            // dd($evaluados_asignacion->lastPage(), $evaluados_asignacion->total(), $evaluados_asignacion->items());
         }
         // dd($evaluados_asignacion);
         // dd($this->evaluados);
@@ -583,29 +592,29 @@ class EvaluacionesStepsOrganizacion extends Component
         // dd("Se guardo");
         switch ($this->flujo) {
             case 'obj_com':
-                $this->evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->get();
-                $paginatedData = collect($this->evaluados_asignacion)->paginate(10);
-                $this->evaluadores = Empleado::getAltaEmpleados();
-                $this->emit('dataGenerated', $paginatedData);
+                // $this->evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->get();
+                // $paginatedData = collect($this->evaluados_asignacion)->paginate(10);
+                // $this->evaluadores = Empleado::getAltaEmpleados();
+                // $this->emit('dataGenerated', $paginatedData);
                 $this->paso = "evaluadores_objetivos";
 
                 break;
 
             case 'obj':
-                $this->evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->get();
-                $paginatedData = collect($this->evaluados_asignacion)->paginate(10);
-                $this->evaluadores = Empleado::getAltaEmpleados();
-                $this->emit('dataGenerated', $paginatedData);
+                // $this->evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->get();
+                // $paginatedData = collect($this->evaluados_asignacion)->paginate(10);
+                // $this->evaluadores = Empleado::getAltaEmpleados();
+                // $this->emit('dataGenerated', $paginatedData);
                 $this->paso = "evaluadores_objetivos";
 
 
                 break;
 
             case 'com':
-                $this->evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->get();
-                $paginatedData = collect($this->evaluados_asignacion)->paginate(10);
-                $this->evaluadores = Empleado::getAltaEmpleados();
-                $this->emit('dataGenerated', $paginatedData);
+                // $this->evaluados_asignacion = EvaluadosEvaluacionOrganizacion::with('empleado')->where('evaluacion_organizacion_id', $this->creacion_evaluacion->id)->get();
+                // $paginatedData = collect($this->evaluados_asignacion)->paginate(10);
+                // $this->evaluadores = Empleado::getAltaEmpleados();
+                // $this->emit('dataGenerated', $paginatedData);
                 $this->paso = "evaluadores_competencias";
 
                 break;
@@ -709,12 +718,44 @@ class EvaluacionesStepsOrganizacion extends Component
         }
     }
 
-    public function evaluadores_competencias($form7)
+    public function changepage($datos)
     {
-        // dd($form7);
+        // dd("Si llega aca");
+        // dd($form7, $clickedButton);
+        $clickedButton = $this->buttonClicked;
+
+        if ($clickedButton == "next") {
+            $this->nextPageAndSave($datos);
+            // dd($this->arreglo_evaluadores_competencias);
+        } elseif ($clickedButton == "previous") {
+            // dd("Previa");
+            $this->previousPageAndSave($datos);
+            // dd($this->arreglo_evaluadores_competencias);
+        } else {
+            return null;
+        }
+        // dd("es este despues del if");
+        // $this->recopilar_evaluadores($form7);
+    }
+
+    // Llaman a la función para obtener datos y dicen para donde se movera el paginado
+    public function previousPageAndSave($datos)
+    {
+        $this->recopilar_evaluadores($datos);
+        $this->previousPage();
+    }
+
+    public function nextPageAndSave($datos)
+    {
+        $this->recopilar_evaluadores($datos);
+        $this->nextPage();
+    }
+
+    public function filtrado_datos($datos)
+    {
         $groupedData = [];
 
-        foreach ($form7 as $key => $value) {
+        foreach ($datos as $key => $value) {
             // Check if the key is for id_evaluado
             if (strpos($key, 'id_evaluado_') !== false) {
                 $position = str_replace('id_evaluado_', '', $key);
@@ -748,9 +789,17 @@ class EvaluacionesStepsOrganizacion extends Component
             }
         }
 
-        // dd($groupedData);
+        return $groupedData;
+    }
 
-        foreach ($groupedData as $key => $data) {
+    //Funcion para obtener los evaluadores asignados
+    public function recopilar_evaluadores($datos)
+    {
+        $this->comparacion_evaluadores($datos);
+        $datos_filtrados = $this->filtrado_datos($datos);
+        // dd($datos_filtrados);
+
+        foreach ($datos_filtrados as $key => $data) {
             $total_peso = 0;
             // dd($total_peso);
 
@@ -764,44 +813,151 @@ class EvaluacionesStepsOrganizacion extends Component
             $total_peso = $total_peso + $data['peso_evaluacion'];
 
             if ($total_peso == 100) {
-                EvaluadoresCompetenciasEvaluacionOrganizacion::create([
-                    'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
+                // Create the main entry for the primary evaluator
+                $mainEntry = [
+                    "evaluacion_organizacion_id" => $this->creacion_evaluacion->id,
                     'evaluado_id' => $data['id_evaluado'],
-                    'evaluador_id' => $data['evaluador'],
-                    'peso_evaluador' => $data['peso_evaluacion'],
-                ]);
+                    'evaluadores' => [
+                        [
+                            'evaluador_id' => $data['evaluador'],
+                            'peso_evaluador' => $data['peso_evaluacion'],
+                        ]
+                    ],
+                ];
 
+                // Check if additional evaluators exist and append their data to the main entry
                 if (isset($data['evaluadores'])) {
                     foreach ($data['evaluadores'] as $evaluadorData) {
-
-                        EvaluadoresCompetenciasEvaluacionOrganizacion::create([
-                            'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
-                            'evaluado_id' => $data['id_evaluado'],
+                        $mainEntry['evaluadores'][] = [
                             'evaluador_id' => $evaluadorData['evaluador'],
                             'peso_evaluador' => $evaluadorData['peso_evaluacion'],
-                        ]);
+                        ];
                     }
                 }
+
+                // Add the main entry (containing all evaluators' data) to $this->arreglo_evaluadores_competencias
+                $this->arreglo_evaluadores_competencias[] = $mainEntry;
             } else {
                 $this->addError('total_peso', 'Error message for field_name');
                 return null;
             }
         }
-        switch ($this->flujo) {
-            case 'obj_com':
-                $this->evaluadores = Empleado::getAltaEmpleados();
-                $this->paso = "evaluacion-creada";
-                break;
+    }
 
-            case 'com':
-                $this->evaluadores = Empleado::getAltaEmpleados();
-                $this->paso = "evaluacion-creada";
-                break;
+    //Funcion para comparar datos de entrada con los que ya se tienen en el arreglo
+    public function comparacion_evaluadores($datos_entrada)
+    {
+        // dd($datos_entrada, $this->arreglo_evaluadores_competencias);
 
-            default:
-                $this->evaluadores = Empleado::getAltaEmpleados();
-                $this->paso = "evaluacion-creada";
-                break;
+        $datos_comparacion = $this->filtrado_datos($datos_entrada);
+
+        foreach ($datos_comparacion as $key => $dato) {
+            $searchKey = "id_evaluado";
+            $searchValue = $this->arreglo_evaluadores_competencias;
+
+            $result = array_filter($this->arreglo_evaluadores_competencias, function ($item) use ($searchKey, $searchValue) {
+                return isset($item[$searchKey]) && $item[$searchKey] === $searchValue;
+            });
+
+            if ($dato["id_evaluado"] == $this->arreglo_evaluadores_competencias) {
+                dd($dato["id_evaluado"]);
+            }
         }
     }
+
+    //Falta modificarlo para que sea donde se guarden los evaluadores en la base de datos
+    // public function evaluadores_competencias_guardado($form7)
+    // {
+    //     $groupedData = [];
+
+    //     foreach ($form7 as $key => $value) {
+    //         // Check if the key is for id_evaluado
+    //         if (strpos($key, 'id_evaluado_') !== false) {
+    //             $position = str_replace('id_evaluado_', '', $key);
+
+    //             $groupedData[$position]['id_evaluado'] = $value;
+    //         }
+
+    //         // Check if the key is for evaluador
+    //         if (strpos($key, 'evaluador_') !== false) {
+    //             $evaluadorPosition = str_replace('evaluador_', '', $key);
+
+    //             // Check if it's a sub-position (e.g., 0_0)
+    //             if (strpos($evaluadorPosition, '_') !== false) {
+    //                 list($position, $subPosition) = explode('_', $evaluadorPosition);
+    //                 $groupedData[$position]['evaluadores'][$subPosition]['evaluador'] = $value;
+    //             } else {
+    //                 $groupedData[$evaluadorPosition]['evaluador'] = $value;
+    //             }
+    //         }
+
+    //         // Exclude keys that start with "peso_"
+    //         if (strpos($key, 'peso_evaluacion_') !== false) {
+    //             $position = str_replace('peso_evaluacion_', '', $key);
+
+    //             if (strpos($evaluadorPosition, '_') !== false) {
+    //                 list($position, $subPosition) = explode('_', $evaluadorPosition);
+    //                 $groupedData[$position]['evaluadores'][$subPosition]['peso_evaluacion'] = $value;
+    //             } else {
+    //                 $groupedData[$evaluadorPosition]['peso_evaluacion'] = $value;
+    //             }
+    //         }
+    //     }
+
+    //     // dd($groupedData);
+
+    //     foreach ($groupedData as $key => $data) {
+    //         $total_peso = 0;
+    //         // dd($total_peso);
+
+    //         if (isset($data['evaluadores'])) {
+    //             foreach ($data['evaluadores'] as $evaluadorData) {
+    //                 $total_peso = $total_peso + $evaluadorData['peso_evaluacion'];
+    //                 // dd($total_peso);
+    //             }
+    //         }
+
+    //         $total_peso = $total_peso + $data['peso_evaluacion'];
+
+    //         if ($total_peso == 100) {
+    //             EvaluadoresCompetenciasEvaluacionOrganizacion::create([
+    //                 'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
+    //                 'evaluado_id' => $data['id_evaluado'],
+    //                 'evaluador_id' => $data['evaluador'],
+    //                 'peso_evaluador' => $data['peso_evaluacion'],
+    //             ]);
+
+    //             if (isset($data['evaluadores'])) {
+    //                 foreach ($data['evaluadores'] as $evaluadorData) {
+
+    //                     EvaluadoresCompetenciasEvaluacionOrganizacion::create([
+    //                         'evaluacion_organizacion_id' => $this->creacion_evaluacion->id,
+    //                         'evaluado_id' => $data['id_evaluado'],
+    //                         'evaluador_id' => $evaluadorData['evaluador'],
+    //                         'peso_evaluador' => $evaluadorData['peso_evaluacion'],
+    //                     ]);
+    //                 }
+    //             }
+    //         } else {
+    //             $this->addError('total_peso', 'Error message for field_name');
+    //             return null;
+    //         }
+    //     }
+    //     switch ($this->flujo) {
+    //         case 'obj_com':
+    //             $this->evaluadores = Empleado::getAltaEmpleados();
+    //             $this->paso = "evaluacion-creada";
+    //             break;
+
+    //         case 'com':
+    //             $this->evaluadores = Empleado::getAltaEmpleados();
+    //             $this->paso = "evaluacion-creada";
+    //             break;
+
+    //         default:
+    //             $this->evaluadores = Empleado::getAltaEmpleados();
+    //             $this->paso = "evaluacion-creada";
+    //             break;
+    //     }
+    // }
 }

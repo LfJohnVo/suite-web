@@ -11,15 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('evaluadores_competencias_evaluacion_organizacions', function (Blueprint $table) {
+        Schema::create('evaluadores_objetivos_evaluacion_organizacions_pivot', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('evaluacion_organizacion_id');
             $table->unsignedBigInteger('evaluado_id');
-            $table->unsignedBigInteger('evaluador_id');
-            $table->float('peso_evaluador', 8, 2);
             $table->foreign('evaluacion_organizacion_id')->references('id')->on('evaluacion_organizacions')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('evaluado_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('evaluador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('evaluadores_competencias_evaluacion_organizacions');
+        Schema::dropIfExists('evaluadores_objetivos_evaluacion_organizacions_pivot');
     }
 };
