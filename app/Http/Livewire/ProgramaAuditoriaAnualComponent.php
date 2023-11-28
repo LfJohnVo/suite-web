@@ -10,7 +10,7 @@ use Livewire\WithFileUploads;
 
 class ProgramaAuditoriaAnualComponent extends Component
 {
-    use WithFileUploads, LivewireAlert;
+    use LivewireAlert, WithFileUploads;
 
     public $documento;
 

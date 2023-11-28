@@ -5,11 +5,12 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Models\PermisosGoceSueldo;
 use App\Models\SolicitudPermisoGoceSueldo;
+use App\Models\User;
 use App\Traits\ObtenerOrganizacion;
-use Flash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class PermisosGoceSueldoController extends Controller
 {
@@ -82,7 +83,7 @@ class PermisosGoceSueldoController extends Controller
             'tipo_permiso' => 'required|int',
         ]);
         $vacacion = PermisosGoceSueldo::create($request->all());
-        Flash::success('Regla añadida satisfactoriamente.');
+        Alert::success('éxito', 'Información añadida con éxito');
 
         return redirect()->route('admin.permisos-goce-sueldo.index');
     }
@@ -101,7 +102,7 @@ class PermisosGoceSueldoController extends Controller
 
         $vacacion = PermisosGoceSueldo::find($id);
         if (empty($vacacion)) {
-            Flash::error('Vacación not found');
+            Alert::warning('warning', 'Información añadida con éxito');
 
             return redirect(route('admin.permisos-goce-sueldo.index'));
         }
@@ -122,7 +123,7 @@ class PermisosGoceSueldoController extends Controller
 
         $vacacion->update($request->all());
 
-        Flash::success('Regla actualizada con exito.');
+        Alert::success('éxito', 'Información añadida con éxito');
 
         return redirect(route('admin.permisos-goce-sueldo.index'));
     }
@@ -133,13 +134,15 @@ class PermisosGoceSueldoController extends Controller
         $vacaciones = PermisosGoceSueldo::find($id);
         $vacaciones->delete();
 
+        Alert::success('éxito', 'Información eliminada con éxito');
+
         return back()->with('deleted', 'Registro eliminado con éxito');
     }
 
     public function vistaGlobal(Request $request)
     {
         abort_if(Gate::denies('reglas_goce_sueldo_vista_global'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $data = auth()->user()->empleado->id;
+        $data = User::getCurrentUser()->empleado->id;
 
         if ($request->ajax()) {
             $query = SolicitudPermisoGoceSueldo::with('empleado')->orderByDesc('id')->get();

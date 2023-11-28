@@ -2,18 +2,20 @@
 
 namespace App\Models;
 
+use App\Traits\ClearsResponseCache;
 use App\Traits\MultiTenantModelTrait;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class Puesto extends Model implements Auditable
 {
-    use SoftDeletes, MultiTenantModelTrait, HasFactory;
-    use \OwenIt\Auditing\Auditable;
+    use ClearsResponseCache, \OwenIt\Auditing\Auditable;
+    use HasFactory, MultiTenantModelTrait, SoftDeletes;
 
     public $table = 'puestos';
 
@@ -61,9 +63,16 @@ class Puesto extends Model implements Auditable
     ];
 
     //Redis methods
+    public static function getExists()
+    {
+        return Cache::remember('Puestos:Puestos_exists', 3600 * 12, function () {
+            return DB::table('puestos')->exists();
+        });
+    }
+
     public static function getAll()
     {
-        return Cache::remember('Puestos_all', 3600 * 24, function () {
+        return Cache::remember('Puestos_all', 3600 * 8, function () {
             return self::get();
         });
     }

@@ -10,6 +10,7 @@ use App\Models\Empleado;
 use App\Models\FelicitarCumpleaños;
 use App\Models\Organizacione;
 use App\Models\PoliticaSgsi;
+use App\Models\User;
 use Carbon\Carbon;
 use Gate;
 use Illuminate\Http\Request;
@@ -29,43 +30,60 @@ class PortalComunicacionController extends Controller
         $hoy = Carbon::now();
         $hoy->toDateString();
 
-        $nuevos = Cache::remember('portal_nuevos', 3600 * 12, function () use ($hoy) {
-            return Empleado::whereBetween('antiguedad', [$hoy->firstOfMonth()->format('Y-m-d'), $hoy->endOfMonth()->format('Y-m-d')])->get();
-        });
+        // $results = Fork::new()
+        //     ->run(
+        //         function () {
+        //             $user = User::getCurrentUser();
 
-        $nuevos_contador_circulo = Cache::remember('portal_nuevos_contador_circulo', 3600 * 12, function () use ($hoy) {
-            return Empleado::whereBetween('antiguedad', [$hoy->firstOfMonth()->format('Y-m-d'), $hoy->endOfMonth()->format('Y-m-d')])->count();
-        });
+        //             return $user;
+        //         },
+        //         function () {
+        //             $politica_existe = PoliticaSgsi::getAll()->count();
 
-        $cumpleaños = Cache::remember('portal_cumpleaños', 3600 * 12, function () use ($hoy) {
-            return Empleado::whereMonth('cumpleaños', '=', $hoy->format('m'))->get();
-        });
+        //             return $politica_existe;
+        //         },
+        //         function () {
+        //             $comite_existe = Comiteseguridad::getAll()->count();
 
-        $cumpleaños_contador_circulo = Cache::remember('portal_contador_circulo', 3600 * 12, function () use ($hoy) {
-            return Empleado::alta()->whereMonth('cumpleaños', '=', $hoy->format('m'))->get()->count();
-        });
+        //             return $comite_existe;
+        //         },
+        //         function () {
+        //             $documentos_publicados = Documento::getLastFiveWithMacroproceso();
 
-        $aniversarios = Cache::remember('portal_aniversarios', 3600 * 12, function () use ($hoy) {
+        //             return $documentos_publicados;
+        //         },
+
+        //         function () {
+        //             $comunicacionSgis = ComunicacionSgi::getAllwithImagenesBlog();
+
+        //             return $comunicacionSgis;
+        //         },
+        //         function () {
+        //             $comunicacionSgis_carrusel = ComunicacionSgi::getAllwithImagenesCarrousel();
+
+        //             return $comunicacionSgis_carrusel;
+        //         },
+        //     );
+
+        $user = User::getCurrentUser();
+
+        $empleado_asignado = $user->n_empleado;
+        $authId = $user->id;
+        $politica_existe = PoliticaSgsi::getAll()->count();
+        $comite_existe = Comiteseguridad::getAll()->count();
+        $documentos_publicados = Documento::getLastFiveWithMacroproceso();
+        $comunicacionSgis = ComunicacionSgi::getAllwithImagenesBlog();
+        $comunicacionSgis_carrusel = ComunicacionSgi::getAllwithImagenesCarrousel();
+
+        $aniversarios = Cache::remember('Portal:portal_aniversarios_'.$authId, 3600 * 2, function () use ($hoy) {
             return Empleado::alta()->whereMonth('antiguedad', '=', $hoy->format('m'))->whereYear('antiguedad', '<', $hoy->format('Y'))->get();
         });
 
-        $aniversarios_contador_circulo = Cache::remember('portal_aniversarios_contador_circulo', 3600 * 12, function () use ($hoy) {
+        $aniversarios_contador_circulo = Cache::remember('Portal:portal_aniversarios_contador_circulo_'.$authId, 3600 * 2, function () use ($hoy) {
             return Empleado::alta()->whereMonth('antiguedad', '=', $hoy->format('m'))->whereYear('antiguedad', '<', $hoy->format('Y'))->count();
         });
 
-        $documentos_publicados = Documento::with('macroproceso')->where('estatus', Documento::PUBLICADO)->latest('updated_at')->get()->take(5);
-
-        $comunicacionSgis = ComunicacionSgi::with('imagenes_comunicacion')->where('publicar_en', '=', 'Blog')->orWhere('publicar_en', '=', 'Ambos')->where('fecha_programable', '<=', Carbon::now()->format('Y-m-d'))->where('fecha_programable_fin', '>=', Carbon::now()->format('Y-m-d'))->get();
-        // dd($comunicacionSgis);
-
-        $comunicacionSgis_carrusel = ComunicacionSgi::with('imagenes_comunicacion')->where('publicar_en', '=', 'Carrusel')->orWhere('publicar_en', '=', 'Ambos')->where('fecha_programable', '<=', Carbon::now()->format('Y-m-d'))->where('fecha_programable_fin', '>=', Carbon::now()->format('Y-m-d'))->get();
-
-        $empleado_asignado = auth()->user()->n_empleado;
-
-        $politica_existe = PoliticaSgsi::getAll()->count();
-        $comite_existe = Comiteseguridad::getAll()->count();
-
-        return view('admin.portal-comunicacion.index', compact('documentos_publicados', 'nuevos', 'cumpleaños', 'aniversarios', 'hoy', 'comunicacionSgis', 'comunicacionSgis_carrusel', 'empleado_asignado', 'nuevos_contador_circulo', 'cumpleaños_contador_circulo', 'aniversarios_contador_circulo', 'politica_existe', 'comite_existe'));
+        return view('admin.portal-comunicacion.index', compact('documentos_publicados', 'hoy', 'comunicacionSgis', 'comunicacionSgis_carrusel', 'empleado_asignado', 'aniversarios_contador_circulo', 'politica_existe', 'comite_existe'));
     }
 
     /**
@@ -144,7 +162,7 @@ class PortalComunicacionController extends Controller
     {
         $felicitar = FelicitarCumpleaños::create([
             'cumpleañero_id' => $cumpleañero_id,
-            'felicitador_id' => auth()->user()->empleado->id,
+            'felicitador_id' => User::getCurrentUser()->empleado->id,
             'like' => true,
         ]);
 
@@ -165,7 +183,7 @@ class PortalComunicacionController extends Controller
     {
         $comentario = FelicitarCumpleaños::create([
             'cumpleañero_id' => $cumpleañero_id,
-            'felicitador_id' => auth()->user()->empleado->id,
+            'felicitador_id' => User::getCurrentUser()->empleado->id,
             'comentarios' => $request->comentarios,
         ]);
 

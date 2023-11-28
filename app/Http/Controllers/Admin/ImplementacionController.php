@@ -20,13 +20,14 @@ class ImplementacionController extends Controller
         $fases = ActividadFase::with('plan_base_actividades')->get();
         $gantt_path = 'storage/gantt/';
         $path = public_path($gantt_path);
-        $archivos_gantt = glob($path . 'gantt_inicial*.json');
+        $archivos_gantt = glob($path.'gantt_inicial*.json');
         // PlanBaseActividade::with('fase')->get()
         $path_asset = asset($gantt_path);
         $gant_readed = end($archivos_gantt);
         $planbase = PlanBaseActividade::with('actividad_fase')->get();
         $responsable = $users;
         $responsablenom = $users->where('id', '=', '3');
+
         //dd($planbase, $responsable, $responsablenom);
         return view('admin.implementacions.index', compact('planbase', 'responsable', 'fases', 'archivos_gantt', 'path_asset', 'gant_readed'))
             ->with('planbases', $planbase);
@@ -60,7 +61,7 @@ class ImplementacionController extends Controller
 
         $path = public_path($gantt_path);
 
-        $version_gantt = glob($path . 'gantt_inicial*.json');
+        $version_gantt = glob($path.'gantt_inicial*.json');
 
         $ultima_version = 0;
 
@@ -77,7 +78,7 @@ class ImplementacionController extends Controller
 
             // $file = file_put_contents(storage_path('app/public/gantt/gantt_inicial.json'), $json);
 
-            $file = Storage::disk('public')->put('gantt/gantt_inicial_v' . $ultima_version . '.json', $proyecto);
+            $file = Storage::disk('public')->put('gantt/gantt_inicial_v'.$ultima_version.'.json', $proyecto);
 
             if ($file) {
                 return response()->json(['success' => true], 200);
@@ -93,7 +94,7 @@ class ImplementacionController extends Controller
 
         $path = public_path($gantt_path);
 
-        $version_gantt = glob($path . 'gantt_inicial*.json');
+        $version_gantt = glob($path.'gantt_inicial*.json');
 
         $path = end($version_gantt);
         $json_code = json_decode(file_get_contents($path), true);

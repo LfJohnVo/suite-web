@@ -8,12 +8,13 @@ use App\Mail\SolicitudPermisoGoceSueldo as MailSolicitudPermisoGoceSueldo;
 use App\Models\Empleado;
 use App\Models\PermisosGoceSueldo;
 use App\Models\SolicitudPermisoGoceSueldo;
+use App\Models\User;
 use App\Traits\ObtenerOrganizacion;
-use Flash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class SolicitudPermisoGoceSueldoController extends Controller
 {
@@ -22,7 +23,7 @@ class SolicitudPermisoGoceSueldoController extends Controller
     public function index(Request $request)
     {
         abort_if(Gate::denies('solicitud_goce_sueldo_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $data = auth()->user()->empleado->id;
+        $data = User::getCurrentUser()->empleado->id;
 
         if ($request->ajax()) {
             $query = SolicitudPermisoGoceSueldo::with('empleado')->where('empleado_id', '=', $data)->orderByDesc('id')->get();
@@ -84,7 +85,7 @@ class SolicitudPermisoGoceSueldoController extends Controller
     {
         abort_if(Gate::denies('solicitud_goce_sueldo_crear'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $vacacion = new SolicitudPermisoGoceSueldo();
-        $autoriza = auth()->user()->empleado->supervisor_id;
+        $autoriza = User::getCurrentUser()->empleado->supervisor_id;
         $permisos = PermisosGoceSueldo::get();
 
         return view('admin.solicitudGoceSueldo.create', compact('vacacion', 'autoriza', 'permisos'));
@@ -98,12 +99,15 @@ class SolicitudPermisoGoceSueldoController extends Controller
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date',
         ]);
-        $supervisor = Empleado::find($request->autoriza);
-        $solicitante = Empleado::find($request->empleado_id);
-        $solicitud = SolicitudPermisoGoceSueldo::create($request->all());
-        Mail::to($supervisor->email)->send(new MailSolicitudPermisoGoceSueldo($solicitante, $supervisor, $solicitud));
 
-        Flash::success('Solicitud creada satisfactoriamente.');
+        $empleados = Empleado::getAll();
+
+        $supervisor = $empleados->find($request->autoriza);
+        $solicitante = $empleados->find($request->empleado_id);
+        $solicitud = SolicitudPermisoGoceSueldo::create($request->all());
+        Mail::to(removeUnicodeCharacters($supervisor->email))->send(new MailSolicitudPermisoGoceSueldo($solicitante, $supervisor, $solicitud));
+
+        Alert::success('éxito', 'Información añadida con éxito');
 
         return redirect()->route('admin.solicitud-permiso-goce-sueldo.index');
     }
@@ -115,7 +119,7 @@ class SolicitudPermisoGoceSueldoController extends Controller
         $vacacion = SolicitudPermisoGoceSueldo::with(['empleado', 'permiso'])->find($id);
 
         if (empty($vacacion)) {
-            Flash::error('Vacación not found');
+            Alert::warning('warning', 'Data not found');
 
             return redirect(route('admin.solicitud-vacaciones.index'));
         }
@@ -129,7 +133,7 @@ class SolicitudPermisoGoceSueldoController extends Controller
 
         // $vacacion = SolicitudPermisoGoceSueldo::find($id);
         // if (empty($vacacion)) {
-        //     Flash::error('Permiso not found');
+        //     Alert::warning('warning', 'Data not found');
 
         //     return redirect(route('admin.solicitud-goce-sueldo.index'));
         // }
@@ -145,12 +149,14 @@ class SolicitudPermisoGoceSueldoController extends Controller
             'aprobacion' => 'required|int',
         ]);
         $solicitud = SolicitudPermisoGoceSueldo::find($id);
-        $supervisor = Empleado::find($request->autoriza);
-        $solicitante = Empleado::find($request->empleado_id);
+        $empleados = Empleado::getAll();
+
+        $supervisor = $empleados->find($request->autoriza);
+        $solicitante = $empleados->find($request->empleado_id);
         $solicitud->update($request->all());
 
-        Mail::to($solicitante->email)->send(new MailRespuestaPermisoGoceSueldo($solicitante, $supervisor, $solicitud));
-        Flash::success('Respuesta enviada satisfactoriamente.');
+        Mail::to(removeUnicodeCharacters($solicitante->email))->send(new MailRespuestaPermisoGoceSueldo($solicitante, $supervisor, $solicitud));
+        Alert::success('éxito', 'Información actualizada con éxito');
 
         return redirect(route('admin.solicitud-permiso-goce-sueldo.aprobacion'));
     }
@@ -161,6 +167,7 @@ class SolicitudPermisoGoceSueldoController extends Controller
         $id = $request->id;
         $vacaciones = SolicitudPermisoGoceSueldo::find($id);
         $vacaciones->delete();
+        Alert::success('éxito', 'Información eliminada con éxito');
 
         return response()->json(['status' => 200]);
     }
@@ -168,7 +175,7 @@ class SolicitudPermisoGoceSueldoController extends Controller
     public function aprobacion(Request $request)
     {
         abort_if(Gate::denies('modulo_aprobacion_ausencia'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $data = auth()->user()->empleado->id;
+        $data = User::getCurrentUser()->empleado->id;
 
         if ($request->ajax()) {
             $query = SolicitudPermisoGoceSueldo::with('empleado')->where('autoriza', '=', $data)->where('aprobacion', '=', 1)->orderByDesc('id')->get();
@@ -225,7 +232,7 @@ class SolicitudPermisoGoceSueldoController extends Controller
     public function archivo(Request $request)
     {
         abort_if(Gate::denies('modulo_aprobacion_ausencia'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $data = auth()->user()->empleado->id;
+        $data = User::getCurrentUser()->empleado->id;
 
         if ($request->ajax()) {
             $query = SolicitudPermisoGoceSueldo::with('empleado')->where('autoriza', '=', $data)->where(function ($query) {
@@ -282,7 +289,7 @@ class SolicitudPermisoGoceSueldoController extends Controller
         $vacacion = SolicitudPermisoGoceSueldo::with('empleado')->find($id);
 
         if (empty($vacacion)) {
-            Flash::error('Vacación not found');
+            Alert::warning('warning', 'Data not found');
 
             return redirect(route('admin.solicitud-vacaciones.index'));
         }
@@ -296,7 +303,7 @@ class SolicitudPermisoGoceSueldoController extends Controller
         $vacacion = SolicitudPermisoGoceSueldo::with('empleado')->find($id);
 
         if (empty($vacacion)) {
-            Flash::error('Vacación not found');
+            Alert::warning('warning', 'Data not found');
 
             return redirect(route('admin.solicitud-permiso-goce-sueldo.index'));
         }

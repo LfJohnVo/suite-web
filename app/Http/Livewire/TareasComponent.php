@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -47,6 +48,7 @@ class TareasComponent extends Component
     public function unreadTasks()
     {
         $this->view = 'no-leidas';
+
         //$this->getUnreadTasks();
         return response()->noContent();
     }
@@ -54,6 +56,7 @@ class TareasComponent extends Component
     public function tasksReaded()
     {
         $this->view = 'leidas';
+
         //$this->getReadedTasks();
         return response()->noContent();
     }
@@ -74,7 +77,7 @@ class TareasComponent extends Component
 
     public function markTaskAsRead(string $notificationId)
     {
-        auth()->user()->unreadNotifications
+        User::getCurrentUser()->unreadNotifications
             ->when($notificationId, function ($query) use ($notificationId) {
                 return $query->where('id', $notificationId)->markAsRead();
             });

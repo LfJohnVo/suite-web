@@ -11,14 +11,15 @@ use App\Models\Organizacion;
 use App\Models\SolicitudDayOff;
 use App\Models\SolicitudPermisoGoceSueldo;
 use App\Models\SolicitudVacaciones;
+use App\Models\User;
 use App\Models\Vacaciones;
+use App\Traits\ObtenerOrganizacion;
 use Carbon\Carbon;
-use Flash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
-use App\Traits\ObtenerOrganizacion;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class SolicitudVacacionesController extends Controller
 {
@@ -27,7 +28,7 @@ class SolicitudVacacionesController extends Controller
     public function index(Request $request)
     {
         abort_if(Gate::denies('solicitud_vacaciones_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $data = auth()->user()->empleado->id;
+        $data = User::getCurrentUser()->empleado->id;
 
         if ($request->ajax()) {
             $query = SolicitudVacaciones::with('empleado')->where('empleado_id', '=', $data)->orderByDesc('id')->get();
@@ -79,7 +80,7 @@ class SolicitudVacacionesController extends Controller
         $logo_actual = $organizacion_actual->logo;
         $empresa_actual = $organizacion_actual->empresa;
 
-        $ingreso = auth()->user()->empleado->antiguedad;
+        $ingreso = User::getCurrentUser()->empleado->antiguedad;
         $dia_hoy = Carbon::now();
         $seis_meses = ($dia_hoy->diffInMonths($ingreso));
         if ($seis_meses >= 6) {
@@ -98,8 +99,9 @@ class SolicitudVacacionesController extends Controller
 
     public function create()
     {
+        $usuario = User::getCurrentUser();
         abort_if(Gate::denies('solicitud_vacaciones_crear'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $ingreso = auth()->user()->empleado->antiguedad;
+        $ingreso = Carbon::parse($usuario->empleado->antiguedad);
         $dia_hoy = Carbon::now();
         $no_vacaciones = $ingreso->format('d-m-Y');
         $año = Carbon::createFromDate($ingreso)->age;
@@ -116,8 +118,8 @@ class SolicitudVacacionesController extends Controller
         }
 
         //  Determina si existe regla asociada
-        $existe_regla_por_area = Vacaciones::where('inicio_conteo', '=', $año)->whereHas('areas', function ($q) {
-            $q->where('area_id', auth()->user()->empleado->area_id);
+        $existe_regla_por_area = Vacaciones::where('inicio_conteo', '=', $año)->whereHas('areas', function ($q) use ($usuario) {
+            $q->where('area_id', $usuario->empleado->area_id);
         })->select('dias', 'tipo_conteo')->exists();
         $existe_regla_toda_empresa = Vacaciones::where('inicio_conteo', $año)->where('afectados', 1)->select('dias', 'tipo_conteo')->exists();
 
@@ -125,22 +127,22 @@ class SolicitudVacacionesController extends Controller
             if ($existe_regla_toda_empresa) {
                 $regla_aplicada = Vacaciones::where('inicio_conteo', $año)->where('afectados', 1)->select('dias', 'tipo_conteo')->first();
             } elseif ($existe_regla_por_area) {
-                $regla_aplicada = Vacaciones::where('inicio_conteo', '=', $año)->whereHas('areas', function ($q) {
-                    $q->where('area_id', auth()->user()->empleado->area_id);
+                $regla_aplicada = Vacaciones::where('inicio_conteo', '=', $año)->whereHas('areas', function ($q) use ($usuario) {
+                    $q->where('area_id', $usuario->empleado->area_id);
                 })->select('dias', 'tipo_conteo')->first();
             } else {
-                Flash::error('Regla de vacaciones no asociada');
+                Alert::warning('warning', 'Data not found');
 
                 return redirect(route('admin.solicitud-vacaciones.index'));
             }
-            // Inician vacaciones a los 6 meses
+        // Inician vacaciones a los 6 meses
         } else {
             $tipo_conteo = null;
             $fecha_limite = Vacaciones::where('inicio_conteo', '=', $año)->pluck('fin_conteo')->first();
             $inicio_vacaciones = $ingreso->addYear();
             $finVacaciones = $inicio_vacaciones->addYear($año);
             $finVacaciones = $finVacaciones->format('d-m-Y');
-            $autoriza = auth()->user()->empleado->supervisor_id;
+            $autoriza = $usuario->empleado->supervisor_id;
             $vacacion = new SolicitudVacaciones();
             $dias_disponibles = null;
             $organizacion = Organizacion::getFirst();
@@ -158,12 +160,12 @@ class SolicitudVacacionesController extends Controller
         $inicio_vacaciones = $ingreso->addYear();
         $finVacaciones = $inicio_vacaciones->addYear($año);
         $finVacaciones = $finVacaciones->format('d-m-Y');
-        $autoriza = auth()->user()->empleado->supervisor_id;
+        $autoriza = $usuario->empleado->supervisor_id;
         $vacacion = new SolicitudVacaciones();
 
         $dias_disponibles = $this->diasDisponibles();
         $organizacion = Organizacion::getFirst();
-        $dias_pendientes = SolicitudVacaciones::where('empleado_id', '=', auth()->user()->empleado->id)->where('aprobacion', '=', 1)->where('año', '=', $año)->sum('dias_solicitados');
+        $dias_pendientes = SolicitudVacaciones::where('empleado_id', '=', $usuario->empleado->id)->where('aprobacion', '=', 1)->where('año', '=', $año)->sum('dias_solicitados');
 
         // Funcion para dias dias disponibles año pasado
         $año_pasado = $this->diasDisponiblesAñopasado();
@@ -185,7 +187,7 @@ class SolicitudVacacionesController extends Controller
             } else {
                 $mostrar_reclamo = false;
             }
-            //    dd($mostrar_reclamo);
+        //    dd($mostrar_reclamo);
         } else {
             $mostrar_reclamo = false;
             $periodo_vencido = 0;
@@ -197,7 +199,8 @@ class SolicitudVacacionesController extends Controller
 
     public function periodoAdicional()
     {
-        $ingreso = auth()->user()->empleado->antiguedad;
+        $usuario = User::getCurrentUser();
+        $ingreso = Carbon::parse($usuario->empleado->antiguedad);
         $dia_hoy = Carbon::now();
         $no_vacaciones = $ingreso->format('d-m-Y');
         $año = Carbon::createFromDate($ingreso)->age;
@@ -205,19 +208,19 @@ class SolicitudVacacionesController extends Controller
         // dd($seis_meses);
         $año = $año - 1;
         //  Determina si existe regla asociada
-        $existe_regla_por_area = Vacaciones::where('inicio_conteo', '=', $año)->whereHas('areas', function ($q) {
-            $q->where('area_id', auth()->user()->empleado->area_id);
+        $existe_regla_por_area = Vacaciones::where('inicio_conteo', '=', $año)->whereHas('areas', function ($q) use ($usuario) {
+            $q->where('area_id', $usuario->empleado->area_id);
         })->select('dias', 'tipo_conteo')->exists();
         $existe_regla_toda_empresa = Vacaciones::where('inicio_conteo', $año)->where('afectados', 1)->select('dias', 'tipo_conteo')->exists();
 
         if ($existe_regla_toda_empresa) {
             $regla_aplicada = Vacaciones::where('inicio_conteo', $año)->where('afectados', 1)->select('dias', 'tipo_conteo')->first();
         } elseif ($existe_regla_por_area) {
-            $regla_aplicada = Vacaciones::where('inicio_conteo', '=', $año)->whereHas('areas', function ($q) {
-                $q->where('area_id', auth()->user()->empleado->area_id);
+            $regla_aplicada = Vacaciones::where('inicio_conteo', '=', $año)->whereHas('areas', function ($q) use ($usuario) {
+                $q->where('area_id', $usuario->empleado->area_id);
             })->select('dias', 'tipo_conteo')->first();
         } else {
-            Flash::error('Regla de vacaciones no asociada');
+            Alert::warning('warning', 'Data not found');
 
             return redirect(route('admin.solicitud-vacaciones.index'));
         }
@@ -227,11 +230,11 @@ class SolicitudVacacionesController extends Controller
         $inicio_vacaciones = $ingreso->addYear();
         $finVacaciones = $inicio_vacaciones->addYear($año);
         $finVacaciones = $finVacaciones->format('d-m-Y');
-        $autoriza = auth()->user()->empleado->supervisor_id;
+        $autoriza = $usuario->empleado->supervisor_id;
         $vacacion = new SolicitudVacaciones();
         $dias_disponibles = $this->diasDisponiblesAñopasado();
         $organizacion = Organizacion::getFirst();
-        $dias_pendientes = SolicitudVacaciones::where('empleado_id', '=', auth()->user()->empleado->id)->where('aprobacion', '=', 1)->where('año', '=', $año)->sum('dias_solicitados');
+        $dias_pendientes = SolicitudVacaciones::where('empleado_id', '=', $usuario->empleado->id)->where('aprobacion', '=', 1)->where('año', '=', $año)->sum('dias_solicitados');
 
         return view('admin.solicitudVacaciones.periodoAdicional', compact('vacacion', 'dias_disponibles', 'año', 'autoriza', 'no_vacaciones', 'organizacion', 'finVacaciones', 'dias_pendientes', 'tipo_conteo'));
     }
@@ -248,13 +251,17 @@ class SolicitudVacacionesController extends Controller
             'año' => 'required|int',
             'autoriza' => 'required|int',
         ]);
-        $supervisor = Empleado::find($request->autoriza);
-        $solicitante = Empleado::find($request->empleado_id);
+        //envio de email
+        $empleados = Empleado::getAll();
+
+        $supervisor = $empleados->find($request->autoriza);
+        $solicitante = $empleados->find($request->empleado_id);
 
         $solicitud = SolicitudVacaciones::create($request->all());
-        Mail::to($supervisor->email)->send(new MailSolicitudVacaciones($solicitante, $supervisor, $solicitud));
 
-        Flash::success('Solicitud creada satisfactoriamente.');
+        Mail::to(removeUnicodeCharacters($supervisor->email))->send(new MailSolicitudVacaciones($solicitante, $supervisor, $solicitud));
+
+        Alert::success('éxito', 'Información añadida con éxito');
 
         return redirect()->route('admin.solicitud-vacaciones.index');
     }
@@ -266,7 +273,7 @@ class SolicitudVacacionesController extends Controller
         $vacacion = SolicitudVacaciones::with('empleado')->find($id);
 
         if (empty($vacacion)) {
-            Flash::error('Vacación not found');
+            Alert::warning('warning', 'Data not found');
 
             return redirect(route('admin.solicitud-vacaciones.index'));
         }
@@ -293,13 +300,14 @@ class SolicitudVacacionesController extends Controller
         ]);
 
         $solicitud = SolicitudVacaciones::find($id);
-        $supervisor = Empleado::find($request->autoriza);
-        $solicitante = Empleado::find($request->empleado_id);
+        $empleados = Empleado::getAll();
+        $supervisor = $empleados->find($request->autoriza);
+        $solicitante = $empleados->find($request->empleado_id);
 
         $solicitud->update($request->all());
 
-        Mail::to($solicitante->email)->send(new MailRespuestaVacaciones($solicitante, $supervisor, $solicitud));
-        Flash::success('Respuesta enviada satisfactoriamente.');
+        Mail::to(trim(removeUnicodeCharacters($solicitante->email)))->send(new MailRespuestaVacaciones($solicitante, $supervisor, $solicitud));
+        Alert::success('éxito', 'Información añadida con éxito');
 
         return redirect(route('admin.solicitud-vacaciones.aprobacion'));
     }
@@ -310,6 +318,7 @@ class SolicitudVacacionesController extends Controller
         $id = $request->id;
         $vacaciones = SolicitudVacaciones::find($id);
         $vacaciones->delete();
+        Alert::success('éxito', 'Información eliminada con éxito');
 
         return response()->json(['status' => 200]);
     }
@@ -323,7 +332,8 @@ class SolicitudVacacionesController extends Controller
 
     public function diasDisponibles()
     {
-        $ingreso = auth()->user()->empleado->antiguedad;
+        $usuario = User::getCurrentUser();
+        $ingreso = $usuario->empleado->antiguedad;
         $año = Carbon::createFromDate($ingreso)->age;
 
         if ($año == 0) {
@@ -335,14 +345,14 @@ class SolicitudVacacionesController extends Controller
 
         if ($año >= 1) {
             $dias_otorgados = Vacaciones::where('inicio_conteo', '=', $año)->pluck('dias')->first();
-            $dias_extra = IncidentesVacaciones::where('efecto', 1)->where('aniversario', $año)->whereHas('empleados', function ($q) {
-                $q->where('empleado_id', auth()->user()->empleado->id);
+            $dias_extra = IncidentesVacaciones::where('efecto', 1)->where('aniversario', $año)->whereHas('empleados', function ($q) use ($usuario) {
+                $q->where('empleado_id', $usuario->empleado->id);
             })->pluck('dias_aplicados')->sum();
-            $dias_restados = IncidentesVacaciones::where('efecto', 2)->where('aniversario', $año)->whereHas('empleados', function ($q) {
-                $q->where('empleado_id', auth()->user()->empleado->id);
+            $dias_restados = IncidentesVacaciones::where('efecto', 2)->where('aniversario', $año)->whereHas('empleados', function ($q) use ($usuario) {
+                $q->where('empleado_id', $usuario->empleado->id);
             })->pluck('dias_aplicados')->sum();
 
-            $dias_gastados = SolicitudVacaciones::where('empleado_id', auth()->user()->empleado->id)->where('año', '=', $año)->where(function ($query) {
+            $dias_gastados = SolicitudVacaciones::where('empleado_id', $usuario->empleado->id)->where('año', '=', $año)->where(function ($query) {
                 $query->where('aprobacion', '=', 1)
                     ->orwhere('aprobacion', '=', 3);
             })->sum('dias_solicitados');
@@ -361,20 +371,21 @@ class SolicitudVacacionesController extends Controller
 
     public function diasDisponiblesAñopasado()
     {
-        $ingreso = auth()->user()->empleado->antiguedad;
+        $usuario = User::getCurrentUser();
+        $ingreso = $usuario->empleado->antiguedad;
         $año_actual = Carbon::createFromDate($ingreso)->age;
         $año = $año_actual - 1;
 
         if ($año >= 1) {
             $dias_otorgados = Vacaciones::where('inicio_conteo', '=', $año)->pluck('dias')->first();
-            $dias_extra = IncidentesVacaciones::where('efecto', 1)->where('aniversario', $año)->whereHas('empleados', function ($q) {
-                $q->where('empleado_id', auth()->user()->empleado->id);
+            $dias_extra = IncidentesVacaciones::where('efecto', 1)->where('aniversario', $año)->whereHas('empleados', function ($q) use ($usuario) {
+                $q->where('empleado_id', $usuario->empleado->id);
             })->pluck('dias_aplicados')->sum();
-            $dias_restados = IncidentesVacaciones::where('efecto', 2)->where('aniversario', $año)->whereHas('empleados', function ($q) {
-                $q->where('empleado_id', auth()->user()->empleado->id);
+            $dias_restados = IncidentesVacaciones::where('efecto', 2)->where('aniversario', $año)->whereHas('empleados', function ($q) use ($usuario) {
+                $q->where('empleado_id', $usuario->empleado->id);
             })->pluck('dias_aplicados')->sum();
 
-            $dias_gastados = SolicitudVacaciones::where('empleado_id', auth()->user()->empleado->id)->where('año', '=', $año)->where(function ($query) {
+            $dias_gastados = SolicitudVacaciones::where('empleado_id', $usuario->empleado->id)->where('año', '=', $año)->where(function ($query) {
                 $query->where('aprobacion', '=', 1)
                     ->orwhere('aprobacion', '=', 3);
             })->sum('dias_solicitados');
@@ -389,9 +400,10 @@ class SolicitudVacacionesController extends Controller
     public function aprobacionMenu(Request $request)
     {
         abort_if(Gate::denies('modulo_aprobacion_ausencia'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $solicitud_vacacion = SolicitudVacaciones::where('autoriza', auth()->user()->empleado->id)->where('aprobacion', 1)->count();
-        $solicitud_dayoff = SolicitudDayOff::where('autoriza', auth()->user()->empleado->id)->where('aprobacion', 1)->count();
-        $solicitud_permiso = SolicitudPermisoGoceSueldo::where('autoriza', auth()->user()->empleado->id)->where('aprobacion', 1)->count();
+        $usuario = User::getCurrentUser();
+        $solicitud_vacacion = SolicitudVacaciones::where('autoriza', $usuario->empleado->id)->where('aprobacion', 1)->count();
+        $solicitud_dayoff = SolicitudDayOff::where('autoriza', $usuario->empleado->id)->where('aprobacion', 1)->count();
+        $solicitud_permiso = SolicitudPermisoGoceSueldo::where('autoriza', $usuario->empleado->id)->where('aprobacion', 1)->count();
         $solicitudes_pendientes = $solicitud_vacacion + $solicitud_dayoff + $solicitud_permiso;
 
         return view('admin.solicitudVacaciones.aprobacion-menu', compact('solicitud_dayoff', 'solicitud_vacacion', 'solicitud_permiso'));
@@ -400,7 +412,7 @@ class SolicitudVacacionesController extends Controller
     public function aprobacion(Request $request)
     {
         abort_if(Gate::denies('modulo_aprobacion_ausencia'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $data = auth()->user()->empleado->id;
+        $data = User::getCurrentUser()->empleado->id;
 
         if ($request->ajax()) {
             $query = SolicitudVacaciones::with('empleado')->where('autoriza', '=', $data)->where('aprobacion', '=', 1)->orderByDesc('id')->get();
@@ -447,7 +459,7 @@ class SolicitudVacacionesController extends Controller
         $vacacion = SolicitudVacaciones::with('empleado')->find($id);
 
         if (empty($vacacion)) {
-            Flash::error('Vacación not found');
+            Alert::warning('warning', 'Data not found');
 
             return redirect(route('admin.solicitud-vacaciones.index'));
         }
@@ -468,7 +480,7 @@ class SolicitudVacacionesController extends Controller
     public function archivo(Request $request)
     {
         abort_if(Gate::denies('modulo_aprobacion_ausencia'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $data = auth()->user()->empleado->id;
+        $data = User::getCurrentUser()->empleado->id;
 
         if ($request->ajax()) {
             $query = SolicitudVacaciones::with('empleado')->where('autoriza', '=', $data)->where(function ($query) {
@@ -525,7 +537,7 @@ class SolicitudVacacionesController extends Controller
         $vacacion = SolicitudVacaciones::with('empleado')->find($id);
 
         if (empty($vacacion)) {
-            Flash::error('Vacación not found');
+            Alert::warning('warning', 'Data not found');
 
             return redirect(route('admin.solicitud-vacaciones.index'));
         }
@@ -539,7 +551,7 @@ class SolicitudVacacionesController extends Controller
         $vacacion = SolicitudVacaciones::with('empleado')->find($id);
 
         if (empty($vacacion)) {
-            Flash::error('Vacación not found');
+            Alert::warning('warning', 'Data not found');
 
             return redirect(route('admin.solicitud-vacaciones.index'));
         }

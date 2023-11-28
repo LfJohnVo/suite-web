@@ -24,8 +24,9 @@ class IndicadoresSgsiController extends Controller
     public function index(Request $request)
     {
         abort_if(Gate::denies('indicadores_sgsi_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $area_empleado = auth()->user()->empleado->area->id;
-        $isAdmin = in_array('Admin', auth()->user()->roles->pluck('title')->toArray());
+        $usuario = User::getCurrentUser();
+        $area_empleado = $usuario->empleado->area->id;
+        $isAdmin = in_array('Admin', $usuario->roles->pluck('title')->toArray());
         if ($request->ajax()) {
             if ($isAdmin) {
                 $query = IndicadoresSgsi::orderBy('id')->get();
@@ -146,6 +147,7 @@ class IndicadoresSgsiController extends Controller
             'ano' => 'required',
         ]);
         $indicadoresSgsi = IndicadoresSgsi::create($request->all());
+
         //return redirect()->route('admin.indicadores-sgsis.index');
         return redirect()->route('admin.indicadores-sgsisInsertar', ['id' => $indicadoresSgsi->id])->with('success', 'Guardado con éxito');
     }
@@ -272,7 +274,6 @@ class IndicadoresSgsiController extends Controller
         $variables = $request->all('variables');
         // dd($variables);
         if ($variables['variables'] == null) {
-
             $indicadoresSgsi = IndicadoresSgsi::find($id['id']);
 
             if ($indicadoresSgsi->formula_raw == null) {

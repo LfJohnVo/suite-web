@@ -40,12 +40,13 @@ class TimesheetProyectoExternosComponent extends Component
 
     public function mount($proyecto_id)
     {
-        $this->proyecto = TimesheetProyecto::find($proyecto_id);
-        $this->empleados = Empleado::getAll();
+        $this->proyecto_id = $proyecto_id;
     }
 
     public function render()
     {
+        $this->proyecto = TimesheetProyecto::getIdNameAll()->find($this->proyecto_id);
+        $this->empleados = Empleado::getAll();
         $this->proyecto_proveedores = TimesheetProyectoProveedor::where('proyecto_id', $this->proyecto->id)->orderBy('id')->get();
         $this->emit('scriptTabla');
 
@@ -68,7 +69,7 @@ class TimesheetProyectoExternosComponent extends Component
                 'costo_tercero' => ['required'],
             ]);
         }
-        $time_proyect_externo = TimesheetProyectoProveedor::create([
+        $time_proyect_externo = TimesheetProyectoProveedor::firstOrCreate([
             'proyecto_id' => $this->proyecto->id,
             'proveedor_tercero' => $this->externo_añadido,
             'horas_tercero' => $this->horas_tercero,

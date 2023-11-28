@@ -35,6 +35,7 @@ use App\Models\SubcategoriaActivo;
 use App\Models\Team;
 use App\Models\Tipoactivo;
 use App\Models\TratamientoRiesgo;
+use App\Models\User;
 use App\Models\VersionesIso;
 use App\Models\Vulnerabilidad;
 use App\Traits\ObtenerOrganizacion;
@@ -114,7 +115,8 @@ class MatrizRiesgosController extends Controller
     {
         abort_if(Gate::denies('iso_27001_agregar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $ver = VersionesIso::select('version_historico')->first();
+        //$ver = VersionesIso::select('version_historico')->first();
+        $ver = VersionesIso::getFirst();
         if ($ver->version_historico === true) {
             $version_historico = 'true';
         } elseif ($ver->version_historico === false) {
@@ -452,12 +454,12 @@ class MatrizRiesgosController extends Controller
         $planImplementacion->norma = $request->norma;
         $planImplementacion->modulo_origen = $request->modulo_origen;
         $planImplementacion->objetivo = $request->objetivo;
-        $planImplementacion->elaboro_id = auth()->user()->empleado->id;
+        $planImplementacion->elaboro_id = User::getCurrentUser()->empleado->id;
 
         $matrizRequisitoLegal = $id;
         $matrizRequisitoLegal->planes()->save($planImplementacion);
 
-        return redirect()->route('admin.matriz-requisito-legales.index')->with('success', 'Plan de Acción' . $planImplementacion->parent . ' creado');
+        return redirect()->route('admin.matriz-requisito-legales.index')->with('success', 'Plan de Acción'.$planImplementacion->parent.' creado');
     }
 
     public function ControlesGet()
@@ -826,7 +828,7 @@ class MatrizRiesgosController extends Controller
         $amenazas = Amenaza::get();
         $vulnerabilidades = Vulnerabilidad::get();
 
-        $ver = VersionesIso::first();
+        $ver = VersionesIso::getFirst();
         if ($ver->version_historico === false) {
             $version_historico = 'false';
         } elseif ($ver->version_historico === true) {
@@ -929,7 +931,7 @@ class MatrizRiesgosController extends Controller
         abort_if(Gate::denies('analisis_de_riesgo_integral_editar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $request->validate([
             'controles_id' => 'required',
-            'identificador' => 'required|unique:matriz_riesgos_sistema_gestion,identificador,' . $matrizRiesgo . ',id,deleted_at,NULL',
+            'identificador' => 'required|unique:matriz_riesgos_sistema_gestion,identificador,'.$matrizRiesgo.',id,deleted_at,NULL',
         ]);
 
         // dd($matrizRiesgo);
@@ -1435,10 +1437,10 @@ class MatrizRiesgosController extends Controller
 
     public function saveUpdateActivosOctave($activosoctave, $matrizRiesgoOctave)
     {
-        if (!is_null($activosoctave)) {
+        if (! is_null($activosoctave)) {
             foreach ($activosoctave as $activoctave) {
                 // dd(PuestoResponsabilidade::exists($responsabilidad['id']));
-                if (!is_null(MatrizoctaveActivosInfo::find($activoctave['id']))) {
+                if (! is_null(MatrizoctaveActivosInfo::find($activoctave['id']))) {
                     MatrizoctaveActivosInfo::find($activoctave['id'])->update([
                         'nombre_ai' => $activoctave['nombre_ai'],
                         'valor_criticidad' => $activoctave['valor_criticidad'],
@@ -1478,7 +1480,7 @@ class MatrizRiesgosController extends Controller
 
     public function saveUpdateMatriz31000ActivosInfo($activosmatriz31000, $matrizRiesgo31000)
     {
-        if (!is_null($activosmatriz31000)) {
+        if (! is_null($activosmatriz31000)) {
             foreach ($activosmatriz31000 as $activomatriz31000) {
                 // dd(PuestoResponsabilidade::exists($responsabilidad['id']));
                 if (Matriz31000ActivosInfo::find($activomatriz31000['id']) != null) {

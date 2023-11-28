@@ -1,4 +1,4 @@
-<link rel="stylesheet" type="text/css" href="{{ asset('css/dark_mode.css') }}">
+{{--  <link rel="stylesheet" type="text/css" href="{{ asset('css/dark_mode.css') }}">  --}}
 <link rel="stylesheet" type="text/css" href="{{ asset('css/menu.css') }}">
 
 <div id="sidebar" class="c-sidebar c-sidebar-fixed c-sidebar-lg-show c-sidebar-light" style=" border: none;">
@@ -8,8 +8,6 @@
         {{-- <a href="{{url('/')}}" class="pl-0"><img src="{{ asset('img/Silent4Business-Logo-Color.png') }}" style="width: 40%;" class="img_logo"></a> --}}
         <div class="caja_img_logo">
             @php
-                use App\Models\Organizacion;
-                $organizacion = Organizacion::getLogo();
                 if (!is_null($organizacion)) {
                     $logotipo = $organizacion->logotipo;
                 } else {
@@ -28,7 +26,9 @@
             margin-bottom: 30px;
         }
     </style>
-
+    <ul>
+        @livewire('offline-state-component')
+    </ul>
     <ul class="c-sidebar-nav dark_mode1">
 
         <li class="c-sidebar-nav-title">
@@ -250,11 +250,13 @@
                 <font class="letra_blanca"> Análisis de brechas</font>
             </a>
         </li> --}}
-        @if (auth()->user()->can('visitantes_acceder') ||
-                auth()->user()->can('capital_humano_acceder') ||
-                auth()->user()->can('analisis_de_riesgo_integral_acceder') ||
-                auth()->user()->can('sistema_de_gestion_acceder') ||
-                auth()->user()->can('matriz_bia_menu_acceder'))
+        @if (
+            $usuario->can('visitantes_acceder') ||
+                $usuario->can('capital_humano_acceder') ||
+                $usuario->can('analisis_de_riesgo_integral_acceder') ||
+                $usuario->can('sistema_de_gestion_acceder') ||
+                $usuario->can('matriz_bia_menu_acceder') ||
+                $usuario->can('mis_cursos_acceder'))
             <li class="c-sidebar-nav-title">
                 <font class="letra_blanca" style="color: #345183;">Módulos&nbsp;Tabantaj</font>
             </li>
@@ -451,21 +453,103 @@
                 </a>
             </li>
         @endcan
+        @can('mis_cursos_acceder')
+            <li class="c-sidebar-nav-dropdown">
+                <a class="c-sidebar-nav-dropdown-toggle btn_bajar_scroll" href="#">
+                    <i class="bi bi-folder iconos_menu letra_blanca"></i>
+                    <font class="letra_blanca"> Cursos </font>
+                </a>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    @can('mis_cursos_instructor')
+                        <li class="c-sidebar-nav-item">
+                            <a href="{{ route('admin.courses.index') }}"
+                                class="c-sidebar-nav-link {{ request()->is('admin/courses') || request()->is('admin/courses') ? 'active' : '' }}">
+                                <font class="letra_blanca"> Instructor </font>
+                            </a>
+                        </li>
+                    @endcan
+                </ul>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    @can('escuela_estudiante')
+                        <li class="c-sidebar-nav-item">
+                            <a href="{{ route('admin.mis-cursos') }}"
+                                class="c-sidebar-nav-link {{ request()->is('admin/courses') || request()->is('admin/courses') ? 'active' : '' }}">
+                                <font class="letra_blanca"> Mis cursos </font>
+                            </a>
+                        </li>
+                    @endcan
+                </ul>
+            </li>
+        @endcan
 
-        {{--  <li class="c-sidebar-nav-item">
+        {{-- <li class="c-sidebar-nav-item">
             <a class="c-sidebar-nav-link {{ request()->is('admin/contratos') ? 'active' : '' }}"
                 href="{{ route('admin.contratos.index') }}#contexto">
                 <i class="bi bi-file-text iconos_menu letra_blanca"></i>
                 <font class="letra_blanca">Sistema de Contratos</font>
             </a>
-        </li>  --}}
-        {{-- <li class="c-sidebar-nav-item">
+        </li>
+        <li class="c-sidebar-nav-item">
             <a class="c-sidebar-nav-link {{ request()->is('admin/iso9001') ? 'active' : '' }}"
                 href="{{ route('admin.iso9001.index') }}#contexto">
                 <i class="bi bi-globe2 iconos_menu letra_blanca"></i>
                 <font class="letra_blanca"> ISO 9001 </font>
             </a>
         </li> --}}
+        @if (
+            $usuario->can('sistema_gestion_contratos_acceder') ||
+                $usuario->can('administracion_sistema_gestion_contratos_acceder') ||
+                $usuario->can('katbol_contratos_acceso') ||
+                $usuario->can('katbol_requisiciones_acceso'))
+            <li class="c-sidebar-nav-title">
+                <font class="letra_blanca" style="color: #345183;">Módulos&nbsp;Katbol</font>
+            </li>
+        @endif
+        @can('dashboard_gestion_contratos_acceder')
+            <li class="c-sidebar-nav-item">
+                <a href="{{ route('contract_manager.dashboard.katbol') }}"
+                    class="c-sidebar-nav-link {{ request()->is('contract_manager/dashboard/katbol') ? 'active' : '' }}">
+                    <i class="fas fa-chart-column iconos_menu letra_blanca"></i>
+                    <font class="letra_blanca">Dashboard</font>
+                </a>
+            </li>
+        @endcan
+        @can('sistema_gestion_contratos_acceder')
+            <li class="c-sidebar-nav-item">
+                <a href="{{ url('contract_manager/katbol') }}"
+                    class="c-sidebar-nav-link {{ request()->is('contract_manager/katbol') ? 'active' : '' }}">
+                    <i class="bi bi-file-text iconos_menu letra_blanca"></i>
+                    <font class="letra_blanca">Sistema de Gestion Contractual</font>
+                </a>
+            </li>
+        @endcan
+        @can('katbol_contratos_acceso')
+            <li class="c-sidebar-nav-item">
+                <a href="{{ route('contract_manager.contratos-katbol.index') }}"
+                    class="c-sidebar-nav-link {{ request()->is('contract_manager/contratos-katbol') || request()->is('contract_manager/contratos-katbol/*') ? 'active' : '' }}">
+                    <i class="fa-fw fas fa-file iconos_menu letra_blanca"></i>
+                    <font class="letra_blanca">Contratos</font>
+                </a>
+            </li>
+        @endcan
+        @can('katbol_requisiciones_acceso')
+            <li class="c-sidebar-nav-item">
+                <a href="{{ route('contract_manager.requisiciones') }}"
+                    class="c-sidebar-nav-link {{ request()->is('contract_manager/requisiciones') || request()->is('contract_manager/requisiciones/*') ? 'active' : '' }}">
+                    <i class="bi bi-folder-plus iconos_menu letra_blanca"></i>
+                    <font class="letra_blanca">Requisiciones</font>
+                </a>
+            </li>
+        @endcan
+        {{-- @can('katbol_proveedores_acceso')
+            <li class="c-sidebar-nav-item">
+                <a href="{{ route('contract_manager.proveedor.index') }}"
+                    class="c-sidebar-nav-link {{ request()->is('contract_manager/proveedor') || request()->is('contract_manager/proveedor/*') ? 'active' : '' }}">
+                    <i class="bi bi-person-workspace iconos_menu letra_blanca"></i>
+                    <font class="letra_blanca">Proveedores-Clientes</font>
+                </a>
+            </li>
+        @endcan --}}
 
         @can('permisos_de_administracion_acceder')
             <li class="c-sidebar-nav-title">
@@ -485,6 +569,34 @@
                     </a>
                 </li>
             @endcan --}}
+
+            @if (auth()->user()->can('clausulas_auditorias_acceder') ||
+                    auth()->user()->can('clasificaciones_auditorias_acceder'))
+                <li class="c-sidebar-nav-dropdown">
+                    <a class="c-sidebar-nav-dropdown-toggle btn_bajar_scroll" href="#">
+                        <i class="bi bi-folder iconos_menu letra_blanca"></i>
+                        <font class="letra_blanca"> Catalogos SG </font>
+                    </a>
+                    <ul class="c-sidebar-nav-dropdown-items">
+                        @can('clausulas_auditorias_acceder')
+                            <li class="c-sidebar-nav-item">
+                                <a href="{{ route('admin.auditoria-clasificacion') }}"
+                                    class="c-sidebar-nav-link {{ request()->is('admin/organizacions') || request()->is('admin/organizacions/*') ? 'active' : '' }}">
+                                    <font class="letra_blanca">Clasificación</font>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('clasificaciones_auditorias_acceder')
+                            <li class="c-sidebar-nav-item">
+                                <a href="{{ route('admin.auditoria-clausula') }}"
+                                    class="c-sidebar-nav-link {{ request()->is('admin/organizacions') || request()->is('admin/organizacions/*') ? 'active' : '' }}">
+                                    <font class="letra_blanca">Cláusula</font>
+                                </a>
+                            </li>
+                        @endcan
+                    </ul>
+                </li>
+            @endif
 
             @can('configurar_organizacion_acceder')
                 <li class="c-sidebar-nav-dropdown">
@@ -955,6 +1067,28 @@
                     </ul>
                 </li>
             @endcan
+            @can('esculea_admin_acceder')
+                <li class="c-sidebar-nav-dropdown">
+                    <a class="c-sidebar-nav-dropdown-toggle btn_bajar_scroll" href="#">
+                        <i class="bi bi-folder iconos_menu letra_blanca"></i>
+                        <font class="letra_blanca"> Cursos </font>
+                    </a>
+                    <ul class="c-sidebar-nav-dropdown-items">
+                        @can('escuela_admin_dashboar')
+                            <li class="c-sidebar-nav-item">
+                                <a href="{{ route('admin.courses.index') }}"
+                                    class="c-sidebar-nav-link {{ request()->is('admin/courses') || request()->is('admin/courses') ? 'active' : '' }}">
+                                    <font class="letra_blanca"> Instructor </font>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('escuela_admin_categorias')
+                        @endcan
+                        @can('escuela_admin_niveles')
+                        @endcan
+                    </ul>
+                </li>
+            @endcan
         @endcan
         {{-- @endcan --}}
 
@@ -1020,7 +1154,7 @@
         @endcan --}}
         @if (
             \Illuminate\Support\Facades\Schema::hasColumn('teams', 'owner_id') &&
-                \App\Models\Team::where('owner_id', auth()->user()->id)->exists())
+                \App\Models\Team::where('owner_id', $usuario->id)->exists())
             <li class="c-sidebar-nav-item">
                 <a class="{{ request()->is('admin/team-members') || request()->is('admin/team-members/*') ? 'active' : '' }} c-sidebar-nav-link"
                     href="{{ route('admin.team-members.index') }}">

@@ -16,7 +16,7 @@ class VersionIso2013
      */
     public function handle(Request $request, Closure $next)
     {
-        $version_iso = VersionesIso::first();
+        $version_iso = VersionesIso::getFirst();
         $version_iso = $version_iso->version_historico;
 
         if ($version_iso === true) {
@@ -24,6 +24,5 @@ class VersionIso2013
         }
 
         return redirect()->back()->with('flash_message', 'No tiene permitido accesar a la version historica');
-
     }
 }

@@ -59,7 +59,10 @@ class TimeSheetProyectoObserver
 
     private function forgetCache()
     {
-        Cache::forget('timesheetproyecto_all');
-        Cache::forget('timesheetproyecto_show_');
+        Cache::forget('TimesheetProyecto:timesheetproyecto_all');
+        Cache::forget('TimesheetProyecto:timesheetproyecto_show_');
+        Cache::forget('TimesheetProyecto:timesheetproyecto_all_order_by_identificador');
+        Cache::forget('TimesheetProyecto:timesheetproyecto_all_order_by_proceso');
+        Cache::forget('TimesheetProyecto:timesheetproyecto_all_with_cliente');
     }
 }

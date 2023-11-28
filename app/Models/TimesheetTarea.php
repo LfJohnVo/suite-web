@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\ClearsResponseCache;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,9 +11,9 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 class TimesheetTarea extends Model implements Auditable
 {
-    use HasFactory;
+    use ClearsResponseCache, \OwenIt\Auditing\Auditable;
     use Filterable;
-    use \OwenIt\Auditing\Auditable;
+    use HasFactory;
 
     protected $table = 'timesheet_tareas';
 
@@ -30,6 +31,13 @@ class TimesheetTarea extends Model implements Auditable
     {
         return Cache::remember('timesheettarea_all', 3600 * 24, function () {
             return self::orderByDesc('id')->get();
+        });
+    }
+
+    public static function getIdTareasAll()
+    {
+        return Cache::remember('TimesheetTarea:timesheettarea_all', 3600 * 24, function () {
+            return self::select('id', 'tarea', 'proyecto_id', 'area_id', 'todos')->orderByDesc('id')->get();
         });
     }
 

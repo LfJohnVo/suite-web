@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\ClearsResponseCache;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -26,8 +27,8 @@ use OwenIt\Auditing\Contracts\Auditable;
  */
 class Proceso extends Model implements Auditable
 {
+    use ClearsResponseCache, \OwenIt\Auditing\Auditable;
     use SoftDeletes;
-    use \OwenIt\Auditing\Auditable;
 
     protected $table = 'procesos';
 
@@ -87,7 +88,7 @@ class Proceso extends Model implements Auditable
 
     public function getNameAttribute()
     {
-        return $this->codigo . ' ' . $this->nombre;
+        return $this->codigo.' '.$this->nombre;
     }
 
     public function getContentAttribute()

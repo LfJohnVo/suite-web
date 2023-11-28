@@ -1051,14 +1051,7 @@
         <!-- incluir de footer -->
         {{-- @include('partials.footer') --}}
     </div>
-    <script src="{{ asset('/sw.js') }}"></script>
-    <script>
-        if (!navigator.serviceWorker?.controller) {
-            navigator.serviceWorker?.register("/sw.js").then(function(reg) {
-                console.log("Service worker has been registered for scope: " + reg.scope);
-            });
-        }
-    </script>
+
 </body>
 
 <script src="{{ asset('js/app.js') }}"></script>
@@ -1131,7 +1124,7 @@
 </script>
 @livewireScripts
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <x-livewire-alert::scripts />
 <script src="https://cdn.jsdelivr.net/gh/livewire/vue@v0.3.x/dist/livewire-vue.js"></script>

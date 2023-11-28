@@ -123,9 +123,9 @@ class PanelDeclaracionIsoController extends Controller
         if ($readyExistResponsable) {
             return response()->json(['estatus' => 'ya_es_aprobador', 'message' => 'Ya fue asignado como aprobador'], 200);
         } else {
-            if (!$existResponsable) {
+            if (! $existResponsable) {
                 $exists = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', $declaracion)->where('empleado_id', $responsable)->exists();
-                if (!$exists) {
+                if (! $exists) {
                     DeclaracionAplicabilidadResponsableIso::where('declaracion_id', $declaracion)
                         ->update([
                             'declaracion_id' => $declaracion,
@@ -178,7 +178,7 @@ class PanelDeclaracionIsoController extends Controller
         } else {
             if ($existAprobador) {
                 $exists = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', $declaracion)->where('empleado_id', $aprobador)->exists();
-                if (!$exists) {
+                if (! $exists) {
                     DeclaracionAplicabilidadAprobarIso::where('declaracion_id', $declaracion)
                         ->update(
                             [
@@ -238,7 +238,7 @@ class PanelDeclaracionIsoController extends Controller
                 $controles_name->push($control->gapdos);
             }
 
-            Mail::to($empleado->email)->send(new DeclaracionAplicabilidadIso($empleado->name, $tipo, $controles_name));
+            Mail::to(removeUnicodeCharacters($empleado->email))->send(new DeclaracionAplicabilidadIso($empleado->name, $tipo, $controles_name));
             $responsable = DeclaracionAplicabilidadResponsableIso::where('empleado_id', $destinatario)->first();
             $responsable->update(['esta_correo_enviado' => true]);
         }

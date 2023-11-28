@@ -196,7 +196,12 @@
 
             Livewire.on('select2', () => {
                 initSelect2();
-            })
+            });
+
+            Livewire.on('scriptTabla', () => {
+                tablaLivewire('tabla_time_tareas');
+            });
+
             $('#proyectos_select').on('select2:select', function(e) {
                 var data = e.params.data;
                 let proyecto_id = data.id;
@@ -209,10 +214,6 @@
                 let proyecto_id = data.id;
                 console.log(proyecto_id);
                 @this.updateProyecto(proyecto_id);
-            });
-
-            Livewire.on('scriptTabla', () => {
-                tablaLivewire('tabla_time_tareas');
             });
 
             document.getElementById('tarea_name')?.addEventListener('keyup', (e) => {

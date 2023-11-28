@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\ClearsResponseCache;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Audit
+ * Class Audit.
  *
  * @property int $id
  * @property string|null $user_type
@@ -22,17 +23,17 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $tags
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- *
- * @package App\Models
  */
 class Audit extends Model
 {
+    use ClearsResponseCache;
+
     protected $table = 'audits';
 
     protected $casts = [
         'user_id' => 'int',
         'auditable_id' => 'int',
-        'ip_address' => 'inet'
+        'ip_address' => 'inet',
     ];
 
     protected $fillable = [
@@ -46,6 +47,11 @@ class Audit extends Model
         'url',
         'ip_address',
         'user_agent',
-        'tags'
+        'tags',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

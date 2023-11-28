@@ -90,13 +90,13 @@ class RegistroVisitantes extends Component
                 'serie' => '',
             ]]),
         ]);
-
-        $this->empleados = Empleado::alta()->orderBy('name')->get();
-        $this->areas = Area::orderBy('area')->get();
     }
 
     public function render()
     {
+        $this->empleados = Empleado::getAll();
+        $this->areas = Area::orderBy('area')->get();
+
         return view('livewire.visitantes.registro-visitantes');
     }
 
@@ -141,8 +141,8 @@ class RegistroVisitantes extends Component
         $this->showStepByCurrent();
         $this->emit('increaseStepVisitantes', $this->currentStep);
         if ($this->currentStep == 4) {
-            $this->castEmpleado = Empleado::find($this->empleado_id);
-            $this->castArea = Area::find($this->area_id);
+            $this->castEmpleado = Empleado::getAll()->find($this->empleado_id);
+            $this->castArea = Area::getAll()->find($this->area_id);
         }
         if ($this->currentStep > $this->totalSteps) {
             $this->emit('finalizarRegistroVisitante');
@@ -261,7 +261,7 @@ class RegistroVisitantes extends Component
         $this->registrarVisitante = RegistrarVisitante::create([
             'nombre' => $this->nombre,
             'apellidos' => $this->apellidos,
-            'email' => $this->correo,
+            'email' => removeUnicodeCharacters($this->correo),
             'celular' => $this->celular,
             'dispositivo' => $this->dispositivo,
             'serie' => $this->serie,
@@ -295,7 +295,7 @@ class RegistroVisitantes extends Component
 
     public function enviarCorreoDeConfirmacion($correo, $visitante)
     {
-        Mail::to($correo)->send(new NotificarIngresoVisitante($visitante));
+        Mail::to(removeUnicodeCharacters($correo))->send(new NotificarIngresoVisitante($visitante));
     }
 
     public function registrarDispositivos()

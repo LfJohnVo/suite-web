@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\ClearsResponseCache;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,8 +29,8 @@ use OwenIt\Auditing\Contracts\Auditable;
  */
 class AlcanceSgsi extends Model implements Auditable
 {
-    use SoftDeletes, HasFactory;
-    use \OwenIt\Auditing\Auditable;
+    use ClearsResponseCache, \OwenIt\Auditing\Auditable;
+    use HasFactory, SoftDeletes;
 
     public $table = 'alcance_sgsis';
 

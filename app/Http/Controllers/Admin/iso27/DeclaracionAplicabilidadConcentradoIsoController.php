@@ -11,6 +11,7 @@ use App\Models\Iso27\DeclaracionAplicabilidadAprobarIso;
 use App\Models\Iso27\DeclaracionAplicabilidadConcentradoIso;
 use App\Models\Iso27\DeclaracionAplicabilidadResponsableIso;
 use App\Models\Iso27\GapDosCatalogoIso;
+use App\Models\User;
 use App\Traits\ObtenerOrganizacion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -129,8 +130,19 @@ class DeclaracionAplicabilidadConcentradoIsoController extends Controller
 
         // dd($porcentajeDecApl['porcentaje'], $porcentajeDecApl['faltante']);
 
-        return view('admin.declaracionaplicabilidad2022.declaracion-dashboard', compact('conteoAplica', 'conteoNoaplica', 'totalconteo',
-            'A5', 'A5No', 'A6', 'A6No', 'A7', 'A7No', 'A8', 'A8No'))
+        return view('admin.declaracionaplicabilidad2022.declaracion-dashboard', compact(
+            'conteoAplica',
+            'conteoNoaplica',
+            'totalconteo',
+            'A5',
+            'A5No',
+            'A6',
+            'A6No',
+            'A7',
+            'A7No',
+            'A8',
+            'A8No'
+        ))
             ->with('total', $total)
             ->with('porcentaje', $porcentajeDecApl['porcentaje'])
             ->with('faltante', $porcentajeDecApl['faltante']);
@@ -178,17 +190,18 @@ class DeclaracionAplicabilidadConcentradoIsoController extends Controller
     public function update(Request $request, $id)
     {
         if ($request->ajax()) {
+            $usuario = User::getCurrentUser();
             switch ($request->name) {
                 case 'justificacion':
                     // dd('Si esta llegando aqui al update del controller', $request, $id);
-                    $gapun = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', '=', $id)->where('empleado_id', auth()->user()->empleado->id)->update(['justificacion' => $request->value]);
-                    $control = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', '=', $id)->where('empleado_id', auth()->user()->empleado->id)->first();
+                    $gapun = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', '=', $id)->where('empleado_id', $usuario->empleado->id)->update(['justificacion' => $request->value]);
+                    $control = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', '=', $id)->where('empleado_id', $usuario->empleado->id)->first();
                     $aplicabilidad = DeclaracionAplicabilidadConcentradoIso::with('gapdos')->find($control->declaracion_id);
                     if ($control->aplica != null) {
                         $aprobadorDeclaracion = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', $id)->orderBy('created_at')->first();
                         $aprobador = Empleado::select('id', 'name', 'email')->find($aprobadorDeclaracion->empleado_id);
                         $responsable = Empleado::select('id', 'name', 'email')->find($control->empleado_id);
-                        Mail::to($aprobador->email)->send(new NotificacionDeclaracionAplicabilidadAprobadores2022($aprobador, $responsable, $aplicabilidad));
+                        Mail::to(removeUnicodeCharacters($aprobador->email))->send(new NotificacionDeclaracionAplicabilidadAprobadores2022($aprobador, $responsable, $aplicabilidad));
                     }
 
                     return response()->json(['success' => true, 'id' => $id]);
@@ -196,15 +209,15 @@ class DeclaracionAplicabilidadConcentradoIsoController extends Controller
                     break;
                 case 'aplica':
 
-                    $gapun = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', '=', $id)->where('empleado_id', auth()->user()->empleado->id)->update(['aplica' => $request->value]);
-                    $control = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', '=', $id)->where('empleado_id', auth()->user()->empleado->id)->first();
+                    $gapun = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', '=', $id)->where('empleado_id', $usuario->empleado->id)->update(['aplica' => $request->value]);
+                    $control = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', '=', $id)->where('empleado_id', $usuario->empleado->id)->first();
 
                     $aplicabilidad = DeclaracionAplicabilidadConcentradoIso::with('gapdos')->find($control->declaracion_id);
                     if ($control->justificacion != null) {
                         $aprobadorDeclaracion = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', $id)->orderBy('created_at')->first();
                         $aprobador = Empleado::select('id', 'name', 'email')->find($aprobadorDeclaracion->empleado_id);
                         $responsable = Empleado::select('id', 'name', 'email')->find($control->empleado_id);
-                        Mail::to($aprobador->email)->send(new NotificacionDeclaracionAplicabilidadAprobadores2022($aprobador, $responsable, $aplicabilidad));
+                        Mail::to(removeUnicodeCharacters($aprobador->email))->send(new NotificacionDeclaracionAplicabilidadAprobadores2022($aprobador, $responsable, $aplicabilidad));
                     }
 
                     return response()->json(['success' => true, 'id' => $id]);
@@ -212,7 +225,8 @@ class DeclaracionAplicabilidadConcentradoIsoController extends Controller
                     break;
                 case 'aplica2':
                     try {
-                        $gapun = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', '=', $id)->where('empleado_id', auth()->user()->empleado->id)->update(['aplica' => $request->value]);
+                        $gapun = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', '=', $id)->where('empleado_id', $usuario->empleado->id)->update(['aplica' => $request->value]);
+
                         // $gapun->aplica = $request->value;
                         return response()->json(['success' => true, 'id' => $id]);
                     } catch (Throwable $e) {
@@ -223,8 +237,8 @@ class DeclaracionAplicabilidadConcentradoIsoController extends Controller
                 case 'estatus':
 
                     $fecha_aprob = Carbon::today();
-                    $gapun = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', '=', $id)->where('empleado_id', auth()->user()->empleado->id)->update(['estatus' => $request->value, 'fecha_aprobacion' => $fecha_aprob]);
-                    $control = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', '=', $id)->where('empleado_id', auth()->user()->empleado->id)->first();
+                    $gapun = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', '=', $id)->where('empleado_id', $usuario->empleado->id)->update(['estatus' => $request->value, 'fecha_aprobacion' => $fecha_aprob]);
+                    $control = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', '=', $id)->where('empleado_id', $usuario->empleado->id)->first();
 
                     $aplicabilidad = DeclaracionAplicabilidadConcentradoIso::with('gapdos')->find($control->declaracion_id);
 
@@ -232,7 +246,7 @@ class DeclaracionAplicabilidadConcentradoIsoController extends Controller
                         $responsableDeclaracion = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', $id)->orderBy('created_at')->first();
                         $responsable = Empleado::select('id', 'name', 'email')->find($responsableDeclaracion->empleado_id);
                         $aprobador = Empleado::select('id', 'name', 'email')->find($control->empleado_id);
-                        Mail::to($responsable->email)->send(new NotificacionDeclaracionAplicabilidadResponsables2022($aprobador, $responsable, $aplicabilidad, $control));
+                        Mail::to(removeUnicodeCharacters($responsable->email))->send(new NotificacionDeclaracionAplicabilidadResponsables2022($aprobador, $responsable, $aplicabilidad, $control));
                     }
 
                     return response()->json(['success' => true, 'id' => $id, 'value' => $request->value, 'fecha' => Carbon::parse($control->updated_at)->format('d-m-Y')]);
@@ -240,17 +254,17 @@ class DeclaracionAplicabilidadConcentradoIsoController extends Controller
                     break;
 
                 case 'comentarios':
-                    $gapun = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', '=', $id)->where('empleado_id', auth()->user()->empleado->id)->update(['comentarios' => $request->value]);
+                    $gapun = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', '=', $id)->where('empleado_id', $usuario->empleado->id)->update(['comentarios' => $request->value]);
 
                     // $gapun->comentarios = $request->value;
-                    $control = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', '=', $id)->where('empleado_id', auth()->user()->empleado->id)->first();
+                    $control = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', '=', $id)->where('empleado_id', $usuario->empleado->id)->first();
 
                     $aplicabilidad = DeclaracionAplicabilidadConcentradoIso::with('gapdos')->find($control->declaracion_id);
                     if ($control->estatus != null) {
                         $responsableDeclaracion = DeclaracionAplicabilidadResponsableIso::where('declaracion_id', $id)->orderBy('created_at')->first();
                         $responsable = Empleado::select('id', 'name', 'email')->find($responsableDeclaracion->empleado_id);
                         $aprobador = Empleado::select('id', 'name', 'email')->find($control->empleado_id);
-                        Mail::to($responsable->email)->send(new NotificacionDeclaracionAplicabilidadResponsables2022($aprobador, $responsable, $aplicabilidad, $control));
+                        Mail::to(removeUnicodeCharacters($responsable->email))->send(new NotificacionDeclaracionAplicabilidadResponsables2022($aprobador, $responsable, $aplicabilidad, $control));
                     }
 
                     return response()->json(['success' => true, 'id' => $id]);
@@ -259,7 +273,7 @@ class DeclaracionAplicabilidadConcentradoIsoController extends Controller
 
                 case 'fecha_aprobacion':
                     try {
-                        $gapun = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', '=', $id)->where('empleado_id', auth()->user()->empleado->id)->update(['fecha_aprobacion' => $request->value]);
+                        $gapun = DeclaracionAplicabilidadAprobarIso::where('declaracion_id', '=', $id)->where('empleado_id', $usuario->empleado->id)->update(['fecha_aprobacion' => $request->value]);
                         $gapun->fecha_aprobacion = $request->value;
 
                         return response()->json(['success' => true, 'id' => $id]);
@@ -398,9 +412,9 @@ class DeclaracionAplicabilidadConcentradoIsoController extends Controller
         $nombre_pdf = 'Analisis Inicial-2022 '.Carbon::now()->format('d-m-Y').'.pdf';
         $content = $pdf->download()->getOriginalContent();
         Storage::put('public/Normas/ISO27001-2022/Analísis Inicial/'.$nombre_pdf, $content);
+
         //$pdf->download(storage_path('Normas/ISO27001/Analísis Inicial/' . $nombre_pdf));
         return $pdf->setPaper('a4', 'landscape')->stream();
-
     }
 
     public function enviarCorreo(Request $request)
@@ -417,7 +431,7 @@ class DeclaracionAplicabilidadConcentradoIsoController extends Controller
         foreach ($destinatarios as $destinatario) {
             //TODO:FALTA ENVIAR CONTROLES A MailDeclaracionAplicabilidad
             $empleado = Empleado::select('id', 'name', 'email')->find(intval($destinatario));
-            Mail::to($empleado->email)->send(new MailDeclaracionAplicabilidadAprobadores($empleado->name, $tipo, []));
+            Mail::to(removeUnicodeCharacters($empleado->email))->send(new MailDeclaracionAplicabilidadAprobadores($empleado->name, $tipo, []));
             $responsable = DeclaracionAplicabilidadAprobarIso::where('empleado_id', $destinatario)->each(function ($item) {
                 $item->notificado = true;
             });

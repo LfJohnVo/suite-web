@@ -51,8 +51,7 @@ class EnviarCorreoFelicitaciones extends Command
         $cumplehoy = Carbon::today();
         $cumplehoy->toDateString();
         // dd($cumplehoy);
-        $cumpleañeros = Empleado::getaltaAll()
-            ->whereMonth('cumpleaños', '=', $cumplehoy->format('m'))
+        $cumpleañeros = Empleado::whereMonth('cumpleaños', '=', $cumplehoy->format('m'))
             ->whereDay('cumpleaños', '=', $cumplehoy->format('d'))
             ->get();
 
@@ -75,7 +74,7 @@ class EnviarCorreoFelicitaciones extends Command
                     $correodestinatario = $cumpleañero->email;
 
                     $email = new FelicitacionesMail($nombre, $correodestinatario, $imgpastel, $imgtab);
-                    Mail::to($correodestinatario)->send($email);
+                    Mail::to(removeUnicodeCharacters($correodestinatario))->send($email);
                     // dd('Si manda el correo');
                     $empcump->update([
                         'enviado' => true,

@@ -11,10 +11,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-use Spatie\Health\Checks\Checks\DatabaseCheck;
-use Spatie\Health\Checks\Checks\EnvironmentCheck;
-use Spatie\Health\Checks\Checks\UsedDiskSpaceCheck;
-use Spatie\Health\Facades\Health;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,14 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        Health::checks([
-            UsedDiskSpaceCheck::new()
-                ->warnWhenUsedSpaceIsAbovePercentage(70)
-                ->failWhenUsedSpaceIsAbovePercentage(90),
-            EnvironmentCheck::new(),
-            DatabaseCheck::new(),
-            //DebugModeCheck::new(),
-        ]);
+        Passport::ignoreRoutes();
     }
 
     /**
@@ -42,11 +32,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if (env('APP_ENV') === 'production') {
-            $this->app['request']->server->set('HTTPS', 'on'); // Force HTTPS
+        //https now working by nginx
+        // if (env('APP_ENV') === 'production') {
+        //     $this->app['request']->server->set('HTTPS', 'on'); // Force HTTPS
 
-            URL::forceScheme('https');
-        }
+        //     URL::forceScheme('https');
+        // }
 
         // Carbon::setLocale(config('app.locale'));
         Paginator::useBootstrap();
@@ -59,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         view()->composer('*', function ($view) {
-            $version_historico = VersionesIso::first();
+            $version_historico = VersionesIso::getFirst();
             $version_iso = $version_historico->version_historico;
             $view->with('version_iso', $version_iso);
         });

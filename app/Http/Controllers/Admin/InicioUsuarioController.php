@@ -48,6 +48,7 @@ use App\Models\VersionesIso;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
@@ -55,11 +56,12 @@ class InicioUsuarioController extends Controller
 {
     public function index()
     {
-        $hoy = Carbon::now();
-        $hoy->toDateString();
         abort_if(Gate::denies('mi_perfil_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $usuario = auth()->user();
+        $hoy = Carbon::now();
+        $hoy->toDateString();
+
+        $usuario = User::getCurrentUser();
         $usuarioVinculadoConEmpleado = false;
         if ($usuario->empleado) {
             $usuarioVinculadoConEmpleado = true;
@@ -129,11 +131,11 @@ class InicioUsuarioController extends Controller
 
         $auditorias_anual = AuditoriaAnual::getAll();
         $auditoria_internas = new AuditoriaInterna;
-        $empleado = auth()->user()->empleado;
+        $empleado = $usuario->empleado;
         $recursos = collect();
         $eventos = Calendario::getAll();
-        $oficiales = CalendarioOficial::get();
-        $cumples_aniversarios = Empleado::with('area')->alta()->get();
+        $oficiales = CalendarioOficial::getAll();
+        $cumples_aniversarios = Empleado::getAltaEmpleadosWithArea();
         $mis_quejas = collect();
         $mis_quejas_count = 0;
         $mis_denuncias = collect();
@@ -146,30 +148,25 @@ class InicioUsuarioController extends Controller
         $solicitud_dayoff = 0;
         $solicitud_permiso = 0;
         $solicitudes_pendientes = 0;
-        if ($usuario->empleado) {
-            $auditoria_internas_participante = AuditoriaInterna::whereHas('equipo', function ($query) use ($empleado) {
-                $query->where('auditoria_interno_empleado.empleado_id', $empleado->id);
-            })->orWhere('lider_id', auth()->user()->empleado->id)->get();
-            $auditoria_internas_lider = AuditoriaInterna::where('lider_id', auth()->user()->empleado->id)->get();
-            $auditoria_internas = collect();
-            foreach ($auditoria_internas_lider as $auditoria) {
-                $auditoria_internas->push($auditoria);
-            }
-            foreach ($auditoria_internas_participante as $auditoria) {
-                $auditoria_internas->push($auditoria);
-            }
-            $auditoria_internas = $auditoria_internas->unique();
-            $recursos = Recurso::whereHas('empleados', function ($query) use ($empleado) {
+        $cacheKey = 'AuditoriaInterna:auditoria_internas_'.$usuario->id;
+        $auditoria_internas = Cache::remember($cacheKey, 3600 * 8, function () use ($usuario, $empleado) {
+            return AuditoriaInterna::where(function ($query) use ($usuario, $empleado) {
+                $query->whereHas('equipo', function ($subquery) use ($empleado) {
+                    $subquery->where('auditoria_interno_empleado.empleado_id', $empleado->id);
+                })->orWhere('lider_id', $usuario->empleado->id);
+            })->distinct()->get();
+        });
+
+        $cacheKeyRecursos = 'Recursos:recursos_'.$usuario->id;
+        $recursos = Cache::remember($cacheKeyRecursos, 3600 * 8, function () use ($empleado) {
+            return Recurso::whereHas('empleados', function ($query) use ($empleado) {
                 $query->where('empleados.id', $empleado->id);
             })->get();
-        }
-        $contador_recursos = 0;
-        if ($usuario->empleado) {
-            $contador_recursos = Recurso::whereHas('empleados', function ($query) use ($empleado) {
-                $query->where('empleados.id', $empleado->id);
-            })->where('fecha_fin', '>=', Carbon::now()->toDateString())->count();
-        }
-        $documentos_publicados = Documento::with('macroproceso')->where('estatus', Documento::PUBLICADO)->latest('updated_at')->get()->take(5);
+        });
+
+        $contador_recursos = $recursos->where('fecha_fin', '>=', Carbon::now()->toDateString())->count();
+
+        $documentos_publicados = Documento::getLastFiveWithMacroproceso();
         $revisiones = [];
         $mis_documentos = [];
         $contador_revisiones = 0;
@@ -184,10 +181,10 @@ class InicioUsuarioController extends Controller
         $mis_objetivos = collect();
 
         if ($usuario->empleado) {
-            $revisiones = RevisionDocumento::with('documento')->where('empleado_id', $usuario->empleado->id)->where('archivado', RevisionDocumento::NO_ARCHIVADO)->get();
+            $revisiones = RevisionDocumento::getAllWithDocumento();
 
-            $contador_revisiones = RevisionDocumento::with('documento')->where('empleado_id', $usuario->empleado->id)->where('archivado', RevisionDocumento::NO_ARCHIVADO)->where('estatus', Documento::SOLICITUD_REVISION)->count();
-            $mis_documentos = Documento::with('macroproceso')->where('elaboro_id', $usuario->empleado->id)->get();
+            $contador_revisiones = $revisiones->where('estatus', Documento::SOLICITUD_REVISION)->count();
+            $mis_documentos = Documento::getWithMacroproceso($usuario->empleado->id);
             //Evaluaciones
             $last_evaluacion = Evaluacion::select('id', 'nombre', 'fecha_inicio', 'fecha_fin')->latest()->first();
             if ($last_evaluacion) {
@@ -196,8 +193,8 @@ class InicioUsuarioController extends Controller
                         ->where('fecha_inicio', '<=', Carbon::now())
                         ->where('fecha_fin', '>', Carbon::now())
                         ->where('id', $last_evaluacion->id);
-                })->with('empleado_evaluado', 'evaluador')->where('evaluador_id', auth()->user()->empleado->id)
-                    ->where('evaluado_id', '!=', auth()->user()->empleado->id)
+                })->with('empleado_evaluado', 'evaluador')->where('evaluador_id', $usuario->empleado->id)
+                    ->where('evaluado_id', '!=', $usuario->empleado->id)
                     ->where('evaluado', false)
                     ->get();
                 $mis_evaluaciones = EvaluadoEvaluador::whereHas('evaluacion', function ($q) use ($last_evaluacion) {
@@ -205,39 +202,41 @@ class InicioUsuarioController extends Controller
                         ->where('fecha_inicio', '<=', Carbon::now())
                         ->where('fecha_fin', '>', Carbon::now())
                         ->where('id', $last_evaluacion->id);
-                })->with('empleado_evaluado', 'evaluador')->where('evaluador_id', auth()->user()->empleado->id)
-                    ->where('evaluado_id', auth()->user()->empleado->id)
+                })->with('empleado_evaluado', 'evaluador')->where('evaluador_id', $usuario->empleado->id)
+                    ->where('evaluado_id', $usuario->empleado->id)
                     ->first();
             }
-            $mis_objetivos = auth()->user()->empleado->objetivos;
+            $mis_objetivos = $usuario->empleado->objetivos;
 
             // SECCION MIS DATOS
             if ($usuario->empleado->children->count()) {
                 $esLider = true;
                 $equipo_a_cargo = $this->obtenerEquipo($usuario->empleado->children);
-                $equipo_a_cargo = Empleado::find($equipo_a_cargo);
+                $equipo_a_cargo = Empleado::getAll()->find($equipo_a_cargo);
             } else {
                 $equipo_trabajo = $usuario->empleado->empleados_misma_area;
-                $equipo_trabajo = Empleado::find($equipo_trabajo);
+                $equipo_trabajo = Empleado::getAll()->find($equipo_trabajo);
             }
             $supervisor = $usuario->empleado->supervisor;
         }
 
-        $panel_rules = PanelInicioRule::select('nombre', 'n_empleado', 'area', 'jefe_inmediato', 'puesto', 'perfil', 'fecha_ingreso', 'genero', 'estatus', 'email', 'telefono', 'sede', 'direccion', 'cumpleaños')->get()->first();
+        $panel_rules = PanelInicioRule::getAll();
 
-        if (!is_null(auth()->user()->empleado)) {
-            $activos = Activo::select('*')->where('id_responsable', '=', auth()->user()->empleado->id)->get();
+        if (! is_null($usuario->empleado)) {
+            $activos = Activo::select('*')->where('id_responsable', '=', $usuario->empleado->id)->get();
             if ($usuario->empleado->cumpleaños) {
                 $cumpleaños_usuario = Carbon::parse($usuario->empleado->cumpleaños)->format('d-m');
             } else {
                 $cumpleaños_usuario = null;
             }
 
-            $cumpleaños_felicitados_like_contador = FelicitarCumpleaños::where('cumpleañero_id', $usuario->empleado->id)->whereYear('created_at', $hoy->format('Y'))->where('like', true)->count();
+            $felicitar = FelicitarCumpleaños::getAllWhereYear($usuario->empleado->id, $hoy->format('Y'));
 
-            $cumpleaños_felicitados_like_usuarios = FelicitarCumpleaños::where('cumpleañero_id', $usuario->empleado->id)->whereYear('created_at', $hoy->format('Y'))->where('like', true)->get();
+            $cumpleaños_felicitados_like_contador = $felicitar->where('like', true)->count();
 
-            $cumpleaños_felicitados_comentarios = FelicitarCumpleaños::where('cumpleañero_id', $usuario->empleado->id)->whereYear('created_at', $hoy->format('Y'))->where('like', false)->where('comentarios', '!=', null)->get();
+            $cumpleaños_felicitados_like_usuarios = $felicitar->where('like', true);
+
+            $cumpleaños_felicitados_comentarios = $felicitar->where('like', false)->where('comentarios', '!=', null);
         } else {
             $activos = false;
             $cumpleaños_usuario = null;
@@ -249,42 +248,42 @@ class InicioUsuarioController extends Controller
         $organizacion = Organizacion::getFirst();
         $competencias = collect();
 
-        if (auth()->user()->empleado) {
+        if ($usuario->empleado) {
             $competencias = Empleado::with(
                 ['puestoRelacionado' => function ($q) {
                     $q->with(['competencias' => function ($q) {
                         $q->with('competencia');
                     }]);
                 }]
-            )->find(auth()->user()->empleado->id)->puestoRelacionado;
-            $competencias = !is_null($competencias) ? $competencias->competencias : collect();
+            )->find($usuario->empleado->id)->puestoRelacionado;
+            $competencias = ! is_null($competencias) ? $competencias->competencias : collect();
 
-            $quejas = Quejas::getAll();
-            $denuncias = Denuncias::getAll();
-            $mejoras = Mejoras::getAll();
-            $sugerencias = Sugerencias::getAll();
+            $quejas = Quejas::getAll()->where('empleado_quejo_id', $usuario->empleado->id);
+            $denuncias = Denuncias::getAll()->where('empleado_denuncio_id', $usuario->empleado->id);
+            $mejoras = Mejoras::getAll()->where('empleado_mejoro_id', $usuario->empleado->id);
+            $sugerencias = Sugerencias::getAll()->where('empleado_sugirio_id', $usuario->empleado->id);
 
-            $mis_quejas = $quejas->where('empleado_quejo_id', auth()->user()->empleado->id);
-            $mis_quejas_count = $quejas->where('empleado_quejo_id', auth()->user()->empleado->id)->count();
-            $mis_denuncias = $denuncias->where('empleado_denuncio_id', auth()->user()->empleado->id);
-            $mis_denuncias_count = $denuncias->where('empleado_denuncio_id', auth()->user()->empleado->id)->count();
-            $mis_propuestas = $mejoras->where('empleado_mejoro_id', auth()->user()->empleado->id);
-            $mis_propuestas_count = $mejoras->where('empleado_mejoro_id', auth()->user()->empleado->id)->count();
-            $mis_sugerencias = $sugerencias->where('empleado_sugirio_id', auth()->user()->empleado->id);
-            $mis_sugerencias_count = $sugerencias->where('empleado_sugirio_id', auth()->user()->empleado->id)->count();
+            $mis_quejas = $quejas->where('empleado_quejo_id', $usuario->empleado->id);
+            $mis_quejas_count = $quejas->count();
+            $mis_denuncias = $denuncias;
+            $mis_denuncias_count = $denuncias->count();
+            $mis_propuestas = $mejoras;
+            $mis_propuestas_count = $mejoras->count();
+            $mis_sugerencias = $sugerencias;
+            $mis_sugerencias_count = $sugerencias->count();
 
-            $solicitud_vacacion = SolicitudVacaciones::where('autoriza', auth()->user()->empleado->id)->where('aprobacion', 1)->count();
-            $solicitud_dayoff = SolicitudDayOff::where('autoriza', auth()->user()->empleado->id)->where('aprobacion', 1)->count();
-            $solicitud_permiso = SolicitudPermisoGoceSueldo::where('autoriza', auth()->user()->empleado->id)->where('aprobacion', 1)->count();
+            $solicitud_vacacion = SolicitudVacaciones::where('autoriza', $usuario->empleado->id)->where('aprobacion', 1)->count();
+            $solicitud_dayoff = SolicitudDayOff::where('autoriza', $usuario->empleado->id)->where('aprobacion', 1)->count();
+            $solicitud_permiso = SolicitudPermisoGoceSueldo::where('autoriza', $usuario->empleado->id)->where('aprobacion', 1)->count();
             $solicitudes_pendientes = $solicitud_vacacion + $solicitud_dayoff + $solicitud_permiso;
             // $solicitudes_pendientes = 1;
         }
 
-        $existsEmpleado = Empleado::exists();
-        $existsOrganizacion = Organizacion::exists();
-        $existsAreas = Area::exists();
-        $existsPuesto = Puesto::exists();
-        $existsVinculoEmpleadoAdmin = User::orderBy('id')->first()->empleado_id != null ? true : false;
+        $existsEmpleado = Empleado::getExists();
+        $existsOrganizacion = Organizacion::getExists();
+        $existsAreas = Area::getExists();
+        $existsPuesto = Puesto::getExists();
+        $existsVinculoEmpleadoAdmin = User::getExists();
 
         return view('admin.inicioUsuario.index', compact(
             'solicitudes_pendientes',
@@ -609,7 +608,7 @@ class InicioUsuarioController extends Controller
     {
         $assigs = $tarea['assigs'];
         foreach ($assigs as $assig) {
-            if ($assig == auth()->user()) {
+            if ($assig == User::getCurrentUser()) {
                 return $tarea;
             }
         }
@@ -638,7 +637,7 @@ class InicioUsuarioController extends Controller
 
         $quejas = Quejas::create([
             'anonimo' => $request->anonimo,
-            'empleado_quejo_id' => auth()->user()->empleado->id,
+            'empleado_quejo_id' => User::getCurrentUser()->empleado->id,
 
             'area_quejado' => $request->area_quejado,
             'colaborador_quejado' => $request->colaborador_quejado,
@@ -660,13 +659,13 @@ class InicioUsuarioController extends Controller
 
         $image = null;
 
-        if ($request->file('evidencia') != null or !empty($request->file('evidencia'))) {
+        if ($request->file('evidencia') != null or ! empty($request->file('evidencia'))) {
             foreach ($request->file('evidencia') as $file) {
                 $extension = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
 
-                $name_image = basename(pathinfo($file->getClientOriginalName(), PATHINFO_BASENAME), '.' . $extension);
+                $name_image = basename(pathinfo($file->getClientOriginalName(), PATHINFO_BASENAME), '.'.$extension);
 
-                $new_name_image = 'Queja_file_' . $quejas->id . '_' . $name_image . '.' . $extension;
+                $new_name_image = 'Queja_file_'.$quejas->id.'_'.$name_image.'.'.$extension;
 
                 $route = 'public/evidencias_quejas';
 
@@ -701,7 +700,7 @@ class InicioUsuarioController extends Controller
 
         $denuncias = Denuncias::create([
             'anonimo' => $request->anonimo,
-            'empleado_denuncio_id' => auth()->user()->empleado->id,
+            'empleado_denuncio_id' => User::getCurrentUser()->empleado->id,
             'descripcion' => $request->descripcion,
             'empleado_denunciado_id' => $request->empleado_denunciado_id,
             'tipo' => $request->tipo,
@@ -718,13 +717,13 @@ class InicioUsuarioController extends Controller
 
         $image = null;
 
-        if ($request->file('evidencia') != null or !empty($request->file('evidencia'))) {
+        if ($request->file('evidencia') != null or ! empty($request->file('evidencia'))) {
             foreach ($request->file('evidencia') as $file) {
                 $extension = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
 
-                $name_image = basename(pathinfo($file->getClientOriginalName(), PATHINFO_BASENAME), '.' . $extension);
+                $name_image = basename(pathinfo($file->getClientOriginalName(), PATHINFO_BASENAME), '.'.$extension);
 
-                $new_name_image = 'Denuncia_file_' . $denuncias->id . '_' . $name_image . '.' . $extension;
+                $new_name_image = 'Denuncia_file_'.$denuncias->id.'_'.$name_image.'.'.$extension;
 
                 $route = 'public/evidencias_denuncias';
 
@@ -767,7 +766,7 @@ class InicioUsuarioController extends Controller
         ]);
 
         $mejoras = Mejoras::create([
-            'empleado_mejoro_id' => auth()->user()->empleado->id,
+            'empleado_mejoro_id' => User::getCurrentUser()->empleado->id,
             'descripcion' => $request->descripcion,
             'beneficios' => $request->beneficios,
             'titulo' => $request->titulo,
@@ -804,7 +803,7 @@ class InicioUsuarioController extends Controller
         abort_if(Gate::denies('mi_perfil_mis_reportes_realizar_reporte_de_sugerencia'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $sugerencias = Sugerencias::create([
-            'empleado_sugirio_id' => auth()->user()->empleado->id,
+            'empleado_sugirio_id' => User::getCurrentUser()->empleado->id,
 
             'area_sugerencias' => $request->area_sugerencias,
             'proceso_sugerencias' => $request->proceso_sugerencias,
@@ -866,7 +865,7 @@ class InicioUsuarioController extends Controller
             'areas_afectados' => $request->areas_afectados,
             'procesos_afectados' => $request->procesos_afectados,
             'activos_afectados' => $request->activos_afectados,
-            'empleado_reporto_id' => auth()->user()->empleado->id,
+            'empleado_reporto_id' => User::getCurrentUser()->empleado->id,
             'procedente' => $incidente_procedente,
             'justificacion' => $request->justificacion,
         ]);
@@ -889,13 +888,13 @@ class InicioUsuarioController extends Controller
 
         $image = null;
 
-        if ($request->file('evidencia') != null or !empty($request->file('evidencia'))) {
+        if ($request->file('evidencia') != null or ! empty($request->file('evidencia'))) {
             foreach ($request->file('evidencia') as $file) {
                 $extension = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
 
-                $name_image = basename(pathinfo($file->getClientOriginalName(), PATHINFO_BASENAME), '.' . $extension);
+                $name_image = basename(pathinfo($file->getClientOriginalName(), PATHINFO_BASENAME), '.'.$extension);
 
-                $new_name_image = 'Seguridad_file_' . $incidentes_seguridad->id . '_' . $name_image . '.' . $extension;
+                $new_name_image = 'Seguridad_file_'.$incidentes_seguridad->id.'_'.$name_image.'.'.$extension;
 
                 $route = 'public/evidencias_seguridad';
 
@@ -948,7 +947,7 @@ class InicioUsuarioController extends Controller
             'areas_afectados' => $request->areas_afectados,
             'procesos_afectados' => $request->procesos_afectados,
             'activos_afectados' => $request->activos_afectados,
-            'empleado_reporto_id' => auth()->user()->empleado->id,
+            'empleado_reporto_id' => User::getCurrentUser()->empleado->id,
         ]);
 
         AnalisisSeguridad::create([
@@ -958,13 +957,13 @@ class InicioUsuarioController extends Controller
 
         $image = null;
 
-        if ($request->file('evidencia') != null or !empty($request->file('evidencia'))) {
+        if ($request->file('evidencia') != null or ! empty($request->file('evidencia'))) {
             foreach ($request->file('evidencia') as $file) {
                 $extension = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
 
-                $name_image = basename(pathinfo($file->getClientOriginalName(), PATHINFO_BASENAME), '.' . $extension);
+                $name_image = basename(pathinfo($file->getClientOriginalName(), PATHINFO_BASENAME), '.'.$extension);
 
-                $new_name_image = 'Riesgo_file_' . $riesgos->id . '_' . $name_image . '.' . $extension;
+                $new_name_image = 'Riesgo_file_'.$riesgos->id.'_'.$name_image.'.'.$extension;
 
                 $route = 'public/evidencias_riesgos';
 
@@ -1035,14 +1034,14 @@ class InicioUsuarioController extends Controller
 
     public function archivoAprobacion()
     {
-        $mis_documentos = Documento::get()->where('deleted_at', '=', null);
+        $mis_documentos = Documento::getAll()->where('deleted_at', '=', null);
 
         return view('admin.inicioUsuario.aprobaciones_archivo', compact('mis_documentos'));
     }
 
     public function archivoActividades()
     {
-        $usuario = auth()->user();
+        $usuario = User::getCurrentUser();
         $empleado_id = $usuario->empleado ? $usuario->empleado->id : 0;
         $actividades = [];
         $implementaciones = PlanImplementacion::getAll();
@@ -1191,8 +1190,8 @@ class InicioUsuarioController extends Controller
     public function perfilPuesto()
     {
         abort_if(Gate::denies('mi_perfil_mis_datos_ver_perfil_de_puesto'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $puesto_id = auth()->user()->empleado->puesto_id;
-        $puesto = Puesto::find($puesto_id);
+        $puesto_id = User::getCurrentUser()->empleado->puesto_id;
+        $puesto = Puesto::getAll()->find($puesto_id);
 
         $idiomas = PuestoIdiomaPorcentajePivot::where('id_puesto', '=', $puesto->id)->get();
 
@@ -1201,14 +1200,14 @@ class InicioUsuarioController extends Controller
 
     public function expediente($id_empleado)
     {
-        $empleado = Empleado::find($id_empleado);
+        $empleado = Empleado::getAll()->find($id_empleado);
 
-        $docs_empleado = EvidenciasDocumentosEmpleados::where('empleado_id', $id_empleado)->get();
-
+        $evidendiasdocumentos = EvidenciasDocumentosEmpleados::getAll();
+        $docs_empleado = $evidendiasdocumentos->where('empleado_id', $id_empleado);
         $lista_docs_model = ListaDocumentoEmpleado::getAll();
         $lista_docs = collect();
         foreach ($lista_docs_model as $doc) {
-            $documentos_empleado = EvidenciasDocumentosEmpleados::where('empleado_id', $id_empleado)->where('lista_documentos_empleados_id', $doc->id)->first();
+            $documentos_empleado = $evidendiasdocumentos->where('empleado_id', $id_empleado)->where('lista_documentos_empleados_id', $doc->id)->first();
             if ($documentos_empleado) {
                 $documento = EvidenciaDocumentoEmpleadoArchivo::where('evidencias_documentos_empleados_id', $documentos_empleado->id)->where('archivado', false)->first();
                 if ($documento) {
@@ -1242,10 +1241,10 @@ class InicioUsuarioController extends Controller
     {
         // dd($request->all());
         if ($request->name == 'file') {
-            $fileName = time() . $request->file('value')->getClientOriginalName();
+            $fileName = time().$request->file('value')->getClientOriginalName();
             // dd($request->file('value'));
-            $empleado = Empleado::find($request->empleadoId);
-            $request->file('value')->storeAs('public/expedientes/' . Str::slug($empleado->name), $fileName);
+            $empleado = Empleado::getAll()->find($request->empleadoId);
+            $request->file('value')->storeAs('public/expedientes/'.Str::slug($empleado->name), $fileName);
             $expediente = EvidenciasDocumentosEmpleados::updateOrCreate(['empleado_id' => $request->empleadoId, 'lista_documentos_empleados_id' => $request->documentoId], [$request->name => $request->value]);
 
             $doc_viejo = EvidenciaDocumentoEmpleadoArchivo::where('evidencias_documentos_empleados_id', $expediente->id)->where('archivado', false)->first();
@@ -1275,7 +1274,6 @@ class InicioUsuarioController extends Controller
 
     public function updateVersionIso(Request $request)
     {
-
         foreach ($request->toArray() as $var) {
             if ($var === false) {
                 $valor = false;
@@ -1284,7 +1282,7 @@ class InicioUsuarioController extends Controller
             }
         }
 
-        $ver = VersionesIso::first();
+        $ver = VersionesIso::getFirst();
         $ver->update([
             'version_historico' => $valor,
         ]);

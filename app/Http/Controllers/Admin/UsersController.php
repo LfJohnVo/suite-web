@@ -14,9 +14,10 @@ use App\Models\Role;
 use App\Models\Team;
 use App\Models\User;
 use App\Rules\EmpleadoNoVinculado;
-use Flash;
 use Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use RealRashid\SweetAlert\Facades\Alert;
 use Symfony\Component\HttpFoundation\Response;
 
 class UsersController extends Controller
@@ -25,26 +26,32 @@ class UsersController extends Controller
     {
         abort_if(Gate::denies('usuarios_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $roles = Role::get();
-        $organizaciones = Organizacione::get();
-        $areas = Area::getAll();
-        $puestos = Puesto::getAll();
-        $teams = Team::get();
+        // $roles = Role::get();
+        // $organizaciones = Organizacione::get();
+        // $areas = Area::getAll();
+        // $puestos = Puesto::getAll();
+        // $teams = Team::get();
         // $empleadosNoAsignados = Empleado::getaltaAll();
         // $empleados = $empleadosNoAsignados->filter(function ($item) {
         //     return !User::where('n_empleado', $item->n_empleado)->exists();
         // })->values();
-        $empleados = Empleado::getaltaAll();
-        $existsVinculoEmpleadoAdmin = User::orderBy('id')->first()->empleado_id != null ? true : false;
+        $existsVinculoEmpleadoAdmin = User::getExists();
 
-        return view('admin.users.index', compact('roles', 'organizaciones', 'areas', 'puestos', 'teams', 'empleados', 'existsVinculoEmpleadoAdmin'));
+        $users = User::getUserWithRole();
+
+        return view('admin.users.index', compact('users', 'existsVinculoEmpleadoAdmin'));
     }
 
     public function getUsersIndex(Request $request)
     {
-        $query = User::with(['roles', 'organizacion', 'area', 'puesto', 'team', 'empleado' => function ($q) {
-            $q->with('area');
-        }])->get();
+        $key = 'Users:users_index_data';
+
+        // Try to retrieve the data from the cache
+        $query = Cache::remember($key, now()->addMinutes(120), function () {
+            return User::with(['roles', 'organizacion', 'area', 'puesto', 'team', 'empleado' => function ($q) {
+                $q->with('area');
+            }])->get();
+        });
 
         return datatables()->of($query)->toJson();
     }
@@ -72,6 +79,7 @@ class UsersController extends Controller
 
         $user = User::create($request->all());
         $user->roles()->sync($request->input('roles', []));
+        Alert::success('éxito', 'Información añadida con éxito');
 
         return redirect()->route('admin.users.index');
     }
@@ -100,6 +108,7 @@ class UsersController extends Controller
         abort_if(Gate::denies('usuarios_editar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $user->update($request->all());
         $user->roles()->sync($request->roles);
+        Alert::success('éxito', 'Información añadida con éxito');
 
         return redirect()->route('admin.users.index');
     }
@@ -113,16 +122,16 @@ class UsersController extends Controller
         return view('admin.users.show', compact('user'));
     }
 
-    public function destroy(User $user)
+    public function destroy($id)
     {
         abort_if(Gate::denies('usuarios_eliminar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $delete = $user->delete();
-        if ($delete) {
-            return response()->json(['sucess', true]);
-        }
+        $registro = User::find($id); // Donde $id es el ID del registro que deseas eliminar.
 
-        return response()->json(['error', true]);
+        $registro->delete();
+        Alert::success('éxito', 'Información añadida con éxito');
+
+        return redirect()->route('admin.users.index');
     }
 
     public function massDestroy(MassDestroyUserRequest $request)
@@ -136,10 +145,10 @@ class UsersController extends Controller
     {
         if ($request->ajax()) {
             $nombre = $request->nombre;
-            $usuarios = User::getAll()->where('name', 'LIKE', '%' . $nombre . '%')->take(5);
+            $usuarios = User::getAll()->where('name', 'LIKE', '%'.$nombre.'%')->take(5);
             $lista = "<ul class='list-group' id='empleados-lista'>";
             foreach ($usuarios as $usuario) {
-                $lista .= "<button type='button' class='list-group-item list-group-item-action' onClick='seleccionarUsuario(" . $usuario . ");'>" . $usuario->name . '</button>';
+                $lista .= "<button type='button' class='list-group-item list-group-item-action' onClick='seleccionarUsuario(".$usuario.");'>".$usuario->name.'</button>';
             }
             $lista .= '</ul>';
 
@@ -181,7 +190,7 @@ class UsersController extends Controller
             $message = "Verificación por dos factores habilitada para el usuario {$user->name}";
         }
 
-        $user->two_factor = !$user->two_factor;
+        $user->two_factor = ! $user->two_factor;
 
         $user->save();
 
@@ -196,7 +205,7 @@ class UsersController extends Controller
             $message = "El usuario {$user->name} ha sido desbloqueado";
         }
 
-        $user->is_active = !$user->is_active;
+        $user->is_active = ! $user->is_active;
 
         $user->save();
 
@@ -210,11 +219,11 @@ class UsersController extends Controller
 
         if ($usuario != null) {
             $usuario = User::withTrashed()->find($id)->restore();
-            Flash::success('Usuario restablecido satisfactoriamente.');
+            Alert::success('éxito', 'Restablecido con éxito');
 
             return redirect()->route('admin.users.index');
         } else {
-            Flash::error('Usuario no encontrado');
+            Alert::warning('warning', 'Data not found');
 
             return redirect(route('admin.users.index'));
         }

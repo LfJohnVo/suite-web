@@ -15,6 +15,7 @@ use App\Models\RH\GruposEvaluado;
 use App\Models\RH\Objetivo;
 use App\Models\RH\ObjetivoRespuesta;
 use App\Models\RH\TipoCompetencia;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
@@ -275,8 +276,8 @@ class MultiStepForm extends Component
                     'pesoGeneralObjetivos' => 'required|numeric',
                     'sumaTotalPesoGeneral' => 'required|numeric|min:100|max:100',
                 ], [
-                    'sumaTotalPesoGeneral.max' => 'El peso total debe de ser 100% el total actual es: ' . $this->sumaTotalPesoGeneral . '%',
-                    'sumaTotalPesoGeneral.min' => 'El peso total debe de ser 100% el total actual es: ' . $this->sumaTotalPesoGeneral . '%',
+                    'sumaTotalPesoGeneral.max' => 'El peso total debe de ser 100% el total actual es: '.$this->sumaTotalPesoGeneral.'%',
+                    'sumaTotalPesoGeneral.min' => 'El peso total debe de ser 100% el total actual es: '.$this->sumaTotalPesoGeneral.'%',
                 ]);
             } elseif ($this->includeCompetencias && $this->includeObjetivos == null) {
                 $this->sumaTotalPesoGeneral = $this->pesoGeneralCompetencias;
@@ -286,8 +287,8 @@ class MultiStepForm extends Component
                     'pesoGeneralCompetencias' => 'required|numeric',
                     'sumaTotalPesoGeneral' => 'required|numeric|min:100|max:100',
                 ], [
-                    'sumaTotalPesoGeneral.max' => 'El peso total debe de ser 100% el total actual es: ' . $this->sumaTotalPesoGeneral . '%',
-                    'sumaTotalPesoGeneral.min' => 'El peso total debe de ser 100% el total actual es: ' . $this->sumaTotalPesoGeneral . '%',
+                    'sumaTotalPesoGeneral.max' => 'El peso total debe de ser 100% el total actual es: '.$this->sumaTotalPesoGeneral.'%',
+                    'sumaTotalPesoGeneral.min' => 'El peso total debe de ser 100% el total actual es: '.$this->sumaTotalPesoGeneral.'%',
                 ]);
             } elseif ($this->includeCompetencias == null && $this->includeObjetivos) {
                 $this->sumaTotalPesoGeneral = $this->pesoGeneralObjetivos;
@@ -297,8 +298,8 @@ class MultiStepForm extends Component
                     'pesoGeneralObjetivos' => 'required|numeric',
                     'sumaTotalPesoGeneral' => 'required|numeric|min:100|max:100',
                 ], [
-                    'sumaTotalPesoGeneral.max' => 'El peso total debe de ser 100% el total actual es: ' . $this->sumaTotalPesoGeneral . '%',
-                    'sumaTotalPesoGeneral.min' => 'El peso total debe de ser 100% el total actual es: ' . $this->sumaTotalPesoGeneral . '%',
+                    'sumaTotalPesoGeneral.max' => 'El peso total debe de ser 100% el total actual es: '.$this->sumaTotalPesoGeneral.'%',
+                    'sumaTotalPesoGeneral.min' => 'El peso total debe de ser 100% el total actual es: '.$this->sumaTotalPesoGeneral.'%',
                 ]);
             }
         }
@@ -403,8 +404,8 @@ class MultiStepForm extends Component
         $this->validate([
             'sumaTotalPeso' => 'numeric|max:100|min:100',
         ], [
-            'sumaTotalPeso.max' => 'El peso total debe de ser 100% el total actual es: ' . $this->sumaTotalPeso . '%',
-            'sumaTotalPeso.min' => 'El peso total debe de ser 100% el total actual es: ' . $this->sumaTotalPeso . '%',
+            'sumaTotalPeso.max' => 'El peso total debe de ser 100% el total actual es: '.$this->sumaTotalPeso.'%',
+            'sumaTotalPeso.min' => 'El peso total debe de ser 100% el total actual es: '.$this->sumaTotalPeso.'%',
         ]);
     }
 
@@ -437,7 +438,7 @@ class MultiStepForm extends Component
             // }
             $this->createEvaluation(
                 $idx,
-                $this->nombre . '-' . ($idx + 1),
+                $this->nombre.'-'.($idx + 1),
                 $this->descripcion,
                 $estatus,
                 $this->evaluados_objetivo,
@@ -469,7 +470,7 @@ class MultiStepForm extends Component
             'descripcion' => $descripcion,
             'estatus' => $estatus,
             'evaluados_objetivo' => $evaluados_objetivo,
-            'autor_id' => auth()->user()->empleado->id,
+            'autor_id' => User::getCurrentUser()->empleado->id,
             'autoevaluacion' => $autoevaluacion,
             'evaluado_por_jefe' => $evaluado_por_jefe,
             'evaluado_por_equipo_a_cargo' => $evaluado_por_equipo_a_cargo,
@@ -651,8 +652,8 @@ class MultiStepForm extends Component
                         $q->with(['competencia']);
                     }]);
                 }])->find($empleado->id);
-                $competencias = !is_null($competencias_por_puesto->puestoRelacionado) ? $competencias_por_puesto->puestoRelacionado->competencias : null;
-                if (!is_null($competencias)) {
+                $competencias = ! is_null($competencias_por_puesto->puestoRelacionado) ? $competencias_por_puesto->puestoRelacionado->competencias : null;
+                if (! is_null($competencias)) {
                     foreach ($competencias as $competencia) {
                         EvaluacionRepuesta::create([
                             'calificacion' => 0,
@@ -670,7 +671,7 @@ class MultiStepForm extends Component
         $evaluadores_objetivos = $evaluadores_objetivos->unique('id')->toArray();
         if ($includeObjetivos) {
             $objetivos = $empleado->objetivos;
-            if (!is_null($objetivos)) {
+            if (! is_null($objetivos)) {
                 foreach ($evaluadores_objetivos as $evaluador) {
                     foreach ($objetivos as $objetivo) {
                         $objvo = Objetivo::find($objetivo->objetivo_id);
@@ -703,8 +704,9 @@ class MultiStepForm extends Component
         foreach ($evaluadores as $evaluador) {
             $evaluados = EvaluadoEvaluador::where('evaluacion_id', $evaluacion->id)
                 ->where('evaluador_id', $evaluador)->pluck('evaluado_id')->unique()->toArray();
-            $evaluados = Empleado::find($evaluados);
-            $evaluador_model = Empleado::find($evaluador);
+            $empleados = Empleado::getAll();
+            $evaluados = $empleados->find($evaluados);
+            $evaluador_model = $empleados->find($evaluador);
             $this->enviarNotificacionAlEvaluador($evaluador_model->email, $evaluacion, $evaluador_model, $evaluados);
             if (env('APP_ENV') == 'local') { // solo funciona en desarrollo, es una muy mala práctica, es para que funcione con mailtrap y la limitación del plan gratuito
                 if (env('MAIL_HOST') == 'smtp.mailtrap.io') {
@@ -716,7 +718,7 @@ class MultiStepForm extends Component
 
     public function enviarNotificacionAlEvaluador($email, $evaluacion, $evaluador, $evaluados)
     {
-        Mail::to($email)->send(new NotificacionEvaluador($evaluacion, $evaluador, $evaluados));
+        Mail::to(removeUnicodeCharacters($email))->send(new NotificacionEvaluador($evaluacion, $evaluador, $evaluados));
     }
 
     public function obtenerEvaluadosConEvaluadores($evaluados_objetivo)

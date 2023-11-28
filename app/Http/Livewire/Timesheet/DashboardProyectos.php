@@ -38,7 +38,6 @@ class DashboardProyectos extends Component
         // $this->areas = Area::get();
         // $this->emp = Empleado::orderBy('name', 'ASC')->get();
         // $this->proy = TimesheetProyecto::orderBy('proyecto', 'ASC')->get();
-
     }
 
     public function updatedEstatus($value)
@@ -148,7 +147,6 @@ class DashboardProyectos extends Component
 
                     $this->datos_empleados = collect();
                     foreach ($empproyectos as $ep) {
-
                         $emphoras = TimesheetHoras::where('proyecto_id', $this->proy_id)
                             ->with('timesheet')
                             ->whereHas('timesheet', function ($query) use ($ep) {
@@ -187,7 +185,7 @@ class DashboardProyectos extends Component
                 $this->datos_dash = TimesheetProyecto::getAll($this->proy_id)->find($this->proy_id);
                 $area_individual = Area::find($this->area_id);
 
-                if (!isset($area_individual->area)) {
+                if (! isset($area_individual->area)) {
                     $area_individual = 'Sin definir';
                 } else {
                     $area_individual = $area_individual->area;
@@ -257,7 +255,6 @@ class DashboardProyectos extends Component
 
                 $this->datos_empleados = collect();
                 foreach ($empproyectos as $ep) {
-
                     $emphoras = TimesheetHoras::where('proyecto_id', $this->proy_id)
                         ->with('timesheet')
                         ->whereHas('timesheet', function ($query) use ($ep) {

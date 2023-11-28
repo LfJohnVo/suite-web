@@ -10,6 +10,7 @@ use App\Models\CartaAceptacionAprobacione;
 use App\Models\CartaAceptacionPivot;
 use App\Models\DeclaracionAplicabilidad;
 use App\Models\Empleado;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -185,6 +186,7 @@ class CartaAceptacionRiesgosController extends Controller
 
     public function show($cartaAceptacion)
     {
+        $user = User::getCurrentUser();
         // $controles =DeclaracionAplicabilidad::where('carta_id','=',$cartaAceptacion->id)->get();
         $cartaAceptacion = CartaAceptacion::with(['aprobaciones' => function ($query) {
             $query->with('empleado', 'aprobacionesActivo')->orderBy('nivel');
@@ -198,11 +200,11 @@ class CartaAceptacionRiesgosController extends Controller
         // dd($controles);
         $aprobadores = CartaAceptacionAprobacione::where('carta_id', $cartaAceptacion->id)->pluck('aprobador_id')->toArray();
         // dd($aprobadores);
-        $esAprobador = in_array(auth()->user()->empleado->id, $aprobadores);
-        $miAprobacion = $cartaAceptacion->aprobaciones->filter(function ($item) {
-            return $item->aprobador_id == auth()->user()->empleado->id;
+        $esAprobador = in_array($user->empleado->id, $aprobadores);
+        $miAprobacion = $cartaAceptacion->aprobaciones->filter(function ($item) use ($user) {
+            return $item->aprobador_id == $user->empleado->id;
         });
-        $route = 'storage/cartasAceptacion/firmas/' . preg_replace(['/\s+/i', '/-/i'], '_', $cartaAceptacion->id) . '/';
+        $route = 'storage/cartasAceptacion/firmas/'.preg_replace(['/\s+/i', '/-/i'], '_', $cartaAceptacion->id).'/';
         // dd($cartaAceptacion->aprobaciones);
         $aprobadores = $cartaAceptacion->aprobaciones;
 
@@ -225,7 +227,7 @@ class CartaAceptacionRiesgosController extends Controller
             'nivel' => 1,
         ]);
         $dueno = Empleado::select('id', 'name', 'email', 'genero', 'foto')->find($request->responsable_id);
-        Mail::to($dueno->email)->send(new CartaAceptacionEmail($dueno, $cartaAceptacion));
+        Mail::to(removeUnicodeCharacters($dueno->email))->send(new CartaAceptacionEmail($dueno, $cartaAceptacion));
 
         CartaAceptacionAprobacione::create([
             'autoridad' => 'Director Responsable del Riesgo',
@@ -258,20 +260,20 @@ class CartaAceptacionRiesgosController extends Controller
 
     public function aprobacionAutoridad(Request $request)
     {
-        // dd($request->all());
-        $cartaAceptacion = CartaAceptacionAprobacione::where('aprobador_id', auth()->user()->empleado->id)->where('autoridad', $request->autoridad)->first();
-        $existsFolderFirmasCartas = Storage::exists('public/cartasAceptacion/firmas/' . preg_replace(['/\s+/i', '/-/i'], '_', $cartaAceptacion->carta_id));
-        if (!$existsFolderFirmasCartas) {
-            Storage::makeDirectory('public/cartasAceptacion/firmas/' . preg_replace(['/\s+/i', '/-/i'], '_', $cartaAceptacion->carta_id));
+        $usuario = User::getCurrentUser();
+        $cartaAceptacion = CartaAceptacionAprobacione::where('aprobador_id', $usuario->empleado->id)->where('autoridad', $request->autoridad)->first();
+        $existsFolderFirmasCartas = Storage::exists('public/cartasAceptacion/firmas/'.preg_replace(['/\s+/i', '/-/i'], '_', $cartaAceptacion->carta_id));
+        if (! $existsFolderFirmasCartas) {
+            Storage::makeDirectory('public/cartasAceptacion/firmas/'.preg_replace(['/\s+/i', '/-/i'], '_', $cartaAceptacion->carta_id));
         }
 
         if (isset($request->firma)) {
             if (preg_match('/^data:image\/(\w+);base64,/', $request->firma)) {
                 $value = substr($request->firma, strpos($request->firma, ',') + 1);
                 $value = base64_decode($value);
-                $new_name_image = 'FirmaAutoridad' . $cartaAceptacion->carta_id . auth()->user()->empleado->id . time() . '.png';
+                $new_name_image = 'FirmaAutoridad'.$cartaAceptacion->carta_id.$usuario->empleado->id.time().'.png';
                 $image = $new_name_image;
-                $route = 'public/cartasAceptacion/firmas/' . preg_replace(['/\s+/i', '/-/i'], '_', $cartaAceptacion->carta_id) . '/' . $new_name_image;
+                $route = 'public/cartasAceptacion/firmas/'.preg_replace(['/\s+/i', '/-/i'], '_', $cartaAceptacion->carta_id).'/'.$new_name_image;
                 Storage::put($route, $value);
                 $cartaAceptacion->update([
                     'comentarios' => $request->comentarios,
@@ -286,7 +288,7 @@ class CartaAceptacionRiesgosController extends Controller
                 $activoId = $activo['id'];
                 ActivosInformacionAprobacione::create([
                     'aceptado' => $aceptado,
-                    'persona_califico_id' => auth()->user()->empleado->id,
+                    'persona_califico_id' => $usuario->empleado->id,
                     'activoInformacion_id' => $activoId,
                     'carta_aceptacion_aprobacion_id' => $cartaAceptacion->id,
                 ]);
@@ -306,7 +308,7 @@ class CartaAceptacionRiesgosController extends Controller
                 foreach ($aprobadores as $aprobador) {
                     foreach ($aprobador->aprobacionesActivo as $aprobacionActivo) {
                         if ($activo->id == $aprobacionActivo->activoInformacion_id) {
-                            if (!$aprobacionActivo->aceptado) {
+                            if (! $aprobacionActivo->aceptado) {
                                 array_push($activosRechazados, false);
                             }
                         }
@@ -315,13 +317,13 @@ class CartaAceptacionRiesgosController extends Controller
             }
 
             $rechazado = $cartaAceptacionModel->proceso->proceso->activosAI->count() == count($activosRechazados);
-            if (!$rechazado) {
+            if (! $rechazado) {
                 $siguienteNivel = $cartaAceptacion->nivel + 1;
                 $siguienteCarta = CartaAceptacionAprobacione::where('carta_id', $cartaAceptacion->carta_id)->where('nivel', $siguienteNivel)->first();
                 if ($siguienteCarta) {
                     $empleado = Empleado::select('id', 'name', 'email', 'genero', 'foto')->find($siguienteCarta->aprobador_id);
                     $carta = CartaAceptacion::find($cartaAceptacion->carta_id);
-                    Mail::to($empleado->email)->send(new CartaAceptacionEmail($empleado, $carta));
+                    Mail::to(removeUnicodeCharacters($empleado->email))->send(new CartaAceptacionEmail($empleado, $carta));
                 } else {
                     $cartaAceptacionModel->update([
                         'aceptado' => true,

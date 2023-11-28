@@ -19,8 +19,8 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 
 class EmpleadoImport implements ToModel, WithHeadingRow, WithValidation
 {
-    use Importable;
     use GeneratePassword;
+    use Importable;
 
     private $empleados;
 
@@ -41,7 +41,7 @@ class EmpleadoImport implements ToModel, WithHeadingRow, WithValidation
                 'area_id' => Area::select('id', 'area')->where('area', $row['area'])->first()->id,
                 'antiguedad' => $antiguedad,
                 'cumpleaños' => $birthday,
-                'email' => $row['correo'],
+                'email' => removeUnicodeCharacters($row['correo']),
                 'supervisor_id' => Empleado::select('id', 'name')->where('name', $row['jefe'])->first()->id,
                 'perfil_empleado_id' => PerfilEmpleado::select('id', 'nombre')->where('nombre', $row['jerarquia'])->first()->id,
                 'genero' => $row['sexo'],
@@ -99,7 +99,7 @@ class EmpleadoImport implements ToModel, WithHeadingRow, WithValidation
         $generatedPassword = $this->generatePassword();
         $user = User::create([
             'name' => $empleado->name,
-            'email' => $empleado->email,
+            'email' => removeUnicodeCharacters($empleado->email),
             'password' => $generatedPassword['hash'],
             // 'n_empleado' => $empleado->n_empleado,
             'empleado_id' => $empleado->id,
@@ -110,7 +110,7 @@ class EmpleadoImport implements ToModel, WithHeadingRow, WithValidation
             User::findOrFail($user->id)->roles()->sync(4);
         }
         //Send email with generated password
-        Mail::to($empleado->email)->send(new EnviarCorreoBienvenidaTabantaj($empleado, $generatedPassword['password']));
+        Mail::to(removeUnicodeCharacters($empleado->email))->send(new EnviarCorreoBienvenidaTabantaj($empleado, $generatedPassword['password']));
 
         return $user;
     }

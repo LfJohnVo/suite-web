@@ -37,16 +37,15 @@ class TimesheetHorasCreateCopia extends Component
         $this->tareas = $tareas;
         $this->origen = $origen;
         $this->timesheet_id = $timesheet_id;
-
-        $this->horas = TimesheetHoras::where('timesheet_id', $this->timesheet_id)->get();
-        $this->timesheet = Timesheet::find($this->timesheet_id);
     }
 
-    public function removerFila($id)
+    public function removerFila($id, $tr)
     {
         if ($id != null) {
             $this->horas_excluidas[] = $id;
             $this->horas = $this->horas->except($this->horas_excluidas);
+
+            $this->emit('removeTr', $tr);
         }
         $this->emit('calcularSumatoriasFacturables');
     }
@@ -58,6 +57,9 @@ class TimesheetHorasCreateCopia extends Component
 
     public function render()
     {
+        $this->horas = TimesheetHoras::getData()->where('timesheet_id', $this->timesheet_id);
+        $this->timesheet = Timesheet::getAll()->find($this->timesheet_id);
+
         return view('livewire.timesheet.timesheet-horas-create-copia');
     }
 }

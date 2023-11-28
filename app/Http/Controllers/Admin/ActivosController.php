@@ -146,7 +146,7 @@ class ActivosController extends Controller
 
         $ubicacions = Sede::getAll()->pluck('sede', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $empleados = Empleado::alta()->with('area')->get();
+        $empleados = Empleado::getAltaEmpleadosWithArea();
         $procesos = Proceso::with('macroproceso')->get();
 
         $area = Area::getAll();
@@ -232,7 +232,7 @@ class ActivosController extends Controller
 
         $ubicacions = Sede::getall()->pluck('sede', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $empleados = Empleado::alta()->with('area')->get();
+        $empleados = Empleado::getAltaEmpleadosWithArea();
 
         $procesos = Proceso::with('macroproceso')->get();
 
@@ -244,6 +244,7 @@ class ActivosController extends Controller
         $tipos = Tipoactivo::getAll();
         $categoriasSeleccionado = $activo->tipoactivo_id;
         $subcategoriaSeleccionado = $activo->subtipo_id;
+
         // dd($subcategoriaSeleccionado);
         return view('admin.activos.edit', compact('tipoactivos', 'subtipos', 'duenos', 'ubicacions', 'empleados', 'area', 'marcas', 'modelos', 'tipos', 'activo', 'procesos', 'categoriasSeleccionado', 'subcategoriaSeleccionado'));
     }
@@ -321,7 +322,7 @@ class ActivosController extends Controller
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $content_type = finfo_file($finfo, $src);
             finfo_close($finfo);
-            $file_name = basename($src) . PHP_EOL;
+            $file_name = basename($src).PHP_EOL;
             $size = filesize($src);
             header("Content_Type: $content_type");
             header("Content-Disposition: attachemt; filename=$file_name");
@@ -341,7 +342,7 @@ class ActivosController extends Controller
 
     public function DescargaFormato()
     {
-        if (!$this->downloadFile(storage_path('app/public/exportActivos/Responsiva.docx'))) {
+        if (! $this->downloadFile(storage_path('app/public/exportActivos/Responsiva.docx'))) {
             return redirect()->back();
         }
     }

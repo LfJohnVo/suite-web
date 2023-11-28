@@ -29,7 +29,6 @@ class TimesheetHorasSobrepasadas extends Mailable
         $this->proyecto = $proyecto;
         $this->tot_horas_proyecto = $tot_horas_proyecto;
         $this->horas_asignadas = $horas_asignadas;
-
     }
 
     /**

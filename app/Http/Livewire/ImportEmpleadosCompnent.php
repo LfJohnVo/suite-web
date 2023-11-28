@@ -10,8 +10,8 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ImportEmpleadosCompnent extends Component
 {
-    use WithFileUploads;
     use LivewireAlert;
+    use WithFileUploads;
 
     public $file;
 

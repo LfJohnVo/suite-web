@@ -19,7 +19,7 @@ class OrganigramaController extends Controller
     {
         abort_if(Gate::denies('organigrama_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         // La construccion del arbol necesita un primer nodo (NULL)
-        $organizacionTree = Empleado::exists();
+        $organizacionTree = Empleado::getExists();
         if ($request->ajax()) {
             if ($request->area_filter == 'true') {
                 $treeByArea = Area::with(['lider' => function ($query) {
@@ -57,8 +57,8 @@ class OrganigramaController extends Controller
         }
         $rutaImagenes = asset('storage/empleados/imagenes/');
         $organizacionDB = Organizacion::getFirst();
-        $organizacion = !is_null($organizacionDB) ? Organizacion::getFirst()->empresa : 'la organización';
-        $org_foto = !is_null($organizacionDB) ? url('images/' . DB::table('organizacions')->select('logotipo')->first()->logotipo) : url('img/Silent4Business-Logo-Color.png');
+        $organizacion = ! is_null($organizacionDB) ? Organizacion::getFirst()->empresa : 'la organización';
+        $org_foto = ! is_null($organizacionDB) ? url('images/'.DB::table('organizacions')->select('logotipo')->first()->logotipo) : url('img/Silent4Business-Logo-Color.png');
         $areas = Area::getAll();
 
         return view('admin.organigrama.index', compact('organizacionTree', 'rutaImagenes', 'organizacion', 'org_foto', 'areas'));

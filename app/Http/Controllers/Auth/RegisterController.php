@@ -69,7 +69,7 @@ class RegisterController extends Controller
     {
         $user = User::create([
             'name' => $data['name'],
-            'email' => $data['email'],
+            'email' => removeUnicodeCharacters($data['email']),
             'password' => Hash::make($data['password']),
             'team_id' => request()->input('team', null),
         ]);

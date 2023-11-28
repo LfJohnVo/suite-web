@@ -3,9 +3,7 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
@@ -14,10 +12,15 @@ class NotificacionNuevoProyecto extends Mailable
     use Queueable, SerializesModels;
 
     public $proyecto;
+
     public $identificador;
+
     public $cliente;
+
     public $empleado;
+
     public $id;
+
     /**
      * Create a new message instance.
      *
@@ -41,8 +44,6 @@ class NotificacionNuevoProyecto extends Mailable
     public function build()
     {
         return $this->view('mails.timesheet.timesheet_nuevo_proyecto')
-        ->subject('Creacion de Proyecto: '.$this->proyecto);
+            ->subject('Creacion de Proyecto: '.$this->proyecto);
     }
-
-
 }

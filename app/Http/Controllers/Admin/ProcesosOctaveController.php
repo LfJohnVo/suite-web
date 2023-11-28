@@ -65,6 +65,7 @@ class ProcesosOctaveController extends Controller
 
             return $table->make(true);
         }
+
         // dd($request->all());
         return view('admin.procesos-octave.index', compact('matriz'));
     }

@@ -14,6 +14,7 @@ use App\Models\RH\EvaluadoEvaluador;
 use App\Models\RH\Objetivo;
 use App\Models\RH\ObjetivoEmpleado;
 use App\Models\RH\ObjetivoRespuesta;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
@@ -28,10 +29,11 @@ class EV360ObjetivosController extends Controller
         abort_if(Gate::denies('objetivos_estrategicos_acceder'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         if ($request->ajax()) {
-            $empleados = Empleado::alta()->with(['objetivos', 'area', 'perfil'])->get();
-            $isAdmin = in_array('Admin', auth()->user()->roles->pluck('title')->toArray());
-            if (auth()->user()->empleado->children->count() > 0 && !$isAdmin) {
-                return datatables()->of(auth()->user()->empleado->children)->toJson();
+            $usuario = User::getCurrentUser();
+            $empleados = Empleado::getaltaAllWithAreaObjetivoPerfil();
+            $isAdmin = in_array('Admin', $usuario->roles->pluck('title')->toArray());
+            if ($usuario->empleado->children->count() > 0 && ! $isAdmin) {
+                return datatables()->of($usuario->empleado->children)->toJson();
             } elseif ($isAdmin) {
                 return datatables()->of($empleados)->toJson();
             } else {
@@ -41,7 +43,7 @@ class EV360ObjetivosController extends Controller
 
         $areas = Area::getAll();
         $puestos = Puesto::getAll();
-        $perfiles = PerfilEmpleado::select('id', 'nombre')->get();
+        $perfiles = PerfilEmpleado::getAll();
 
         return view('admin.recursos-humanos.evaluacion-360.objetivos.index', compact('areas', 'puestos', 'perfiles'));
     }
@@ -57,7 +59,7 @@ class EV360ObjetivosController extends Controller
     {
         abort_if(Gate::denies('objetivos_estrategicos_agregar'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $objetivo = new Objetivo;
-        $empleado = Empleado::find(intval($empleado));
+        $empleado = Empleado::getAll()->find(intval($empleado));
         $empleado->load(['objetivos' => function ($q) {
             $q->with(['objetivo' => function ($query) {
                 $query->with(['tipo', 'metrica']);
@@ -92,23 +94,24 @@ class EV360ObjetivosController extends Controller
         $empleado = Empleado::with('supervisor')->find(intval($empleado));
 
         if ($request->ajax()) {
-            if ($empleado->id == auth()->user()->empleado->id) {
+            $usuario = User::getCurrentUser();
+            if ($empleado->id == $usuario->empleado->id) {
                 //add esta_aprobado in $request
                 $request->merge(['esta_aprobado' => Objetivo::SIN_DEFINIR]);
             }
             $objetivo = Objetivo::create($request->all());
 
             //send email if who add is not supervisor
-            // if ($empleado->id == auth()->user()->empleado->id) {
+            // if ($empleado->id == $usuario->empleado->id) {
             //     if (!is_null($empleado->supervisor)) {
-            //         Mail::to($empleado->email)->send(new SolicitudAprobacionObjetivo($objetivo, $empleado));
+            //         Mail::to(removeUnicodeCharacters($empleado->email))->send(new SolicitudAprobacionObjetivo($objetivo, $empleado));
             //     }
             // }
             if ($request->hasFile('foto')) {
                 Storage::makeDirectory('public/objetivos/img'); //Crear si no existe
                 $extension = pathinfo($request->file('foto')->getClientOriginalName(), PATHINFO_EXTENSION);
-                $nombre_imagen = 'OBJETIVO_' . $objetivo->id . '_' . $objetivo->nombre . 'EMPLEADO_' . $empleado->id . '.' . $extension;
-                $route = storage_path() . '/app/public/objetivos/img/' . $nombre_imagen;
+                $nombre_imagen = 'OBJETIVO_'.$objetivo->id.'_'.$objetivo->nombre.'EMPLEADO_'.$empleado->id.'.'.$extension;
+                $route = storage_path().'/app/public/objetivos/img/'.$nombre_imagen;
                 //Usamos image_intervention para disminuir el peso de la imagen
                 $img_intervention = Image::make($request->file('foto'));
                 $img_intervention->resize(720, null, function ($constraint) {
@@ -236,7 +239,7 @@ class EV360ObjetivosController extends Controller
     public function editByEmpleado(Request $request, $empleado, $objetivo)
     {
         $objetivo = Objetivo::find(intval($objetivo))->load(['tipo', 'metrica']);
-        $empleado = Empleado::find(intval($empleado));
+        $empleado = Empleado::getAll()->find(intval($empleado));
         $empleado->load(['objetivos' => function ($q) {
             $q->with(['objetivo' => function ($query) {
                 $query->with(['tipo', 'metrica']);
@@ -299,8 +302,8 @@ class EV360ObjetivosController extends Controller
         if ($request->hasFile('foto')) {
             Storage::makeDirectory('public/objetivos/img'); //Crear si no existe
             $extension = pathinfo($request->file('foto')->getClientOriginalName(), PATHINFO_EXTENSION);
-            $nombre_imagen = 'OBJETIVO_' . $objetivo->id . '_' . $objetivo->nombre . 'EMPLEADO_' . $objetivo->empleado_id . '.' . $extension;
-            $route = storage_path() . '/app/public/objetivos/img/' . $nombre_imagen;
+            $nombre_imagen = 'OBJETIVO_'.$objetivo->id.'_'.$objetivo->nombre.'EMPLEADO_'.$objetivo->empleado_id.'.'.$extension;
+            $route = storage_path().'/app/public/objetivos/img/'.$nombre_imagen;
             //Usamos image_intervention para disminuir el peso de la imagen
             $img_intervention = Image::make($request->file('foto'));
             $img_intervention->resize(720, null, function ($constraint) {
@@ -321,7 +324,7 @@ class EV360ObjetivosController extends Controller
     {
         abort_if(Gate::denies('objetivos_estrategicos_ver'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $objetivo = new Objetivo;
-        $empleado = Empleado::find(intval($empleado));
+        $empleado = Empleado::getAll()->find(intval($empleado));
         $empleado->load(['objetivos' => function ($q) {
             $q->with(['objetivo' => function ($query) {
                 $query->with(['tipo', 'metrica']);

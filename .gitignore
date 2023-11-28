@@ -5,6 +5,7 @@
 /storage/app/public/BIA/signatures/
 /storage/app/public/tratamiento/firmas/
 /storage/app/public/FilesRevisionDireccion
+/storage/app/cursos/
 /vendor
 .idea
 # /public/css/app.css
@@ -20,32 +21,13 @@ npm-debug.log
 yarn-error.log
 bootstrap/cache/config.php
 composer.lock
-
-composer.lock
-
-npm-debug.log
-yarn-error.log
 bootstrap/cache/
 storage/debugbar/
-storage/app/public/gantt/
 .php-cs-fixer.cache
-
 storage/logs/laravel.log
-
 *.cache
-
-infra/postgres/
-infra/postgres/*
-infra/postgres/data/
-infra/postgres/data/*
-/infra/mysql/*
-/infra/mysql
 /storage/app/public/users-avatar/*
 /storage/app/public/*
-# MySQL infra files
-/infra/mysql/data/
-/infra/mysql/data/*
-
 storage/app/public/activos/
 storage/app/livewire-tmp/
 storage/app/public/expedientes/
@@ -55,9 +37,6 @@ storage/app/public/evidencias_quejas_clientes_cerrado/
 storage/app/public/documentos_concientSgsi/
 storage/app/public/documentos_control_accesos/
 storage/app/public/documentos_material_sgsi/
-
-/infra/postgres/*
-/infra/postgres/data/*
 /respaldos/*
 /storage/app/public/Documentos\ en\ aprobacion/procedimientos/*
 /storage/app/public/Documentos\ en\ aprobacion/procesos/*
@@ -72,3 +51,14 @@ storage/app/public/documentos_material_sgsi/
 /storage/app/public/Documentos\ en\ aprobacion/procesos/P-SGI-018\ Gesti\303\263n\ de\ incidentes\ de\ seguridad\ V.2.pdf
 /storage/app/public/Documentos\*
 *.stat
+rr
+.rr.yaml
+/storage/app/backups/*
+/storage/app/Tabantaj/
+/storage/*.key
+package.json
+public/mix-manifest.json
+public/js/app.js
+/resources/views/layouts/navs
+storage/app/katbol-contratos-tmp/
+dump.sql
