@@ -45,16 +45,13 @@ RUN chmod +x /usr/local/bin/install-php-extensions && \
     intl \
     pdo_mysql \
     pdo_pgsql \
-    pcntl \
     soap \
     zip \
     apcu \
     opcache \
     sockets \
     sodium \
-    excimer \
-    pcntl \
-    posix
+    excimer
 
 # Enable phpredis extension
 #RUN echo "extension=redis.so" > /usr/local/etc/php/conf.d/docker-php-ext-redis.ini
