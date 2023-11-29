@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,7 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        Passport::ignoreRoutes();
     }
 
     /**
