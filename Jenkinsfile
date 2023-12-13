@@ -1,11 +1,19 @@
 pipeline {
     agent any
     stages {
-        stage('Install') {
+        stage('Declarative: Checkout SCM') {
+            steps {
+                checkout scm
+            }
+        }
+
+       stage('Install') {
             steps {
                 git branch: 'develop', url: 'https://gitlab.com/silent4business/tabantaj.git'
             }
         }
+
+
 
         stage('Build') {
             steps {
@@ -25,20 +33,21 @@ pipeline {
         }
 
 
-        stage('Clean Workspace') {
-            steps {
-                deleteDir()
-            }
-        }
-
-
         stage('Deploy via SSH') {
             steps {
                 script {
                     sshagent(['/root/.ssh/id_rsa.pub']) {
-                        // Assuming your Jenkins workspace contains the checked-out code
                         sh 'scp -r $WORKSPACE/* desarrollo@192.168.9.78:/var/contenedor/tabantaj/'
                     }
+                }
+            }
+        }
+
+
+        stage('Jenkis2 - Stage 1') {
+            steps {
+                script {
+                    load 'Jenkinsfilev1'
                 }
             }
         }
