@@ -28,8 +28,8 @@
                     </div>
 
                 <div class="text-right form-group col-12">
-                    <button class="btn" type="submit">
-                        Agregar integrantes al comite +
+                    <button class="btn" type="submit" style="color: #057BE2">
+                        <u> Agregar integrantes al comite +</u>
                     </button>
                 </div>
             </form>
