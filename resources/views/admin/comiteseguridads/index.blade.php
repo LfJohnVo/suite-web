@@ -368,13 +368,20 @@
                                         // Modal con las imágenes adicionales
                                         html += `
                                                 <div class="modal fade" id="miembrosModal" tabindex="-1" role="dialog" aria-labelledby="miembrosModalLabel" aria-hidden="true">
+                                                    <br>
+                                                    <br>
+                                                    <br>
+                                                    <br>
+                                                    <br>
+                                                    <br>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px; color: #ffffff; position: relative; right: 24rem; top: -10px;">
+                                                        <span aria-hidden="true" class="fas fa-times"></span>
+                                                    </button>
+                                                    <br>
                                                     <div class="modal-dialog modal-dialog-scrollable" role="document">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
                                                                 <h5  class="modal-title" id="miembrosModalLabel"  style="position:relative; left:170px;">Participantes</h5>
-                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
                                                         </div>
                                                             <div class="modal-body" style="text-align: center; display: flex; flex-wrap: nowrap; justify-content: center; overflow-x: auto;">
                                             `;
